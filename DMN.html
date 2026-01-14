@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADHD 邮件任务模拟</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+      background: #f3f4f6;
+      overflow: hidden;
+    }
+    .center-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .task-card {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 600px;
+      text-align: center;
+      z-index: 10;
+      position: relative;
+    }
+    .task-card textarea {
+      width: 100%;
+      height: 160px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      resize: none;
+      font-size: 16px;
+    }
+    .barrage {
+      position: absolute;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(4px);
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-weight: 500;
+      pointer-events: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      white-space: nowrap;
+    }
+    .meme-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 50;
+    }
+    .meme-container {
+      position: relative;
+    }
+    .meme-container img {
+      width: 80vw;
+      height: 70vh;
+      object-fit: contain;
+    }
+    .close-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      transform: translate(50%, -50%);
+      font-size: 48px;
+      color: white;
+      cursor: pointer;
+      user-select: none;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .close-btn:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="center-container" id="page">
+    <!-- 中央任务卡片 -->
+    <div class="task-card" id="taskCard">
+      <h1>请在 2 分钟内写一封邮件，解释周报迟交的原因</h1>
+      <p style="color:#6b7280; font-size:14px; margin-bottom:12px;">
+        要求：语义清晰，无错别字
+      </p>
+      <span style="color:#9ca3af; font-size:14px; display:block; margin-bottom:12px;">
+        剩余时间：<span id="timer">120</span>s
+      </span>
+      <textarea id="content" placeholder="尊敬的领导，关于本周周报迟交的原因……"></textarea>
+    </div>
+  </div>
+
+  <!-- GIF 劫持 -->
+  <div class="meme-overlay" id="memeOverlay" style="display:none;">
+    <div class="meme-container">
+      <span class="close-btn" id="closeBtn">×</span>
+      <img src="video/meme.gif" alt="attention hijack" />
+    </div>
+  </div>
+
+  <script>
+    const NOISE_TEXTS = [
+      { text: "我是不是能力有问题？", weight: "heavy" },
+      { text: "他们肯定觉得我不靠谱。", weight: "heavy" },
+      { text: "为什么别人都能做到？", weight: "heavy" },
+      { text: "再解释也没用了吧。", weight: "medium" },
+      { text: "是不是该换个工作？", weight: "medium" },
+      { text: "领导会不会已经不耐烦了。", weight: "medium" },
+      { text: "等下中午吃什么？", weight: "light" },
+      { text: "煎饼果子要不要加蛋？", weight: "light" },
+      { text: "刚刚那句话是不是很蠢？", weight: "light" },
+      { text: "手机是不是该充电了？", weight: "light" },
+      { text: "刚刚外面是不是有声音？", weight: "light" },
+    ];
+    const TRIGGER_WORDS = ["错误", "抱歉", "不好意思", "来不及", "拖延"];
+
+    const page = document.getElementById('page');
+    const contentEl = document.getElementById('content');
+    const timerEl = document.getElementById('timer');
+    const memeOverlay = document.getElementById('memeOverlay');
+    const closeBtn = document.getElementById('closeBtn');
+
+    let timeLeft = 120;
+    let typingCount = 0;
+    let closeCount = 0;
+
+    // 倒计时
+    setInterval(() => {
+      if(timeLeft>0) {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+      }
+    },1000);
+
+    function spawnBarrage() {
+      const item = NOISE_TEXTS[Math.floor(Math.random()*NOISE_TEXTS.length)];
+      const div = document.createElement('div');
+      div.className = 'barrage';
+      div.textContent = item.text;
+      let fontSize = 14;
+      if(item.weight==='medium') fontSize=18;
+      if(item.weight==='heavy') fontSize=24;
+      div.style.fontSize = fontSize + 'px';
+      const rect = page.getBoundingClientRect();
+      div.style.top = Math.random()*(rect.height-40)+'px';
+      div.style.left = Math.random()*(rect.width-260)+'px';
+      div.style.transform = `rotate(${(Math.random()-0.5)*8}deg)`;
+      div.style.opacity = item.weight==='heavy'?0.95:0.75;
+      page.appendChild(div);
+      // 3秒后消失
+      setTimeout(()=> page.removeChild(div), 3000);
+    }
+
+    contentEl.addEventListener('input',()=>{
+      const value = contentEl.value;
+      if(TRIGGER_WORDS.some(word=>value.includes(word))){
+        spawnBarrage();
+        if(Math.random()>0.6) spawnBarrage();
+      }
+      typingCount++;
+      if(typingCount>=40){
+        memeOverlay.style.display = 'flex';
+        contentEl.disabled = true;
+      }
+    });
+
+    closeBtn.addEventListener('click', ()=>{
+      closeCount++;
+      if(closeCount>=10){
+        memeOverlay.style.display = 'none';
+        closeCount = 0;
+        contentEl.disabled = false;
+        contentEl.value = "煎饼果子加薄脆";
+        typingCount = 0;
+      }
+    });
+  </script>
+</body>
+</html>
