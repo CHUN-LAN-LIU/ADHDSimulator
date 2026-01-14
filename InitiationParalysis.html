@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务启动困难 - 重力井与排斥场</title>
+    <style>
+        /* 基础布局 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background: #f0f0f0;
+            overflow: hidden; 
+            height: 100vh;
+            position: relative;
+            cursor: default; /* 默认使用系统光标 */
+        }
+        /* 自定义阻力光标 */
+        .custom-cursor {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #666;
+            pointer-events: none; /* 不阻挡点击事件 */
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            display: none; /* 初始隐藏，只在锁定后显示 */
+        }
+        /* 鼠标锁定状态时的光标样式 */
+        body.pointer-locked {
+            cursor: none !important;
+        }
+        body.pointer-locked .custom-cursor {
+            display: block;
+        }
+        /* 核心工作区：圆形重力井 */
+        .gravity-well {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: 
+                radial-gradient(
+                    circle at center,
+                    rgba(200, 200, 255, 0.1) 0%,
+                    rgba(150, 150, 255, 0.05) 30%,
+                    rgba(100, 100, 255, 0.02) 60%,
+                    transparent 70%
+                );
+        }
+        /* 任务按钮 - 59px大小 */
+        .task-button-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 59px;
+            height: 59px;
+            border-radius: 50%;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .task-btn {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: 
+                radial-gradient(
+                    circle at center,
+                    #333 0%,
+                    #222 100%
+                );
+            color: #fff;
+            border: none;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s ease, background 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 
+                0 0 15px rgba(0, 0, 0, 0.6),
+                inset 0 0 8px rgba(255, 255, 255, 0.15);
+            z-index: 2;
+        }
+        .task-btn:hover {
+            transform: scale(1.05);
+        }
+        .task-btn::before {
+            content: '';
+            position: absolute;
+            width: 70%;
+            height: 70%;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle at center,
+                rgba(255, 255, 255, 0.25) 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 70%
+            );
+            pointer-events: none;
+        }
+        .task-btn-text {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 8px;
+        }
+        .task-btn-title {
+            font-size: 14px;
+            margin-bottom: 2px;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+            white-space: nowrap;
+        }
+        .task-btn-subtitle {
+            font-size: 8px;
+            color: #ccc;
+            white-space: nowrap;
+        }
+        /* 按钮周围的高阻力光环 */
+        .button-halo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle at center,
+                rgba(255, 100, 100, 0.25) 0%,
+                rgba(255, 100, 100, 0.15) 30%,
+                transparent 70%
+            );
+            pointer-events: none;
+            z-index: 3;
+            animation: halo-pulse 1.5s infinite alternate;
+        }
+        @keyframes halo-pulse {
+            0% { opacity: 0.15; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1.1); }
+        }
+        /* 边缘娱乐区：GIF容器 - 增强广告效果 */
+        .entertainment-zones {
+            position: absolute;
+            width: 180px;
+            height: 220px;
+            border-radius: 12px;
+            overflow: hidden;
+            z-index: 10;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            border: 3px solid #FF9800;
+            animation: ad-pulse 2s infinite;
+        }
+        @keyframes ad-pulse {
+            0%, 100% { 
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 8px 35px rgba(255, 152, 0, 0.6);
+                transform: scale(1.02);
+            }
+        }
+        .zone-1 {
+            top: 40px;
+            left: 40px;
+        }
+        .zone-2 {
+            bottom: 40px;
+            right: 40px;
+        }
+        .entertainment-gif {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #333; /* 添加背景色以防图片加载失败 */
+        }
+        /* 广告标签 */
+        .ad-label {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #FF9800;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 11;
+            box-shadow: 0 3px 10px rgba(255, 152, 0, 0.5);
+        }
+        .zone-1 .ad-label {
+            background: #2196F3;
+            box-shadow: 0 3px 10px rgba(33, 150, 243, 0.5);
+        }
+        .zone-2 .ad-label {
+            background: #E91E63;
+            box-shadow: 0 3px 10px rgba(233, 30, 99, 0.5);
+        }
+        /* 能量条 - 加长版本 */
+        .energy-bar {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1000px;
+            height: 30px;
+            background: #eee;
+            border-radius: 15px;
+            overflow: hidden;
+            display: block;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border: 3px solid #ddd;
+        }
+        .energy-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, 
+                #4CAF50 0%, 
+                #8BC34A 25%, 
+                #FFC107 50%, 
+                #FF9800 75%, 
+                #F44336 100%);
+            transition: width 0.05s linear;
+            position: relative;
+        }
+        .energy-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255,255,255,0.4), 
+                transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        /* 能量数值显示 */
+        .energy-value {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            background: rgba(255,255,255,0.9);
+            padding: 8px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        /* 诊断图层 */
+        .diagnosis-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px;
+            z-index: 999;
+            filter: grayscale(1);
+            background-image: linear-gradient(transparent 50%, rgba(255,0,0,0.2) 50%);
+            background-size: 100% 4px;
+            animation: scanline 0.1s linear infinite;
+        }
+        @keyframes scanline {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 10px; }
+        }
+        .diagnosis-content {
+            max-width: 800px;
+            line-height: 1.8;
+        }
+        /* 听觉反馈提示 */
+        .audio-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #666;
+            font-size: 14px;
+        }
+        /* 鼠标锁定提示 */
+        .lock-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #333;
+            font-size: 18px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.8);
+            padding: 20px 40px;
+            border-radius: 8px;
+            transition: opacity 0.3s ease;
+            text-align: center;
+        }
+        .lock-hint.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        /* 声音控制按钮 */
+        .audio-control {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .audio-control:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+        /* 计时器显示 */
+        .timer-display {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            background: rgba(255,255,255,0.8);
+            padding: 8px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        /* 阻力指示器 */
+        .resistance-indicator {
+            position: absolute;
+            top: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: #666;
+            background: rgba(255,255,255,0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        /* 按钮提示 - 网页下方（简化版） */
+        .button-instruction {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            color: #333;
+            text-align: center;
+            z-index: 100;
+        }
+        /* 微小按钮寻找提示 */
+        .find-button-hint {
+            position: absolute;
+            top: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #999;
+            background: rgba(255,255,255,0.6);
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-style: italic;
+        }
+        /* 分心倒计时提示 - 改为1秒 */
+        .distraction-timer {
+            position: absolute;
+            top: 180px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #FF9800;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- 声音控制按钮 -->
+    <button class="audio-control" id="audioControl">🔊 开启声音</button>
+    
+    <!-- 自定义阻力光标 -->
+    <div class="custom-cursor" id="customCursor"></div>
+    <!-- 鼠标锁定提示 -->
+    <div class="lock-hint" id="lockHint">点击页面开始体验，按Esc退出体验</div>
+
+    <!-- 核心工作区 -->
+    <div class="gravity-well" id="gravityWell">
+        <!-- 按钮周围的光环 -->
+        <div class="button-halo" id="buttonHalo"></div>
+        
+        <!-- 任务按钮 -->
+        <div class="task-button-container" id="taskButtonContainer">
+            <button class="task-btn" id="taskBtn">
+                <div class="task-btn-text">
+                    <div class="task-btn-title">开始工作</div>
+                    <div class="task-btn-subtitle">季度报告</div>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <!-- 边缘娱乐区/广告区 -->
+    <div class="entertainment-zones zone-1" id="zone1">
+        <div class="ad-label">搞笑视频</div>
+        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHF4OWV2bTV2Mnd0OW96a2w4aGJmOWE4OWY2bWg4N2U1YzA1ZiZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PWc/JIX9t2j0ZTN9S/giphy.gif" alt="猫咪促销" class="entertainment-gif">
+    </div>
+    <div class="entertainment-zones zone-2" id="zone2">
+        <div class="ad-label">团购促销</div>
+        <img src="https://picsum.photos/181/221?random=2" alt="热门游戏" class="entertainment-gif">
+    </div>
+
+    <!-- 能量条 -->
+    <div class="energy-bar" id="energyBar">
+        <div class="energy-fill" id="energyFill"></div>
+    </div>
+    
+    <!-- 能量数值显示 -->
+    <div class="energy-value" id="energyValue">100%</div>
+    
+    <!-- 计时器显示 -->
+    <div class="timer-display" id="timerDisplay">尝试时间: 0.0秒</div>
+    
+    <!-- 阻力指示器 -->
+    <div class="resistance-indicator" id="resistanceIndicator">当前阻力: 0%</div>
+    
+    <!-- 微小按钮寻找提示 -->
+    <div class="find-button-hint" id="findButtonHint"></div>
+    
+    <!-- 分心倒计时提示 -->
+    <div class="distraction-timer" id="distractionTimer">分心倒计时: 1.0秒</div>
+    
+    <!-- 按钮提示 - 网页下方（简化版） -->
+    <div class="button-instruction">按下按钮开始下一步</div>
+
+    <!-- 诊断图层 -->
+    <div class="diagnosis-overlay" id="diagnosisOverlay">
+        <div class="diagnosis-content">
+            <h2>神经病理学诊断：启动系统瘫痪（Initiation Paralysis）</h2>
+            <h3>【检测到意愿与行动断裂】</h3>
+            <p>为什么你点不到那个按钮？你刚才的体验，精准复刻了ADHD患者面对"枯燥任务"时的大脑风暴：</p>
+            <ol>
+                <li><strong>多巴胺赤字（Dopamine Deficit）</strong>：那个像胶水一样的迟滞感，模拟了大脑缺乏多巴胺的状态。多巴胺是行动的"燃料"，没有它，即使你想做，大脑的点火器也打不着火。</li>
+                <li><strong>前脑岛激活（Insula Activation）</strong>：当你靠近按钮时感受到的"斥力"和"焦虑"，是因为ADHD患者的大脑前脑岛区域过度激活。它将"写报告"这种无聊任务识别为"物理疼痛"，并下达了"撤退"的生理指令。</li>
+                <li><strong>意向性失效</strong>：你刚才是不是松了一口气，光标就飞出去了？这叫意向性失效。你的前额叶皮层无法维持持续的行动指令，注意力像水一样流向了阻力最小（最好玩）的地方。</li>
+            </ol>
+            <p><strong>结论</strong>：ADHD的拖延不是"我选择不做"，而是"我拼命踩油门，但引擎没有连接到轮子上"。</p>
+        </div>
+    </div>
+
+    <!-- 听觉反馈提示 -->
+    <div class="audio-hint">提示：开启声音体验耳鸣效果</div>
+
+    <script>
+        // 核心元素获取
+        const gravityWell = document.getElementById('gravityWell');
+        const taskBtn = document.getElementById('taskBtn');
+        const taskButtonContainer = document.getElementById('taskButtonContainer');
+        const buttonHalo = document.getElementById('buttonHalo');
+        const zone1 = document.getElementById('zone1');
+        const zone2 = document.getElementById('zone2');
+        const energyBar = document.getElementById('energyBar');
+        const energyFill = document.getElementById('energyFill');
+        const energyValue = document.getElementById('energyValue');
+        const diagnosisOverlay = document.getElementById('diagnosisOverlay');
+        const customCursor = document.getElementById('customCursor');
+        const lockHint = document.getElementById('lockHint');
+        const audioControl = document.getElementById('audioControl');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const resistanceIndicator = document.getElementById('resistanceIndicator');
+        const findButtonHint = document.getElementById('findButtonHint');
+        const distractionTimer = document.getElementById('distractionTimer');
+        const buttonInstruction = document.querySelector('.button-instruction');
+        const body = document.body;
+        
+        // ========== Web Audio API 音频系统 ==========
+        let audioContext;
+        let oscillator;
+        let gainNode;
+        let noiseGainNode;
+        let noiseNode;
+        let filterNode;
+        let isAudioEnabled = false;
+        let isPlaying = false;
+        
+        // 初始化音频上下文
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            // 创建低频振荡器（电流声基础）
+            oscillator = audioContext.createOscillator();
+            oscillator.type = 'sawtooth'; // 锯齿波产生类似电流的声音
+            oscillator.frequency.value = 60; // 60Hz低频，类似电流声
+            
+            // 创建白噪声源（用于耳鸣效果）
+            noiseNode = audioContext.createBufferSource();
+            const bufferSize = audioContext.sampleRate * 2;
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const output = buffer.getChannelData(0);
+            
+            // 填充白噪声
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+            
+            noiseNode.buffer = buffer;
+            noiseNode.loop = true;
+            
+            // 创建滤波器（模拟耳鸣的高频特性）
+            filterNode = audioContext.createBiquadFilter();
+            filterNode.type = 'bandpass';
+            filterNode.frequency.value = 8000; // 高频耳鸣
+            filterNode.Q.value = 1;
+            
+            // 创建增益节点控制音量
+            gainNode = audioContext.createGain();
+            gainNode.gain.value = 0; // 初始音量为0
+            
+            // 创建噪声增益节点
+            noiseGainNode = audioContext.createGain();
+            noiseGainNode.gain.value = 0;
+            
+            // 连接节点
+            oscillator.connect(gainNode);
+            noiseNode.connect(filterNode);
+            filterNode.connect(noiseGainNode);
+            gainNode.connect(audioContext.destination);
+            noiseGainNode.connect(audioContext.destination);
+            
+            // 启动振荡器和噪声
+            oscillator.start();
+            noiseNode.start();
+            
+            isAudioEnabled = true;
+            audioControl.textContent = "🔊 关闭声音";
+        }
+        
+        // 播放电流声
+        function playCurrentSound(intensity = 0.3) {
+            if (!isAudioEnabled || !audioContext || audioContext.state === 'suspended') {
+                return;
+            }
+            
+            // 根据强度调整声音参数
+            const baseFreq = 60 + (intensity * 40); // 频率随强度变化
+            const volume = Math.min(0.5, intensity * 0.8); // 音量随强度变化
+            const noiseVolume = Math.min(0.2, intensity * 0.3); // 噪声音量
+            
+            // 使用指数变化使过渡更平滑
+            oscillator.frequency.exponentialRampToValueAtTime(
+                baseFreq, 
+                audioContext.currentTime + 0.1
+            );
+            
+            gainNode.gain.exponentialRampToValueAtTime(
+                volume, 
+                audioContext.currentTime + 0.1
+            );
+            
+            noiseGainNode.gain.exponentialRampToValueAtTime(
+                noiseVolume, 
+                audioContext.currentTime + 0.1
+            );
+            
+            // 随机调制滤波器频率模拟耳鸣变化
+            filterNode.frequency.setValueAtTime(
+                7000 + Math.random() * 2000, 
+                audioContext.currentTime
+            );
+            
+            isPlaying = true;
+        }
+        
+        // 停止电流声
+        function stopCurrentSound() {
+            if (!isAudioEnabled || !audioContext) return;
+            
+            // 平滑淡出
+            gainNode.gain.exponentialRampToValueAtTime(
+                0.001, 
+                audioContext.currentTime + 0.5
+            );
+            
+            noiseGainNode.gain.exponentialRampToValueAtTime(
+                0.001, 
+                audioContext.currentTime + 0.5
+            );
+            
+            isPlaying = false;
+        }
+        
+        // 切换音频状态
+        function toggleAudio() {
+            if (!isAudioEnabled) {
+                initAudio();
+                // 用户交互后恢复音频上下文
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+            } else {
+                if (audioContext) {
+                    audioContext.suspend();
+                    isAudioEnabled = false;
+                    audioControl.textContent = "🔇 开启声音";
+                }
+            }
+        }
+        
+        // 音频控制按钮事件
+        audioControl.addEventListener('click', () => {
+            toggleAudio();
+        });
+        
+        // 页面点击时初始化音频（遵循浏览器自动播放策略）
+        document.addEventListener('click', () => {
+            if (!audioContext && isAudioEnabled) {
+                initAudio();
+            }
+        });
+        
+        // ========== 状态变量 ==========
+        const GRAVITY_WELL_RADIUS = 200; // 重力井半径
+        const BUTTON_RADIUS = 29.5; // 按钮半径（59px直径的一半）
+        const HALO_RADIUS = 50; // 光环半径
+        const CORE_RADIUS = 80; // 核心阻力区域半径
+        const MIDDLE_RADIUS = 140; // 中等阻力区域半径
+        const OUTER_RADIUS = 190; // 外层阻力区域半径
+        const DISTRACTION_TIMEOUT = 1000; // 1秒分心倒计时
+        
+        let mousePos = { x: window.innerWidth/2, y: window.innerHeight/2 };
+        let isLocked = false;
+        let isNearButton = false;
+        let isInCoreZone = false;
+        let energy = 100;
+        let failCount = 0;
+        let isFrozen = false;
+        let isInsideGravityWell = false;
+        let startTime = 0;
+        let attemptTimer = 0;
+        let timerInterval = null;
+        let energyDepletionStartTime = 0;
+        let timeNearButton = 0;
+        let currentResistance = 0;
+        let buttonFound = false;
+        
+        // 分心倒计时相关变量
+        let lastMouseMoveTime = 0;
+        let distractionTimerInterval = null;
+        let distractionCountdown = 1.0; // 1.0秒
+        let isDistractionActive = false;
+
+        // 重力井中心位置计算
+        const gravityWellRect = gravityWell.getBoundingClientRect();
+        const gravityWellCenter = {
+            x: gravityWellRect.left + gravityWellRect.width / 2,
+            y: gravityWellRect.top + gravityWellRect.height / 2
+        };
+
+        // 获取广告区域位置
+        const zone1Rect = zone1.getBoundingClientRect();
+        const zone2Rect = zone2.getBoundingClientRect();
+        const zone1Center = {
+            x: zone1Rect.left + zone1Rect.width / 2,
+            y: zone1Rect.top + zone1Rect.height / 2
+        };
+        const zone2Center = {
+            x: zone2Rect.left + zone2Rect.width / 2,
+            y: zone2Rect.top + zone2Rect.height / 2
+        };
+
+        // ========== 计时器功能 ==========
+        function startTimer() {
+            startTime = Date.now();
+            energyDepletionStartTime = 0;
+            timeNearButton = 0;
+            lastMouseMoveTime = Date.now(); // 初始化最后移动时间
+            
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                attemptTimer = (Date.now() - startTime) / 1000;
+                timerDisplay.textContent = `尝试时间: ${attemptTimer.toFixed(1)}秒`;
+                
+                // 更新阻力指示器
+                resistanceIndicator.textContent = `当前阻力: ${Math.round(currentResistance * 100)}%`;
+                if (currentResistance > 0.9) {
+                    resistanceIndicator.style.color = '#F44336';
+                    resistanceIndicator.style.fontWeight = 'bold';
+                } else if (currentResistance > 0.6) {
+                    resistanceIndicator.style.color = '#FF9800';
+                } else {
+                    resistanceIndicator.style.color = '#666';
+                }
+                
+                // 更新寻找按钮提示 - 修改为更简洁的提示
+                if (buttonFound) {
+                    findButtonHint.textContent = "已找到按钮！保持稳定点击...";
+                    findButtonHint.style.color = "#4CAF50";
+                    findButtonHint.style.fontWeight = "bold";
+                } else if (isNearButton) {
+                    findButtonHint.textContent = "接近按钮中...保持稳定";
+                    findButtonHint.style.color = "#FF9800";
+                } else {
+                    findButtonHint.textContent = ""; // 清空提示
+                }
+            }, 100);
+            
+            // 启动分心倒计时检测
+            startDistractionDetection();
+        }
+        
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            stopDistractionDetection();
+        }
+
+        // ========== 分心倒计时功能 ==========
+        function startDistractionDetection() {
+            if (distractionTimerInterval) clearInterval(distractionTimerInterval);
+            
+            distractionTimerInterval = setInterval(() => {
+                const currentTime = Date.now();
+                const timeSinceLastMove = currentTime - lastMouseMoveTime;
+                
+                // 计算剩余时间（1秒）
+                distractionCountdown = Math.max(0, (DISTRACTION_TIMEOUT - timeSinceLastMove) / 1000);
+                
+                // 更新倒计时显示 - 0.5秒后开始显示
+                if (timeSinceLastMove > 500) { // 0.5秒后开始显示
+                    distractionTimer.style.display = 'block';
+                    distractionTimer.textContent = `分心倒计时: ${distractionCountdown.toFixed(1)}秒`;
+                    
+                    // 颜色变化 - 调整时间阈值
+                    if (distractionCountdown < 0.3) { // 最后0.3秒变红
+                        distractionTimer.style.color = '#F44336';
+                        distractionTimer.style.background = 'rgba(255, 255, 255, 0.95)';
+                    } else if (distractionCountdown < 0.7) { // 0.3-0.7秒变黄
+                        distractionTimer.style.color = '#FF9800';
+                        distractionTimer.style.background = 'rgba(255, 255, 255, 0.9)';
+                    } else { // 0.7-1.0秒变绿
+                        distractionTimer.style.color = '#4CAF50';
+                        distractionTimer.style.background = 'rgba(255, 255, 255, 0.8)';
+                    }
+                } else {
+                    distractionTimer.style.display = 'none';
+                }
+                
+                // 如果1秒没有移动，触发分心
+                if (timeSinceLastMove >= DISTRACTION_TIMEOUT && !isDistractionActive && isLocked && !isFrozen) {
+                    triggerDistraction();
+                }
+            }, 50); // 加快检测频率到50ms
+        }
+        
+        function stopDistractionDetection() {
+            if (distractionTimerInterval) {
+                clearInterval(distractionTimerInterval);
+                distractionTimerInterval = null;
+            }
+            distractionTimer.style.display = 'none';
+        }
+        
+        function updateMouseMoveTime() {
+            lastMouseMoveTime = Date.now();
+            isDistractionActive = false;
+        }
+        
+        function triggerDistraction() {
+            isDistractionActive = true;
+            
+            // 随机选择一个广告区域
+            const randomZone = Math.random() > 0.5 ? zone1Center : zone2Center;
+            const targetX = randomZone.x;
+            const targetY = randomZone.y;
+            
+            // 播放分心音效 - 更急促的音效
+            if (isAudioEnabled && audioContext) {
+                const distractionSound = audioContext.createOscillator();
+                const distractionGain = audioContext.createGain();
+                
+                distractionSound.type = 'triangle';
+                distractionSound.frequency.setValueAtTime(400, audioContext.currentTime); // 更高频率
+                distractionSound.frequency.exponentialRampToValueAtTime(1000, audioContext.currentTime + 0.2); // 更快上升
+                
+                distractionGain.gain.setValueAtTime(0.3, audioContext.currentTime); // 更大音量
+                distractionGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3); // 更快淡出
+                
+                distractionSound.connect(distractionGain);
+                distractionGain.connect(audioContext.destination);
+                
+                distractionSound.start();
+                distractionSound.stop(audioContext.currentTime + 0.3);
+            }
+            
+            // 添加分心提示
+            const distractionHint = document.createElement('div');
+            distractionHint.textContent = "注意力快速分散！";
+            distractionHint.style.position = 'absolute';
+            distractionHint.style.top = '200px';
+            distractionHint.style.left = '50%';
+            distractionHint.style.transform = 'translateX(-50%)';
+            distractionHint.style.color = '#FF5722';
+            distractionHint.style.fontSize = '14px';
+            distractionHint.style.fontWeight = 'bold';
+            distractionHint.style.background = 'rgba(255, 255, 255, 0.95)';
+            distractionHint.style.padding = '8px 15px';
+            distractionHint.style.borderRadius = '8px';
+            distractionHint.style.zIndex = '1001';
+            distractionHint.style.boxShadow = '0 3px 15px rgba(255, 87, 34, 0.6)';
+            body.appendChild(distractionHint);
+            
+            // 快速移动到广告区域（更快）
+            const startX = mousePos.x;
+            const startY = mousePos.y;
+            
+            // 直接跳到广告位置（更突然）
+            mousePos.x = targetX;
+            mousePos.y = targetY;
+            customCursor.style.left = `${mousePos.x - 10}px`;
+            customCursor.style.top = `${mousePos.y - 10}px`;
+            
+            // 添加视觉反馈
+            customCursor.style.transform = 'scale(1.3)';
+            customCursor.style.background = '#FF5722';
+            
+            // 快速动画效果
+            setTimeout(() => {
+                customCursor.style.transform = 'scale(1)';
+                customCursor.style.background = '#666';
+                body.removeChild(distractionHint);
+                updateMouseMoveTime(); // 重置倒计时
+            }, 300); // 0.3秒后恢复
+            
+            // 临时增加广告区域的吸引力
+            const selectedZone = randomZone === zone1Center ? zone1 : zone2;
+            selectedZone.style.boxShadow = '0 8px 40px rgba(255, 87, 34, 0.9)';
+            selectedZone.style.transform = 'scale(1.15)';
+            selectedZone.style.borderColor = '#FF5722';
+            
+            setTimeout(() => {
+                selectedZone.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.4)';
+                selectedZone.style.transform = 'scale(1)';
+                selectedZone.style.borderColor = '#FF9800';
+            }, 800);
+        }
+
+        // ========== Pointer Lock API 核心逻辑 ==========
+        // 锁定鼠标
+        document.addEventListener('click', () => {
+            if (!isLocked) {
+                gravityWell.requestPointerLock = gravityWell.requestPointerLock || gravityWell.mozRequestPointerLock;
+                gravityWell.requestPointerLock();
+                body.classList.add('pointer-locked');
+                
+                // 首次点击时初始化音频
+                if (!audioContext && isAudioEnabled) {
+                    initAudio();
+                }
+                
+                // 开始计时
+                startTimer();
+            }
+        });
+
+        // 监听鼠标锁定状态变化
+        document.addEventListener('pointerlockchange', lockChangeHandler, false);
+        document.addEventListener('mozpointerlockchange', lockChangeHandler, false);
+
+        function lockChangeHandler() {
+            if (document.pointerLockElement === gravityWell || document.mozPointerLockElement === gravityWell) {
+                // 鼠标已锁定，监听相对移动事件
+                document.addEventListener('mousemove', handleMouseMove, false);
+                isLocked = true;
+                // 隐藏中间提示
+                lockHint.classList.add('hidden');
+            } else {
+                // 鼠标解锁，移除监听
+                document.removeEventListener('mousemove', handleMouseMove, false);
+                body.classList.remove('pointer-locked');
+                isLocked = false;
+                lockHint.classList.remove('hidden');
+                stopCurrentSound();
+                stopTimer();
+            }
+        }
+
+        // 处理鼠标相对移动：圆形阻力场计算
+        function handleMouseMove(e) {
+            if (isFrozen) return;
+            
+            // 更新最后移动时间
+            updateMouseMoveTime();
+
+            // 计算离重力井中心的距离
+            const distanceToCenter = Math.hypot(mousePos.x - gravityWellCenter.x, mousePos.y - gravityWellCenter.y);
+            
+            // 计算离按钮中心的距离
+            const distanceToButton = Math.hypot(mousePos.x - gravityWellCenter.x, mousePos.y - gravityWellCenter.y);
+            
+            // 判断是否在重力井内
+            isInsideGravityWell = distanceToCenter <= GRAVITY_WELL_RADIUS;
+            
+            // 判断是否接近按钮
+            isNearButton = distanceToButton <= HALO_RADIUS * 1.2;
+            
+            // 根据区域计算阻力（圆形梯度阻力）
+            let resistance = 0;
+            let zoneType = 'outside';
+            
+            if (distanceToCenter <= CORE_RADIUS) {
+                // 核心区域：最大阻力（几乎无法移动）
+                const normalized = distanceToCenter / CORE_RADIUS;
+                resistance = 0.96 - (normalized * 0.08); // 96-88%阻力
+                zoneType = 'core';
+                isInCoreZone = true;
+                
+                // 在核心区但接近按钮时增加视觉反馈
+                if (isNearButton) {
+                    buttonFound = true;
+                    // 按钮发光效果增强
+                    taskBtn.style.boxShadow = `0 0 25px rgba(255, 255, 100, 0.6), inset 0 0 12px rgba(255, 255, 255, 0.25)`;
+                    buttonHalo.style.opacity = '0.4';
+                }
+            } else if (distanceToCenter <= MIDDLE_RADIUS) {
+                // 中间区域：高阻力
+                const normalized = (distanceToCenter - CORE_RADIUS) / (MIDDLE_RADIUS - CORE_RADIUS);
+                resistance = 0.82 - (normalized * 0.32);
+                zoneType = 'middle';
+                isInCoreZone = false;
+            } else if (distanceToCenter <= OUTER_RADIUS) {
+                // 外层区域：中等阻力
+                const normalized = (distanceToCenter - MIDDLE_RADIUS) / (OUTER_RADIUS - MIDDLE_RADIUS);
+                resistance = 0.45 - (normalized * 0.25);
+                zoneType = 'outer';
+                isInCoreZone = false;
+            } else if (distanceToCenter <= GRAVITY_WELL_RADIUS) {
+                // 边缘区域：轻微阻力
+                const normalized = (distanceToCenter - OUTER_RADIUS) / (GRAVITY_WELL_RADIUS - OUTER_RADIUS);
+                resistance = 0.18 - (normalized * 0.13);
+                zoneType = 'edge';
+                isInCoreZone = false;
+            } else {
+                // 重力井外：无阻力
+                resistance = 0;
+                zoneType = 'outside';
+                isInCoreZone = false;
+            }
+            
+            currentResistance = resistance;
+            
+            // 应用阻力：鼠标实际移动距离 = 原始移动距离 × (1 - 阻力)
+            const moveX = e.movementX * (1 - resistance);
+            const moveY = e.movementY * (1 - resistance);
+
+            // 更新自定义光标位置
+            mousePos.x += moveX;
+            mousePos.y += moveY;
+            customCursor.style.left = `${mousePos.x - 10}px`;
+            customCursor.style.top = `${mousePos.y - 10}px`;
+
+            // 核心区域且接近按钮的判定
+            if (isInCoreZone && isNearButton) {
+                // 计算接近强度（基于距离按钮的比例）
+                const repulsionForce = 1 - (distanceToButton / (HALO_RADIUS * 1.2));
+                
+                // 记录开始消耗能量的时间
+                if (energyDepletionStartTime === 0) {
+                    energyDepletionStartTime = Date.now();
+                }
+                
+                // 累积在按钮附近的时间
+                timeNearButton += 0.016;
+                
+                // 播放Web Audio生成的电流声
+                if (isAudioEnabled) {
+                    playCurrentSound(repulsionForce);
+                }
+                
+                // 视觉反馈：光标变化
+                customCursor.style.transform = `scale(${1 + repulsionForce * 2.2})`;
+                customCursor.style.opacity = `${0.6 - repulsionForce * 0.3}`;
+                customCursor.style.background = `rgb(${Math.floor(200 - repulsionForce * 80)}, ${Math.floor(160 - repulsionForce * 80)}, ${Math.floor(120 - repulsionForce * 50)})`;
+                
+                // 增强的按钮抖动效果 - 幅度更大，方向更多
+                const shakeAmount = 60; // 从35增加到60，大幅增加抖动幅度
+                const xShake = (Math.random() - 0.5) * 2 * shakeAmount * repulsionForce; // 增加随机方向变化
+                const yShake = (Math.random() - 0.5) * 2 * shakeAmount * repulsionForce;
+                taskButtonContainer.style.transform = `translate(-50%, -50%) translate(${xShake}px, ${yShake}px)`;
+                
+                // 光环发光效果
+                buttonHalo.style.boxShadow = `0 0 ${12 + repulsionForce * 18}px rgba(255, 100, 100, ${0.3 + repulsionForce * 0.25})`;
+                
+                // 计算能量消耗
+                const timeInZone = (Date.now() - energyDepletionStartTime) / 1000;
+                const targetEnergy = Math.max(0, 100 - (timeInZone / 7) * 100); // 7秒耗尽
+                const energyDiff = energy - targetEnergy;
+                
+                if (energyDiff > 0) {
+                    reduceEnergy(energyDiff);
+                }
+                
+                // 增强的核心区域排斥力（向外推） - 添加更多方向的排斥
+                if (distanceToButton < BUTTON_RADIUS * 1.5) {
+                    const pushForce = 0.25 + repulsionForce * 0.35; // 增加排斥力
+                    const angleToCenter = Math.atan2(mousePos.y - gravityWellCenter.y, mousePos.x - gravityWellCenter.x);
+                    
+                    // 添加随机角度偏移，创造更多方向的排斥
+                    const randomAngleOffset = (Math.random() - 0.5) * 0.5; // 随机角度偏移
+                    const finalAngle = angleToCenter + randomAngleOffset;
+                    
+                    // 向外推 - 增加幅度
+                    mousePos.x += Math.cos(finalAngle) * pushForce * 35; // 从25增加到35
+                    mousePos.y += Math.sin(finalAngle) * pushForce * 35; // 从25增加到35
+                    
+                    // 添加额外的随机横向抖动
+                    mousePos.x += (Math.random() - 0.5) * pushForce * 15;
+                    mousePos.y += (Math.random() - 0.5) * pushForce * 15;
+                }
+                
+            } else {
+                // 重置能量消耗计时
+                energyDepletionStartTime = 0;
+                buttonFound = false;
+                
+                // 停止电流声
+                if (isAudioEnabled) {
+                    stopCurrentSound();
+                }
+                
+                // 恢复光标样式
+                customCursor.style.transform = 'scale(1)';
+                customCursor.style.opacity = '1';
+                customCursor.style.background = '#666';
+                taskButtonContainer.style.transform = 'translate(-50%, -50%)';
+                
+                // 恢复按钮样式
+                taskBtn.style.boxShadow = '0 0 15px rgba(0, 0, 0, 0.6), inset 0 0 8px rgba(255, 255, 255, 0.15)';
+                buttonHalo.style.boxShadow = 'none';
+                buttonHalo.style.opacity = '0.25';
+                
+                // 能量恢复（根据区域不同恢复速度不同）
+                let recoveryRate = 0.12; // 默认恢复速度
+                if (zoneType === 'core') recoveryRate = 0.03;
+                else if (zoneType === 'middle') recoveryRate = 0.06;
+                else if (zoneType === 'outer') recoveryRate = 0.09;
+                else if (zoneType === 'edge') recoveryRate = 0.15;
+                else if (zoneType === 'outside') recoveryRate = 0.18;
+                
+                restoreEnergy(recoveryRate);
+            }
+
+            // 能量耗尽判定 - 直接跳转到诊断页面
+            if (energy <= 0 && !isFrozen) {
+                isFrozen = true;
+                customCursor.style.background = '#f00';
+                
+                // 播放能量耗尽的特殊声音
+                if (isAudioEnabled && audioContext) {
+                    // 创建短暂的高频尖啸声
+                    const screamOscillator = audioContext.createOscillator();
+                    const screamGain = audioContext.createGain();
+                    
+                    screamOscillator.type = 'sine';
+                    screamOscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+                    screamOscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 1.5);
+                    
+                    screamGain.gain.setValueAtTime(0.5, audioContext.currentTime);
+                    screamGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
+                    
+                    screamOscillator.connect(screamGain);
+                    screamGain.connect(audioContext.destination);
+                    
+                    screamOscillator.start();
+                    screamOscillator.stop(audioContext.currentTime + 1.5);
+                }
+                
+                // 短暂延迟后显示诊断页面
+                setTimeout(() => {
+                    triggerDiagnosisOverlay();
+                }, 500);
+            }
+        }
+
+        // ========== 按钮点击判定 ==========
+        taskBtn.addEventListener('click', (e) => {
+            if (isInCoreZone && isNearButton) {
+                // 在核心区且接近按钮时点击 - 播放成功音效
+                if (isAudioEnabled && audioContext) {
+                    // 创建成功音效
+                    const successOscillator = audioContext.createOscillator();
+                    const successGain = audioContext.createGain();
+                    
+                    successOscillator.type = 'sine';
+                    successOscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+                    successOscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+                    successOscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+                    
+                    successGain.gain.setValueAtTime(0, audioContext.currentTime);
+                    successGain.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.05);
+                    successGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    successOscillator.connect(successGain);
+                    successGain.connect(audioContext.destination);
+                    
+                    successOscillator.start();
+                    successOscillator.stop(audioContext.currentTime + 0.5);
+                }
+                
+                // 计算实际在按钮附近的时间
+                const actualTimeNearButton = timeNearButton;
+                
+                // 成功点击按钮
+                const completionTime = attemptTimer;
+                alert(`成功！您突破了重重阻力！\n总耗时：${completionTime.toFixed(1)}秒\n稳定时间：${actualTimeNearButton.toFixed(1)}秒\n失败次数：${failCount}次\n\n您终于可以开始撰写季度报告了！`);
+                location.reload();
+            } else {
+                failCount++;
+                if (failCount >= 3) {
+                    // 3次失败后直接跳转到诊断页面
+                    triggerDiagnosisOverlay();
+                }
+            }
+        });
+
+        // ========== 能量条逻辑 ==========
+        function reduceEnergy(amount) {
+            energy = Math.max(0, energy - amount);
+            energyFill.style.width = `${energy}%`;
+            energyValue.textContent = `${Math.round(energy)}%`;
+            
+            // 根据能量值改变颜色
+            if (energy < 20) {
+                energyValue.style.color = '#F44336';
+                energyValue.style.fontWeight = 'bold';
+            } else if (energy < 50) {
+                energyValue.style.color = '#FF9800';
+                energyValue.style.fontWeight = 'normal';
+            } else {
+                energyValue.style.color = '#333';
+                energyValue.style.fontWeight = 'normal';
+            }
+        }
+
+        function restoreEnergy(amount) {
+            energy = Math.min(100, energy + amount);
+            energyFill.style.width = `${energy}%`;
+            energyValue.textContent = `${Math.round(energy)}%`;
+            
+            // 根据能量值改变颜色
+            if (energy < 20) {
+                energyValue.style.color = '#F44336';
+                energyValue.style.fontWeight = 'bold';
+            } else if (energy < 50) {
+                energyValue.style.color = '#FF9800';
+                energyValue.style.fontWeight = 'normal';
+            } else {
+                energyValue.style.color = '#333';
+                energyValue.style.fontWeight = 'normal';
+            }
+        }
+
+        // ========== 触发诊断图层 ==========
+        function triggerDiagnosisOverlay() {
+            isFrozen = true;
+            stopCurrentSound();
+            stopTimer();
+            diagnosisOverlay.style.display = 'flex';
+            // 隐藏中间提示 - 在诊断页面显示时隐藏锁屏提示
+            lockHint.style.display = 'none'; // 使用display:none而不是添加hidden类
+            // 解锁鼠标
+            document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
+            document.exitPointerLock();
+            
+            // 隐藏其他UI元素
+            energyBar.style.display = 'none';
+            energyValue.style.display = 'none';
+            timerDisplay.style.display = 'none';
+            resistanceIndicator.style.display = 'none';
+            findButtonHint.style.display = 'none';
+            distractionTimer.style.display = 'none';
+            buttonInstruction.style.display = 'none';
+            audioControl.style.display = 'none';
+            zone1.style.display = 'none';
+            zone2.style.display = 'none';
+        }
+
+        // 关闭诊断图层
+        diagnosisOverlay.addEventListener('click', () => {
+            diagnosisOverlay.style.display = 'none';
+            // 重新显示锁屏提示
+            lockHint.style.display = 'block'; // 重新显示锁屏提示
+            lockHint.classList.remove('hidden');
+            location.reload();
+        });
+
+        // ========== 初始化光标位置 ==========
+        function updateCursorPosition(e) {
+            if (!isLocked) {
+                mousePos.x = e.clientX;
+                mousePos.y = e.clientY;
+            }
+        }
+        
+        // 监听鼠标移动，更新光标位置
+        document.addEventListener('mousemove', updateCursorPosition);
+        
+        // 页面关闭时清理音频资源
+        window.addEventListener('beforeunload', () => {
+            if (audioContext) {
+                audioContext.close();
+            }
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            if (distractionTimerInterval) {
+                clearInterval(distractionTimerInterval);
+            }
+        });
+        
+        // 窗口调整大小时重新计算位置
+        window.addEventListener('resize', () => {
+            const newRect = gravityWell.getBoundingClientRect();
+            gravityWellCenter.x = newRect.left + newRect.width / 2;
+            gravityWellCenter.y = newRect.top + newRect.height / 2;
+            
+            const newZone1Rect = zone1.getBoundingClientRect();
+            const newZone2Rect = zone2.getBoundingClientRect();
+            zone1Center.x = newZone1Rect.left + newZone1Rect.width / 2;
+            zone1Center.y = newZone1Rect.top + newZone1Rect.height / 2;
+            zone2Center.x = newZone2Rect.left + newZone2Rect.width / 2;
+            zone2Center.y = newZone2Rect.top + newZone2Rect.height / 2;
+        });
+    </script>
+</body>
+</html>

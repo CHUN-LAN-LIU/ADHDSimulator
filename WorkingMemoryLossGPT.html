@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>工作记忆泄漏 · Working Memory Leakage</title>
+<style>
+    body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #0f1115;
+        color: #e5e7eb;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .container {
+        width: 720px;
+        background: #161a22;
+        border-radius: 12px;
+        padding: 32px;
+        box-shadow: 0 0 0 1px #2a2f3a;
+    }
+
+    h1 {
+        font-size: 20px;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .subtitle {
+        font-size: 13px;
+        color: #9ca3af;
+        margin-bottom: 24px;
+    }
+
+    .card-number {
+        font-size: 28px;
+        letter-spacing: 4px;
+        text-align: center;
+        padding: 20px;
+        border-radius: 8px;
+        background: #0b0e14;
+        margin-bottom: 20px;
+        transition: filter 0.2s, opacity 0.2s;
+    }
+
+    .blurred {
+        filter: blur(10px);
+        opacity: 0.3;
+    }
+
+    input {
+        width: 100%;
+        padding: 16px;
+        font-size: 20px;
+        letter-spacing: 3px;
+        border-radius: 8px;
+        border: none;
+        outline: none;
+        background: #0b0e14;
+        color: #e5e7eb;
+    }
+
+    .hint {
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 8px;
+    }
+
+    .fade {
+        animation: fadeOut 1.2s forwards;
+    }
+
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    .footer {
+        margin-top: 24px;
+        font-size: 13px;
+        color: #9ca3af;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .result {
+        margin-top: 24px;
+        padding: 16px;
+        background: #0b0e14;
+        border-radius: 8px;
+        display: none;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>填写银行转账信息</h1>
+    <div class="subtitle">
+        请将下方银行卡号准确输入到输入框中
+    </div>
+
+    <div id="card" class="card-number">
+        6214&nbsp;8890&nbsp;3471&nbsp;6029
+    </div>
+
+    <input
+        id="input"
+        type="text"
+        maxlength="19"
+        placeholder="请输入银行卡号"
+        autocomplete="off"
+    />
+
+    <div class="hint">
+        提示：为保证安全性，系统将自动清除中断输入
+    </div>
+
+    <div class="footer">
+        <div>已重置次数：<span id="resets">0</span></div>
+        <div>输入长度：<span id="length">0</span> / 16</div>
+    </div>
+
+    <div id="result" class="result"></div>
+</div>
+
+<script>
+    const card = document.getElementById("card");
+    const input = document.getElementById("input");
+    const resetsEl = document.getElementById("resets");
+    const lengthEl = document.getElementById("length");
+    const resultEl = document.getElementById("result");
+
+    let resets = 0;
+    let fadeTimer = null;
+    let decayTimer = null;
+
+    function resetInput(reason) {
+        if (input.value.length > 0) {
+            resets++;
+            resetsEl.textContent = resets;
+        }
+        input.value = "";
+        lengthEl.textContent = "0";
+        clearTimeout(decayTimer);
+    }
+
+    // 互斥视野：点击输入 → 卡号模糊
+    input.addEventListener("focus", () => {
+        card.classList.add("blurred");
+    });
+
+    // 看卡号 → 输入框清空
+    card.addEventListener("mouseenter", () => {
+        card.classList.remove("blurred");
+        resetInput("view");
+    });
+
+    // 输入衰减
+    input.addEventListener("input", () => {
+        lengthEl.textContent = input.value.replace(/\s/g, "").length;
+
+        clearTimeout(decayTimer);
+        decayTimer = setTimeout(() => {
+            input.classList.add("fade");
+            setTimeout(() => {
+                input.classList.remove("fade");
+                resetInput("decay");
+            }, 1200);
+        }, 1500);
+
+        // 完成
+        if (input.value.replace(/\s/g, "").length === 16) {
+            showResult();
+        }
+    });
+
+    function showResult() {
+        input.disabled = true;
+        card.classList.remove("blurred");
+
+        resultEl.style.display = "block";
+        resultEl.innerHTML = `
+            <strong>输入完成</strong><br><br>
+            为完成这 16 位数字：<br>
+            • 输入框被重置 <strong>${resets}</strong> 次<br><br>
+            <em>
+            普通用户可通过“4 位一组”在 4 次读取内完成。<br>
+            你被迫采用“看一个，输一个”的策略。
+            </em>
+            <br><br>
+            <strong>
+            执行行为本身，破坏了记忆。
+            </strong>
+        `;
+    }
+</script>
+
+</body>
+</html>

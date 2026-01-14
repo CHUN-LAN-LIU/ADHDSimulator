@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作记忆泄漏模拟器 (ADHD Simulator)</title>
+    <style>
+        :root {
+            --primary-color: #0052cc;
+            --error-color: #ff3b30;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #172b4d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        /* 模拟手机银行界面容器 */
+        .app-container {
+            width: 375px;
+            height: 700px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 顶部导航 */
+        .header {
+            padding: 20px;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 1px solid #eee;
+            background: #fff;
+            z-index: 10;
+        }
+
+        /* 核心区域：源数据 (Source) */
+        .source-section {
+            padding: 30px 20px;
+            background: #eef1f5;
+            cursor: pointer; /* 暗示这是可交互区域 */
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .source-label {
+            font-size: 12px;
+            color: #6b778c;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-number-display {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #091e42;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #dfe1e6;
+            text-align: center;
+            transition: filter 0.1s ease; /* 极速切换 */
+        }
+
+        /* 马赛克模糊效果 - 模拟无法通过余光看清 */
+        .mosaic-blur {
+            filter: blur(12px);
+            user-select: none;
+            opacity: 0.6;
+        }
+
+        /* 提示层 */
+        .blur-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            color: #666;
+            opacity: 0;
+            pointer-events: none;
+            font-weight: bold;
+        }
+        .mosaic-blur + .blur-hint {
+            opacity: 1;
+        }
+
+        /* 输入区域 (Target) */
+        .input-section {
+            padding: 40px 20px;
+            flex-grow: 1;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            font-size: 20px;
+            border: 2px solid #dfe1e6;
+            border-radius: 8px;
+            outline: none;
+            box-sizing: border-box;
+            letter-spacing: 3px;
+            transition: border-color 0.2s, opacity 0.5s; /* opacity 用于衰减动画 */
+        }
+
+        .input-field:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* 记忆衰减效果 */
+        .fading {
+            color: transparent;
+            text-shadow: 0 0 10px rgba(0,0,0,0.1); /* 变得模糊不可读 */
+            opacity: 0.2;
+        }
+
+        /* 错误反馈动画 (Shake) */
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            border-color: var(--error-color) !important;
+            background-color: #fff5f5;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        /* 统计面板 */
+        .stats-panel {
+            margin-top: 30px;
+            padding: 15px;
+            background: #fff0b3; /* 警示黄 */
+            border-radius: 8px;
+            font-size: 13px;
+            color: #172b4d;
+            line-height: 1.6;
+        }
+
+        .stat-highlight {
+            font-weight: bold;
+            color: var(--error-color);
+            font-size: 16px;
+        }
+
+        .memory-bar-container {
+            height: 4px;
+            background: #eee;
+            margin-top: 10px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .memory-bar {
+            height: 100%;
+            width: 100%;
+            background: #36b37e;
+            transform-origin: left;
+            transition: width 0.1s linear;
+        }
+
+        /* 按钮 */
+        .btn-submit {
+            margin-top: auto;
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .btn-submit.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="header">转账汇款</div>
+
+        <div class="source-section" id="sourceArea">
+            <div class="source-label">
+                <span>对方卡号</span>
+                <span>👀 看着这里以记忆</span>
+            </div>
+            <div class="card-number-display" id="sourceNumber">6222021009881234</div>
+            
+        </div>
+
+        <div class="input-section">
+            <div class="source-label">输入卡号</div>
+            <div class="input-group">
+                <input type="number" class="input-field" id="inputField" placeholder="在此输入卡号">
+                <div class="memory-bar-container">
+                    <div class="memory-bar" id="memoryBar"></div>
+                </div>
+            </div>
+
+            <div class="stats-panel">
+                <div>💥 记忆重置次数：<span class="stat-highlight" id="resetCount">0</span> 次</div>
+                <div>📉 当前记忆状态：<span id="memoryStatus">空闲</span></div>
+                <div style="margin-top:5px; font-size:11px; color:#666;">*只要重新查看上方卡号，输入框将立即清空。</div>
+            </div>
+            
+            <button class="btn-submit" id="submitBtn">确认转账</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 核心变量 ---
+        const TARGET_NUMBER = "6222021009881234";
+        let resetCounter = 0;
+        let decayTimer = null;
+        let isDecaying = false;
+        
+        // --- DOM 元素 ---
+        const sourceArea = document.getElementById('sourceArea');
+        const sourceNumber = document.getElementById('sourceNumber');
+        const inputField = document.getElementById('inputField');
+        const resetCountDisplay = document.getElementById('resetCount');
+        const memoryStatus = document.getElementById('memoryStatus');
+        const memoryBar = document.getElementById('memoryBar');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // --- 1. 互斥视野逻辑 (The Mutually Exclusive View) ---
+
+        // 当用户点击或聚焦输入框 -> 上方模糊 (执行模式)
+        inputField.addEventListener('focus', () => {
+            enterExecutionMode();
+        });
+
+        // 当用户想要看上方卡号 (鼠标移入/点击) -> 下方清空 (观察模式)
+        // 模拟：为了"看清"，被迫放弃"手头正在做的事"
+        sourceArea.addEventListener('mouseenter', () => {
+            // 只有当输入框有内容，且当前处于"模糊"状态时，才触发惩罚
+            if (inputField.value.length > 0 && sourceNumber.classList.contains('mosaic-blur')) {
+                triggerMemoryLeak();
+            }
+            enterObservationMode();
+        });
+
+        // 移动端兼容 (触摸)
+        sourceArea.addEventListener('touchstart', () => {
+             if (inputField.value.length > 0 && sourceNumber.classList.contains('mosaic-blur')) {
+                triggerMemoryLeak();
+            }
+            enterObservationMode();
+        });
+
+        function enterExecutionMode() {
+            sourceNumber.classList.add('mosaic-blur');
+            memoryStatus.innerText = "⚡ 执行中 (记忆正在衰减...)";
+            startDecay(); // 开始倒计时
+        }
+
+        function enterObservationMode() {
+            sourceNumber.classList.remove('mosaic-blur');
+            stopDecay(); // 停止衰减
+            memoryStatus.innerText = "👁️ 观察中 (无法输入)";
+            inputField.blur(); // 失去焦点
+        }
+
+        // --- 2. 内存泄漏惩罚 (Memory Leak Event) ---
+        function triggerMemoryLeak() {
+            // 只有确实有输入内容才算"泄漏"
+            resetCounter++;
+            resetCountDisplay.innerText = resetCounter;
+            
+            // 视觉特效：输入框清空 + 震动
+            inputField.value = ""; 
+            inputField.classList.add('shake');
+            
+            // 音效模拟 (可选，此处仅用视觉)
+            // playGlitchSound();
+
+            setTimeout(() => {
+                inputField.classList.remove('shake');
+            }, 500);
+        }
+
+        // --- 3. 急速衰减逻辑 (Rapid Decay) ---
+        // 模拟：如果不持续刷新(打字)，记忆在1.5秒后开始消失
+        
+        inputField.addEventListener('input', () => {
+            // 每次输入，重置衰减计时器 (刷新记忆)
+            inputField.classList.remove('fading');
+            resetDecayTimer();
+            
+            // 检查完成度
+            if(inputField.value === TARGET_NUMBER) {
+                submitBtn.classList.add('active');
+                submitBtn.innerText = "终于完成了！(点击提交)";
+                stopDecay();
+            } else {
+                submitBtn.classList.remove('active');
+            }
+        });
+
+        function startDecay() {
+            memoryBar.style.width = '100%';
+            memoryBar.style.backgroundColor = '#36b37e'; // Green
+            
+            // 模拟能量条倒计时
+            let width = 100;
+            clearInterval(decayTimer);
+            
+            decayTimer = setInterval(() => {
+                width -= 2; // 约1.5秒跑完前段
+                memoryBar.style.width = width + '%';
+                
+                if (width < 60) memoryBar.style.backgroundColor = '#ffab00'; // Yellow
+                if (width < 30) memoryBar.style.backgroundColor = '#ff3b30'; // Red
+
+                // 1.5秒后开始文字渐隐 (假设50ms刷新一次, 50 * 30 = 1500ms)
+                if (width < 50) {
+                    inputField.classList.add('fading');
+                }
+                
+                // 3秒耗尽
+                if (width <= 0) {
+                    clearInterval(decayTimer);
+                    // 彻底忘记：可选逻辑是清空，或者是变得完全透明
+                    inputField.value = ""; // 残忍模式：直接丢了
+                    inputField.classList.remove('fading');
+                    memoryStatus.innerText = "❌ 记忆已丢失 (超时)";
+                }
+            }, 50); // 50ms interval
+        }
+
+        function resetDecayTimer() {
+            clearInterval(decayTimer);
+            startDecay();
+        }
+
+        function stopDecay() {
+            clearInterval(decayTimer);
+            memoryBar.style.width = '100%';
+            inputField.classList.remove('fading');
+        }
+
+    </script>
+</body>
+</html>
