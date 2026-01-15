@@ -1,186 +1,909 @@
+<!-- DMN DMN网络异常激活模拟-->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ADHD 邮件任务模拟</title>
+  <title>ADHD 专注干扰模拟（修复 IME 乱码/刷屏）</title>
   <style>
-    html, body {
-      margin: 0; padding: 0;
-      height: 100%;
-      font-family: sans-serif;
-      background: #f3f4f6;
-      overflow: hidden;
+    html, body { margin:0; padding:0; height:100%; font-family:sans-serif; background:#f3f4f6; overflow:hidden; }
+    .center-container{ width:100%; height:100%; display:flex; justify-content:center; align-items:center; }
+    .task-card{
+      background:#fff; padding:24px; border-radius:16px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+      max-width: 980px; width:min(980px, calc(100vw - 24px));
+      text-align:center; position:relative;
     }
-    .center-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+
+    .topbar{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:12px; margin-bottom:10px; flex-wrap:wrap;
     }
-    .task-card {
-      background: white;
-      padding: 24px;
+    .topbar-left{ text-align:left; flex:1; min-width: 280px; }
+    .topbar-left h1{ margin:0 0 6px; font-size:20px; }
+    .topbar-left p{ margin:0; color:#6b7280; font-size:14px; }
+    .topbar-right{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+    .btn{
+      background:#111827; color:#fff; border:none;
+      padding:10px 14px; border-radius:12px;
+      font-size:14px; cursor:pointer;
+      transition:transform .06s ease, opacity .2s ease;
+      user-select:none;
+    }
+    .btn:active{ transform:scale(0.98); }
+
+    .require-box{
+      text-align:left;
+      background:#f9fafb;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding:12px;
+      margin: 10px 0 12px;
+    }
+    .require-box .title{
+      font-size:13px;
+      color:#6b7280;
+      margin-bottom:8px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .progress-pill{
+      font-size:12px;
+      color:#6b7280;
+      border:1px solid #e5e7eb;
+      background:#fff;
+      padding:6px 10px;
+      border-radius:999px;
+      user-select:none;
+    }
+    .require-box pre{
+      margin:0;
+      white-space:pre-wrap;
+      word-break:break-word;
+      font-size:14px;
+      line-height:1.55;
+      color:#111827;
+    }
+
+    .editor{
+      width:100%;
+      height: 520px;
+      padding:14px;
+      border-radius:12px;
+      border:1px solid #ccc;
+      background:#fff;
+      text-align:left;
+      outline:none;
+      line-height:1.55;
+      box-sizing:border-box;
+      overflow:auto;
+      position:relative;
+      font-size:16px;
+      color:#111;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+    .editor.is-empty::before{
+      content: attr(data-placeholder);
+      color:#9ca3af;
+      pointer-events:none;
+      white-space: pre-wrap;
+    }
+    .dmn-span{
+      color: rgba(107,114,128,0.55);
+      user-select:none;
+      pointer-events:none;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+    .locked{ box-shadow: 0 0 0 3px rgba(156,163,175,0.22) inset; }
+
+    .side-pop{
+      position:absolute;
+      width: 360px;
+      max-width: 40vw;
+      padding: 14px 16px;
       border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      max-width: 600px;
-      text-align: center;
-      z-index: 10;
-      position: relative;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(229,231,235,0.95);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.16);
+      color: rgba(107,114,128,0.78);
+      font-size: 15px;
+      line-height: 1.5;
+      pointer-events:none;
+      user-select:none;
+      white-space: pre-wrap;
+      word-break: break-word;
+      z-index: 30;
+
+      opacity: 0;
+      transform: translateY(10px) scale(0.985);
+      animation: popInOut 9.2s ease-in-out forwards;
     }
-    .task-card textarea {
-      width: 100%;
-      height: 160px;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      resize: none;
-      font-size: 16px;
+    @keyframes popInOut{
+      0%   { opacity: 0; transform: translateY(14px) scale(0.985); }
+      10%  { opacity: 1; transform: translateY(0px)  scale(1); }
+      86%  { opacity: 1; transform: translateY(0px)  scale(1); }
+      100% { opacity: 0; transform: translateY(-10px) scale(0.985); }
     }
-    .barrage {
-      position: absolute;
-      background: rgba(255,255,255,0.8);
-      backdrop-filter: blur(4px);
-      padding: 4px 8px;
-      border-radius: 8px;
-      font-weight: 500;
-      pointer-events: none;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      white-space: nowrap;
+
+    .meme-overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,0.9);
+      display:none; justify-content:center; align-items:center; z-index:50;
     }
-    .meme-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.9);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 50;
+    .meme-container{
+      width:100%; height:100%;
+      display:flex; justify-content:center; align-items:center;
+      flex-direction:column; gap:16px; padding:24px; box-sizing:border-box;
     }
-    .meme-container {
-      position: relative;
+    .meme-container img{ width:80vw; height:70vh; object-fit:contain; }
+    .close-btn{
+      font-size:18px; color:white; cursor:pointer; user-select:none;
+      opacity:0.9; transition:opacity .2s;
+      padding:10px 14px; border-radius:999px;
+      background:rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.2);
     }
-    .meme-container img {
-      width: 80vw;
-      height: 70vh;
-      object-fit: contain;
+    .close-btn:hover{ opacity:1; }
+    .hint{ color:rgba(255,255,255,0.85); font-size:14px; text-align:center; max-width:560px; line-height:1.5; }
+
+    .submit-overlay{
+      position:fixed; inset:0;
+      display:none;
+      justify-content:center; align-items:center;
+      background: rgba(17,24,39,0.70);
+      z-index:60;
+      padding:18px;
+      box-sizing:border-box;
     }
-    .close-btn {
-      position: absolute;
-      top: 0;
-      right: 0;
-      transform: translate(50%, -50%);
-      font-size: 48px;
-      color: white;
-      cursor: pointer;
-      user-select: none;
-      opacity: 0.8;
-      transition: opacity 0.2s;
+    .submit-panel{
+      width:min(760px, 100%);
+      background:#fff;
+      border-radius:18px;
+      box-shadow:0 24px 70px rgba(0,0,0,0.30);
+      padding:16px;
+      box-sizing:border-box;
+      text-align:left;
     }
-    .close-btn:hover { opacity: 1; }
+    .submit-header{
+      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+      border-bottom:1px solid #e5e7eb;
+      padding-bottom:10px; margin-bottom:12px;
+    }
+    .submit-header h2{ margin:0; font-size:18px; }
+    .submit-header .sub{ margin:6px 0 0; color:#6b7280; font-size:13px; line-height:1.5; }
+    .xbtn{
+      width:38px; height:38px; border-radius:12px;
+      border:1px solid #e5e7eb; background:#f9fafb;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; user-select:none;
+    }
+    .preview{
+      white-space:pre-wrap; word-break:break-word;
+      font-size:14px; line-height:1.6;
+      background:#f9fafb; border:1px solid #e5e7eb;
+      padding:12px; border-radius:14px;
+      max-height: 280px; overflow:auto;
+    }
+    .footer-actions{
+      display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
+      margin-top:12px;
+      border-top:1px solid #e5e7eb;
+      padding-top:12px;
+    }
+
+    .debug{
+      position:absolute;
+      right: 18px;
+      bottom: 14px;
+      font-size: 12px;
+      color: #9ca3af;
+      user-select:none;
+      pointer-events:none;
+    }
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:22px;
+      transform:translateX(-50%);
+      background:rgba(17,24,39,0.92);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:999px;
+      font-size:13px;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .18s ease, transform .18s ease;
+      z-index:70;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(-6px);
+    }
   </style>
 </head>
 <body>
-  <div class="center-container" id="page">
-    <!-- 中央任务卡片 -->
-    <div class="task-card" id="taskCard">
-      <h1>请在 2 分钟内写一封邮件，解释周报迟交的原因</h1>
-      <p style="color:#6b7280; font-size:14px; margin-bottom:12px;">
-        要求：语义清晰，无错别字
-      </p>
-      <span style="color:#9ca3af; font-size:14px; display:block; margin-bottom:12px;">
-        剩余时间：<span id="timer">120</span>s
-      </span>
-      <textarea id="content" placeholder="尊敬的领导，关于本周周报迟交的原因……"></textarea>
+  <div class="center-container">
+    <div class="task-card" id="card">
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1>写一封邮件，解释周报迟交的原因</h1>
+          <p>要求：语义清晰，无错别字（禁止粘贴/拖拽；提交按“正文包含指定段落”判定）</p>
+        </div>
+        <div class="topbar-right">
+          <button class="btn" id="submitBtn">提交</button>
+        </div>
+      </div>
+
+      <div class="require-box">
+        <div class="title">
+          <span>提交条件：正文需包含下面段落（允许全角/半角标点、空格/换行差异）。</span>
+          <span class="progress-pill" id="typeProgress">0%</span>
+        </div>
+        <pre id="requiredTextUI"></pre>
+      </div>
+
+      <div id="editor" class="editor is-empty" contenteditable="true"
+           spellcheck="false"
+           data-placeholder="尊敬的领导，关于本周周报迟交的原因……"></div>
+
+      <div class="debug" id="debug"></div>
     </div>
   </div>
 
-  <!-- GIF 劫持 -->
-  <div class="meme-overlay" id="memeOverlay" style="display:none;">
+  <!-- GIF 模块 -->
+  <div class="meme-overlay" id="memeOverlay">
     <div class="meme-container">
-      <span class="close-btn" id="closeBtn">×</span>
+      <div class="hint">
+        注意力被劫持了。按住 <b>空格键</b> 1 秒把注意力拉回任务（或点击按钮恢复）。<br/>
+        <span style="opacity:.75;">恢复后会有冷却期，不会立刻再次触发。</span>
+      </div>
       <img src="video/meme.gif" alt="attention hijack" />
+      <div class="close-btn" id="closeBtn">回到任务</div>
     </div>
   </div>
+
+  <!-- 提交成功反馈 -->
+  <div class="submit-overlay" id="submitOverlay">
+    <div class="submit-panel">
+      <div class="submit-header">
+        <div>
+          <h2>提交成功 ✅</h2>
+          <div class="sub">模拟发送完成（不会真的发送）。你可以继续编辑或关闭。</div>
+        </div>
+        <div class="xbtn" id="submitCloseX">×</div>
+      </div>
+      <div class="preview" id="submitPreview"></div>
+      <div class="footer-actions">
+        <button class="btn" id="submitOkBtn">继续编辑</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
 
   <script>
-    const NOISE_TEXTS = [
-      { text: "我是不是能力有问题？", weight: "heavy" },
-      { text: "他们肯定觉得我不靠谱。", weight: "heavy" },
-      { text: "为什么别人都能做到？", weight: "heavy" },
-      { text: "再解释也没用了吧。", weight: "medium" },
-      { text: "是不是该换个工作？", weight: "medium" },
-      { text: "领导会不会已经不耐烦了。", weight: "medium" },
-      { text: "等下中午吃什么？", weight: "light" },
-      { text: "煎饼果子要不要加蛋？", weight: "light" },
-      { text: "刚刚那句话是不是很蠢？", weight: "light" },
-      { text: "手机是不是该充电了？", weight: "light" },
-      { text: "刚刚外面是不是有声音？", weight: "light" },
-    ];
-    const TRIGGER_WORDS = ["错误", "抱歉", "不好意思", "来不及", "拖延"];
+    // ===== 必填段落 =====
+    const REQUIRED_TEXT =
+`领导您好，本周周报迟交主要由于临时需求插入与数据口径需要重新核对，导致整理与复核时间超出预期。目前周报主体内容已完成，我正在补充最终数据与结论校验，预计今天18:00前补交完整版本。后续我会提前锁定口径并预留复核时间，避免再次出现类似延误。`;
 
-    const page = document.getElementById('page');
-    const contentEl = document.getElementById('content');
-    const timerEl = document.getElementById('timer');
-    const memeOverlay = document.getElementById('memeOverlay');
-    const closeBtn = document.getElementById('closeBtn');
+    // ===== 灰字触发 =====
+    const TRIGGER = {
+      minCharsBeforePossible: 18,
+      baseProbPerInput: 0.06,
+      probGrowPerChar: 0.0015,
+      probCap: 0.22,
+      cooldownMs: 4500,
+      minGapBetweenLocksMs: 9000
+    };
+    const TRIGGER_WORDS = ["错误","抱歉","不好意思","来不及","拖延","失误","问题","出错","延期","耽误"];
 
-    let timeLeft = 120;
-    let typingCount = 0;
-    let closeCount = 0;
+    const DELETE_REBOUND = {
+      growUntil: 90,
+      addMin: 6,
+      addMax: 12,
+      removePerPress: 12,
+      hardCap: 140
+    };
 
-    // 倒计时
-    setInterval(() => {
-      if(timeLeft>0) {
-        timeLeft--;
-        timerEl.textContent = timeLeft;
-      }
-    },1000);
+    const DMN_BANK = {
+      micro: ["...等等。","...不对。","...又来了。","...糟了。","...先停一下。","...刚刚那句怪怪的。","是不是太直接了？","语气要不要软一点？","我是不是在找借口？","我忘了什么吗？","标题写什么来着？"],
+      shame: ["…他们会不会觉得我不靠谱？","…我是不是又搞砸了？","…领导是不是已经不耐烦了？","…我为什么总是这样？","…我是不是不适合这份工作？"],
+      memory: ["…三年前那个项目也是这样拖到最后，会议室的灯好白。","…上次周报我写错日期，发出去两分钟才发现。","…那次复盘我明明准备了，但一开口就卡壳。"],
+      survival: ["…如果不干这行我去卖煎饼果子会不会更轻松？","…要不我开个小店？只卖两样东西。","…或者去当图书管理员？安静、整齐、可预测。"],
+      bodily: ["…手心怎么出汗了？","…肩膀又绷紧了。","…口干，要不要喝水？","…心跳太快了。"],
+      food: ["…中午吃什么？","…煎饼果子要不要加蛋？","…奶茶今天能不能喝？","…薄脆咔嚓那一下其实很治愈。"],
+      absurd: ["…我能不能把“迟交”写成“延迟同步”？","…要不我把周报做成 PPT？不，别给自己加戏。","…别再想表格对齐了，没人会看对齐。会吗？"],
+      rescue: ["…一句话就行：原因、进度、补救。","…先写重点：已完成什么、剩什么、什么时候补上。","…用事实，不要自责。"]
+    };
 
-    function spawnBarrage() {
-      const item = NOISE_TEXTS[Math.floor(Math.random()*NOISE_TEXTS.length)];
-      const div = document.createElement('div');
-      div.className = 'barrage';
-      div.textContent = item.text;
-      let fontSize = 14;
-      if(item.weight==='medium') fontSize=18;
-      if(item.weight==='heavy') fontSize=24;
-      div.style.fontSize = fontSize + 'px';
-      const rect = page.getBoundingClientRect();
-      div.style.top = Math.random()*(rect.height-40)+'px';
-      div.style.left = Math.random()*(rect.width-260)+'px';
-      div.style.transform = `rotate(${(Math.random()-0.5)*8}deg)`;
-      div.style.opacity = item.weight==='heavy'?0.95:0.75;
-      page.appendChild(div);
-      // 3秒后消失
-      setTimeout(()=> page.removeChild(div), 3000);
+    const SIDE_POP = {
+      baseProbPerInput: 0.28,
+      lockedBoost: 0.18,
+      minGapMs: 320,
+      maxOnScreen: 3,
+      lifeMs: 9200,
+      maxJitterX: 90,
+      maxJitterY: 140,
+      ringPad: 18,
+      cardInnerPad: 10
+    };
+
+    const HIJACK = {
+      deltaCharsThreshold: 35,
+      cooldownMs: 16000,
+      holdToResumeMs: 900
+    };
+
+    // ===== DOM =====
+    const card = document.getElementById("card");
+    const editor = document.getElementById("editor");
+    const memeOverlay = document.getElementById("memeOverlay");
+    const closeBtn = document.getElementById("closeBtn");
+    const debugEl = document.getElementById("debug");
+
+    const submitBtn = document.getElementById("submitBtn");
+    const submitOverlay = document.getElementById("submitOverlay");
+    const submitPreview = document.getElementById("submitPreview");
+    const submitCloseX = document.getElementById("submitCloseX");
+    const submitOkBtn = document.getElementById("submitOkBtn");
+    const toast = document.getElementById("toast");
+
+    const requiredTextUI = document.getElementById("requiredTextUI");
+    const typeProgress = document.getElementById("typeProgress");
+    requiredTextUI.textContent = REQUIRED_TEXT;
+
+    // ===== 规范化（用于“包含判定”）=====
+    function normalizeForCheck(s){
+      if (!s) return "";
+      return s
+        .replace(/：/g, ":")
+        .replace(/，/g, ",")
+        .replace(/。/g, ".")
+        .replace(/；/g, ";")
+        .replace(/！/g, "!")
+        .replace(/？/g, "?")
+        .replace(/（/g, "(")
+        .replace(/）/g, ")")
+        .replace(/【/g, "[")
+        .replace(/】/g, "]")
+        .replace(/“|”/g, "\"")
+        .replace(/‘|’/g, "'")
+        .replace(/—/g, "-")
+        .replace(/…/g, "...")
+        .replace(/\s*:\s*/g, ":")
+        .replace(/\s/g, "");
+    }
+    const REQUIRED_NORM = normalizeForCheck(REQUIRED_TEXT);
+
+    // ===== 工具函数 =====
+    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+    function randInt(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+    function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+
+    function showToast(msg){
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(()=>toast.classList.remove("show"), 1600);
     }
 
-    contentEl.addEventListener('input',()=>{
-      const value = contentEl.value;
-      if(TRIGGER_WORDS.some(word=>value.includes(word))){
-        spawnBarrage();
-        if(Math.random()>0.6) spawnBarrage();
+    function orderedCoverLen(needle, hay){
+      let i=0, j=0;
+      while (i < needle.length && j < hay.length){
+        if (needle[i] === hay[j]) i++;
+        j++;
       }
-      typingCount++;
-      if(typingCount>=40){
-        memeOverlay.style.display = 'flex';
-        contentEl.disabled = true;
+      return i;
+    }
+
+    function getUserText(){
+      const clone = editor.cloneNode(true);
+      clone.querySelectorAll(".dmn-span").forEach(n => n.remove());
+      clone.querySelectorAll(".dmn-marker").forEach(n => n.remove());
+      return clone.textContent || "";
+    }
+
+    function updateProgressFromBody(){
+      const bodyNorm = normalizeForCheck(getUserText());
+      const matched = orderedCoverLen(REQUIRED_NORM, bodyNorm);
+      const pct = Math.floor((matched / REQUIRED_NORM.length) * 100);
+      typeProgress.textContent = `${pct}%`;
+    }
+
+    function hasRequiredInBody(){
+      return normalizeForCheck(getUserText()).includes(REQUIRED_NORM);
+    }
+
+    function updatePlaceholder(){
+      const t = normalizeForCheck(getUserText());
+      const hasDMN = !!editor.querySelector(".dmn-span");
+      editor.classList.toggle("is-empty", t.length === 0 && !hasDMN);
+    }
+
+    function ensureSelectionInEditor(){
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount) {
+        const node = sel.anchorNode;
+        if (node && editor.contains(node)) return;
+      }
+      editor.focus();
+      const sel2 = window.getSelection();
+      const r = document.createRange();
+      r.selectNodeContents(editor);
+      r.collapse(false);
+      sel2.removeAllRanges();
+      sel2.addRange(r);
+    }
+
+    // ===== 灰字（锁定）核心 =====
+    let locked = false;
+    let dmnPhase = "grow";
+    let dmnSpan = null;
+    let marker = null;
+    let markerId = 0;
+
+    let triggerCooldownUntil = 0;
+    let lastLockAt = 0;
+    let lastUserText = "";
+
+    // GIF
+    let baseLen = 0;
+    let hijackCooldownUntil = 0;
+
+    // ✅ IME/DOM 回滚保护（关键修复）
+    let lockObserver = null;
+    let lockedHtmlSnapshot = "";
+    let internalDomWrite = false;
+    let lastWarnAt = 0;
+
+    function rebindLockedNodes(){
+      marker = editor.querySelector(".dmn-marker") || null;
+      dmnSpan = editor.querySelector(".dmn-span") || null;
+    }
+
+    function refreshLockedSnapshot(){
+      if (!locked) return;
+      lockedHtmlSnapshot = editor.innerHTML;
+    }
+
+    function startLockObserver(){
+      if (lockObserver) return;
+      lockObserver = new MutationObserver(() => {
+        if (!locked) return;
+        if (internalDomWrite) return;
+
+        // 有任何“非我们预期”的写入（IME 合成串等），立刻回滚
+        internalDomWrite = true;
+        editor.innerHTML = lockedHtmlSnapshot;
+        rebindLockedNodes();
+        setTimeout(() => {
+          forceCaretAtMarker();
+          internalDomWrite = false;
+        }, 0);
+      });
+      lockObserver.observe(editor, { childList:true, subtree:true, characterData:true });
+    }
+
+    function stopLockObserver(){
+      if (lockObserver) {
+        lockObserver.disconnect();
+        lockObserver = null;
+      }
+    }
+
+    function forceCaretAtMarker(){
+      if (!marker || !marker.isConnected) return;
+      editor.focus();
+      const sel = window.getSelection();
+      const r = document.createRange();
+      r.setStartBefore(marker);
+      r.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(r);
+    }
+
+    function genDMNText(){
+      const pools = ["micro","shame","memory","survival","bodily","food","absurd","rescue"];
+      const n = randInt(2, 4);
+      const chosen = [];
+      while (chosen.length < n) {
+        const k = pick(pools);
+        if (chosen.length === 0 || chosen[chosen.length-1] !== k) chosen.push(k);
+      }
+      const parts = chosen.map(k => pick(DMN_BANK[k]));
+      let text = parts.join(Math.random() < 0.5 ? " " : "…");
+      if (Math.random() < 0.25) text = "…" + text;
+      if (text.length > 140) text = text.slice(0, 140) + "…";
+      return text;
+    }
+
+    function enterLockedMode(){
+      locked = true;
+      dmnPhase = "grow";
+      editor.classList.add("locked");
+      refreshLockedSnapshot();
+      startLockObserver();
+      forceCaretAtMarker();
+    }
+
+    function exitLockedMode(){
+      locked = false;
+      dmnPhase = "grow";
+      editor.classList.remove("locked");
+      stopLockObserver();
+      lockedHtmlSnapshot = "";
+    }
+
+    function insertDMNAtCaret(text){
+      if (locked) return;
+
+      const now = Date.now();
+      if (now - lastLockAt < TRIGGER.minGapBetweenLocksMs) return;
+      if (now < triggerCooldownUntil) return;
+
+      ensureSelectionInEditor();
+      const sel = window.getSelection();
+      if (!sel || !sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+      range.collapse(true);
+
+      marker = document.createElement("span");
+      marker.className = "dmn-marker";
+      marker.setAttribute("data-mid", String(++markerId));
+
+      dmnSpan = document.createElement("span");
+      dmnSpan.className = "dmn-span";
+      dmnSpan.contentEditable = "false";
+      dmnSpan.textContent = text;
+
+      internalDomWrite = true;
+      range.insertNode(dmnSpan);
+      range.insertNode(marker);
+      internalDomWrite = false;
+
+      lastLockAt = now;
+      triggerCooldownUntil = now + TRIGGER.cooldownMs;
+
+      enterLockedMode();
+      updatePlaceholder();
+      editor.scrollTop = editor.scrollHeight;
+      updateDebug();
+    }
+
+    function appendMoreDMN(){
+      if (!dmnSpan) return;
+      const len = (dmnSpan.textContent || "").length;
+      if (len >= DELETE_REBOUND.hardCap) { dmnPhase = "shrink"; return; }
+
+      const addLen = randInt(DELETE_REBOUND.addMin, DELETE_REBOUND.addMax);
+      const piece = genDMNText().slice(0, addLen);
+      const room = DELETE_REBOUND.hardCap - len;
+
+      internalDomWrite = true;
+      dmnSpan.textContent += piece.slice(0, room);
+      internalDomWrite = false;
+
+      if ((dmnSpan.textContent || "").length >= DELETE_REBOUND.growUntil) dmnPhase = "shrink";
+      refreshLockedSnapshot();
+      editor.scrollTop = editor.scrollHeight;
+    }
+
+    function shrinkDMN(){
+      if (!dmnSpan) return;
+      const t = dmnSpan.textContent || "";
+      const n = DELETE_REBOUND.removePerPress;
+
+      internalDomWrite = true;
+      if (t.length <= n) {
+        internalDomWrite = false;
+        removeDMNAndUnlock();
+        return;
+      }
+      dmnSpan.textContent = t.slice(0, t.length - n);
+      internalDomWrite = false;
+
+      refreshLockedSnapshot();
+      editor.scrollTop = editor.scrollHeight;
+    }
+
+    function removeDMNAndUnlock(){
+      internalDomWrite = true;
+      if (dmnSpan && dmnSpan.parentNode) dmnSpan.parentNode.removeChild(dmnSpan);
+      if (marker && marker.parentNode) marker.parentNode.removeChild(marker);
+      internalDomWrite = false;
+
+      dmnSpan = null;
+      marker = null;
+
+      exitLockedMode();
+      ensureSelectionInEditor();
+      updatePlaceholder();
+      lastUserText = getUserText();
+      baseLen = (editor.textContent || "").length;
+      updateProgressFromBody();
+      updateDebug();
+    }
+
+    // ✅ 锁定时：点哪里都把光标拉回 marker 前
+    editor.addEventListener("mouseup", () => { if (locked) setTimeout(forceCaretAtMarker, 0); });
+    editor.addEventListener("keyup", () => { if (locked) setTimeout(forceCaretAtMarker, 0); });
+    editor.addEventListener("focus", () => { if (locked) setTimeout(forceCaretAtMarker, 0); });
+
+    // ✅ 关键：锁定时打断 IME 合成，防止拼音串进 DOM
+    editor.addEventListener("compositionstart", () => {
+      if (!locked) return;
+      // 打断合成：blur -> focus，并拉回光标
+      editor.blur();
+      setTimeout(() => {
+        editor.focus();
+        forceCaretAtMarker();
+      }, 0);
+    });
+
+    // ===== 禁止粘贴/拖拽 =====
+    editor.addEventListener("paste", (e) => { e.preventDefault(); showToast("禁止粘贴：需要手动输入"); });
+    editor.addEventListener("drop", (e) => { e.preventDefault(); showToast("禁止拖拽：需要手动输入"); });
+    editor.addEventListener("dragover", (e) => e.preventDefault());
+    editor.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "v" || e.key === "V")) {
+        e.preventDefault();
+        showToast("禁止粘贴：需要手动输入");
       }
     });
 
-    closeBtn.addEventListener('click', ()=>{
-      closeCount++;
-      if(closeCount>=10){
-        memeOverlay.style.display = 'none';
-        closeCount = 0;
-        contentEl.disabled = false;
-        contentEl.value = "煎饼果子加薄脆";
-        typingCount = 0;
+    // ===== 锁定期拦截：只允许 delete 玩法 =====
+    editor.addEventListener("beforeinput", (e) => {
+      // 非锁定：正常
+      if (!locked) {
+        const t = e.inputType || "";
+        if (t === "insertFromPaste" || t === "insertFromDrop") {
+          e.preventDefault();
+          showToast("禁止粘贴/拖拽：需要手动输入");
+          return;
+        }
+        return;
       }
+
+      // 锁定：硬拦截所有输入，只处理 delete
+      if (memeOverlay.style.display === "flex") { e.preventDefault(); return; }
+      if (submitOverlay.style.display === "flex") { e.preventDefault(); return; }
+
+      const t = e.inputType || "";
+      e.preventDefault();
+      forceCaretAtMarker();
+
+      if (t.startsWith("delete")) {
+        if (dmnPhase === "grow") appendMoreDMN();
+        else shrinkDMN();
+        maybeSpawnSidePop(true);
+      } else {
+        const now = Date.now();
+        if (now - lastWarnAt > 900) {
+          showToast("灰字挡住了：先按删除键把它删掉");
+          lastWarnAt = now;
+        }
+        if (Math.random() < 0.18) maybeSpawnSidePop(true);
+      }
+      updateDebug();
+    }, true);
+
+    // keydown 双保险（尤其对 IME 某些键）
+    document.addEventListener("keydown", (e) => {
+      if (!locked) return;
+      if (memeOverlay.style.display === "flex") return;
+      if (submitOverlay.style.display === "flex") return;
+      if (document.activeElement !== editor) return;
+
+      // 只放行 Backspace/Delete，其余都阻止
+      if (e.key !== "Backspace" && e.key !== "Delete") {
+        e.preventDefault();
+        forceCaretAtMarker();
+        const now = Date.now();
+        if (now - lastWarnAt > 900) {
+          showToast("灰字挡住了：先按删除键把它删掉");
+          lastWarnAt = now;
+        }
+        return;
+      }
+
+      e.preventDefault();
+      forceCaretAtMarker();
+      if (dmnPhase === "grow") appendMoreDMN();
+      else shrinkDMN();
+      maybeSpawnSidePop(true);
+      updateDebug();
+    }, true);
+
+    // ===== 非锁定 input：触发灰字/弹窗/GIF + 更新进度 =====
+    editor.addEventListener("input", () => {
+      if (locked) return;
+      updatePlaceholder();
+      updateProgressFromBody();
+      maybeSpawnSidePop(false);
+      maybeTriggerDMN();
+      maybeTriggerHijack();
+      updateDebug();
     });
+
+    function maybeTriggerDMN(){
+      const nowText = getUserText();
+      const delta = nowText.slice(lastUserText.length);
+      lastUserText = nowText;
+
+      if (delta && TRIGGER_WORDS.some(w => delta.includes(w))) {
+        insertDMNAtCaret(genDMNText());
+        return;
+      }
+
+      if (nowText.length < TRIGGER.minCharsBeforePossible) return;
+
+      const extra = Math.max(0, nowText.length - TRIGGER.minCharsBeforePossible);
+      let p = TRIGGER.baseProbPerInput + extra * TRIGGER.probGrowPerChar;
+      p = Math.min(TRIGGER.probCap, Math.max(0, p));
+
+      if (Math.random() < p) insertDMNAtCaret(genDMNText());
+    }
+
+    // ===== 侧边弹窗 =====
+    let lastSidePopAt = 0;
+    function currentSidePops(){ return card.querySelectorAll(".side-pop").length; }
+
+    function spawnSidePop(){
+      if (currentSidePops() >= SIDE_POP.maxOnScreen) return;
+
+      const pop = document.createElement("div");
+      pop.className = "side-pop";
+      pop.textContent = genDMNText();
+      card.appendChild(pop);
+
+      const cardRect = card.getBoundingClientRect();
+      const editorRect = editor.getBoundingClientRect();
+      const popRect = pop.getBoundingClientRect();
+      const popW = popRect.width || 360;
+      const popH = popRect.height || 120;
+
+      const eL = editorRect.left - cardRect.left;
+      const eR = editorRect.right - cardRect.left;
+      const eT = editorRect.top - cardRect.top;
+      const eB = editorRect.bottom - cardRect.top;
+
+      const zone = Math.random();
+      let x, y;
+
+      if (zone < 0.35) {
+        x = eL - SIDE_POP.ringPad - popW - randInt(0, SIDE_POP.maxJitterX);
+        y = randInt(eT - SIDE_POP.maxJitterY, eB - popH + SIDE_POP.maxJitterY);
+      } else if (zone < 0.70) {
+        x = eR + SIDE_POP.ringPad + randInt(0, SIDE_POP.maxJitterX);
+        y = randInt(eT - SIDE_POP.maxJitterY, eB - popH + SIDE_POP.maxJitterY);
+      } else if (zone < 0.85) {
+        x = randInt(eL - SIDE_POP.maxJitterX, eR - popW + SIDE_POP.maxJitterX);
+        y = eT - SIDE_POP.ringPad - popH - randInt(0, SIDE_POP.maxJitterY);
+      } else {
+        x = randInt(eL - SIDE_POP.maxJitterX, eR - popW + SIDE_POP.maxJitterX);
+        y = eB + SIDE_POP.ringPad + randInt(0, SIDE_POP.maxJitterY);
+      }
+
+      const pad = SIDE_POP.cardInnerPad;
+      x = clamp(x, pad, cardRect.width - popW - pad);
+      y = clamp(y, pad + 40, cardRect.height - popH - pad);
+
+      pop.style.left = `${x}px`;
+      pop.style.top  = `${y}px`;
+
+      setTimeout(() => { if (pop.parentNode) pop.parentNode.removeChild(pop); }, SIDE_POP.lifeMs);
+    }
+
+    function maybeSpawnSidePop(force=false){
+      const now = Date.now();
+      if (memeOverlay.style.display === "flex") return;
+      if (submitOverlay.style.display === "flex") return;
+      if (now - lastSidePopAt < SIDE_POP.minGapMs) return;
+
+      const pLocked = (locked || force) ? SIDE_POP.lockedBoost : 0;
+      let p = SIDE_POP.baseProbPerInput + pLocked;
+      if (p > 0.92) p = 0.92;
+
+      if (Math.random() < p) {
+        lastSidePopAt = now;
+        spawnSidePop();
+      }
+    }
+
+    // ===== GIF =====
+    function canHijackNow(){ return Date.now() >= hijackCooldownUntil; }
+    function showHijack(){ memeOverlay.style.display = "flex"; editor.blur(); }
+    function hideHijack(){
+      memeOverlay.style.display = "none";
+      hijackCooldownUntil = Date.now() + HIJACK.cooldownMs;
+      baseLen = (editor.textContent || "").length;
+      editor.focus();
+      if (locked) forceCaretAtMarker();
+      updateDebug();
+    }
+    function maybeTriggerHijack(){
+      if (memeOverlay.style.display === "flex") return;
+      if (!canHijackNow()) return;
+
+      const delta = (editor.textContent || "").length - baseLen;
+      if (delta >= HIJACK.deltaCharsThreshold) showHijack();
+    }
+
+    let holding=false, holdStart=0;
+    window.addEventListener("keydown", (e) => {
+      if (e.code !== "Space") return;
+      if (memeOverlay.style.display !== "flex") return;
+      if (!holding) { holding=true; holdStart=Date.now(); }
+    });
+    window.addEventListener("keyup", (e) => {
+      if (e.code !== "Space") return;
+      if (memeOverlay.style.display !== "flex") return;
+      const held = Date.now() - holdStart;
+      holding=false;
+      if (held >= HIJACK.holdToResumeMs) hideHijack();
+    });
+    closeBtn.addEventListener("click", () => { if (memeOverlay.style.display === "flex") hideHijack(); });
+
+    // ===== 提交（放宽：只查包含段落；仍要求没有灰字锁定）=====
+    submitBtn.addEventListener("click", () => {
+      if (memeOverlay.style.display === "flex") return;
+
+      if (locked || editor.querySelector(".dmn-span")) {
+        showToast("先把灰色联想文字删掉，才能提交");
+        return;
+      }
+
+      const userText = getUserText().trim();
+      if (!userText) {
+        showToast("还没写内容，先写几句再提交");
+        return;
+      }
+
+      if (!hasRequiredInBody()) {
+        showToast("正文需要包含上方必填段落（允许全角/半角标点、空格/换行差异）");
+        return;
+      }
+
+      submitPreview.textContent = userText;
+      submitOverlay.style.display = "flex";
+      editor.blur();
+    });
+
+    function closeSubmitOverlay(){
+      submitOverlay.style.display = "none";
+      editor.focus();
+      baseLen = (editor.textContent || "").length;
+      if (locked) forceCaretAtMarker();
+      updateDebug();
+    }
+    submitCloseX.addEventListener("click", closeSubmitOverlay);
+    submitOkBtn.addEventListener("click", closeSubmitOverlay);
+    submitOverlay.addEventListener("click", (e) => { if (e.target === submitOverlay) closeSubmitOverlay(); });
+
+    // ===== Debug =====
+    function updateDebug(){
+      const len = (editor.textContent || "").length;
+      const delta = len - baseLen;
+      const cd = Math.max(0, hijackCooldownUntil - Date.now());
+      const dmnLen = dmnSpan ? (dmnSpan.textContent || "").length : 0;
+      debugEl.textContent =
+        `锁定:${locked ? "是" : "否"} 灰字:${dmnLen}/${DELETE_REBOUND.growUntil} 阶段:${dmnPhase} | GIF:${delta}/${HIJACK.deltaCharsThreshold} 冷却:${Math.ceil(cd/1000)}s | 进度:${typeProgress.textContent}`;
+    }
+
+    // ===== 初始化 =====
+    setTimeout(() => {
+      editor.focus();
+      updatePlaceholder();
+      baseLen = (editor.textContent || "").length;
+      lastUserText = getUserText();
+      updateProgressFromBody();
+      updateDebug();
+    }, 50);
   </script>
 </body>
 </html>
+
