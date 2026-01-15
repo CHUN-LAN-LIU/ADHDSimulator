@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADHD验证码输入模拟器 - 体验工作记忆障碍</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            color: #64dfdf;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            color: #a9b7c6;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .description {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #64dfdf;
+        }
+        
+        .simulation-area {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .verification-code-container {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 2px solid rgba(100, 223, 223, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 120px;
+        }
+        
+        .verification-code {
+            font-family: 'Courier New', monospace;
+            font-size: 2.8rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+            color: #f0f0f0;
+            text-shadow: 0 0 10px rgba(100, 223, 223, 0.5);
+            transition: filter 0.5s ease;
+        }
+        
+        .blurred {
+            filter: blur(8px);
+        }
+        
+        .code-hint {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #a9b7c6;
+            font-style: italic;
+        }
+        
+        .input-area {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: #64dfdf;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 18px 20px;
+            font-size: 1.8rem;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 2px solid #4a4a6d;
+            border-radius: 10px;
+            color: #f0f0f0;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #64dfdf;
+            box-shadow: 0 0 15px rgba(100, 223, 223, 0.3);
+        }
+        
+        .stats-panel {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stats-title {
+            color: #64dfdf;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stats-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-item {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff9e6d;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #a9b7c6;
+            margin-top: 5px;
+        }
+        
+        .intrusion-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(26, 26, 46, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);
+            z-index: 1000;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            border: 2px solid #ff6b6b;
+            display: none;
+        }
+        
+        .intrusion-title {
+            color: #ff6b6b;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .intrusion-content {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #f0f0f0;
+        }
+        
+        .close-intrusion {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .close-intrusion:hover {
+            background-color: #ff5252;
+        }
+        
+        .diagnosis-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: none;
+            overflow-y: auto;
+            padding: 30px;
+        }
+        
+        .diagnosis-content {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #1a1a2e;
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid #64dfdf;
+        }
+        
+        .diagnosis-title {
+            color: #64dfdf;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .diagnosis-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        
+        .section-title {
+            color: #ff9e6d;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close-diagnosis {
+            display: block;
+            margin: 30px auto 0;
+            background-color: #64dfdf;
+            color: #1a1a2e;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .close-diagnosis:hover {
+            background-color: #52d3d3;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background-color: #64dfdf;
+            color: #1a1a2e;
+        }
+        
+        .btn-primary:hover {
+            background-color: #52d3d3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #f0f0f0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .fade-out {
+            animation: fadeOut 2s forwards;
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #a9b7c6;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+        }
+        
+        .adhd-icon {
+            color: #64dfdf;
+            margin-right: 8px;
+        }
+        
+        .warning {
+            color: #ff9e6d;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .verification-code {
+                font-size: 2rem;
+            }
+            
+            .input-field {
+                font-size: 1.5rem;
+                padding: 15px;
+            }
+            
+            .stats-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-brain adhd-icon"></i> ADHD 验证码输入模拟器</h1>
+        <p class="subtitle">体验工作记忆缺陷对认知任务的影响</p>
+    </header>
+    
+    <div class="container">
+        <div class="description">
+            <p><i class="fas fa-info-circle"></i> 这是一个模拟ADHD(注意力缺陷多动障碍)患者认知障碍的交互体验。您将尝试输入屏幕上显示的验证码，但会受到模拟ADHD工作记忆缺陷的干扰机制影响。</p>
+        </div>
+        
+        <div class="simulation-area">
+            <div class="verification-code-container" id="codeContainer">
+                <div class="verification-code" id="verificationCode">8Kw-9Lp-2Xz</div>
+                <div class="code-hint" id="codeHint">悬停鼠标在此区域查看验证码，但注意：查看验证码会导致输入框被清空</div>
+            </div>
+            
+            <div class="input-area">
+                <label class="input-label" for="codeInput"><i class="fas fa-keyboard"></i> 请在下方输入上方显示的验证码：</label>
+                <input type="text" id="codeInput" class="input-field" placeholder="点击此处开始输入..." maxlength="12">
+                <div class="code-hint" style="margin-top: 15px;">注意：当您专注输入时，验证码会变得模糊；停止输入超过1.5秒，已输入的内容会逐渐消失</div>
+            </div>
+        </div>
+        
+        <div class="stats-panel">
+            <div class="stats-title">
+                <i class="fas fa-chart-bar"></i> 任务表现数据
+            </div>
+            <div class="stats-content">
+                <div class="stat-item">
+                    <div class="stat-value" id="resetCount">0</div>
+                    <div class="stat-label">输入框重置次数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="charTime">0.0</div>
+                    <div class="stat-label">平均每个字符耗时(秒)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalTime">0</div>
+                    <div class="stat-label">任务总时间(秒)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="intrusionCount">0</div>
+                    <div class="stat-label">思维入侵次数</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" id="resetBtn"><i class="fas fa-redo"></i> 重新开始模拟</button>
+            <button class="btn btn-secondary" id="hintBtn"><i class="fas fa-lightbulb"></i> 查看ADHD认知解析</button>
+        </div>
+    </div>
+    
+    <!-- 思维入侵弹窗 -->
+    <div class="intrusion-popup" id="intrusionPopup">
+        <div class="intrusion-title"><i class="fas fa-exclamation-triangle"></i> 思维入侵</div>
+        <div class="intrusion-content" id="intrusionText">刚才门锁了吗？</div>
+        <button class="close-intrusion" id="closeIntrusion">关闭干扰</button>
+    </div>
+    
+    <!-- 诊断图层 -->
+    <div class="diagnosis-overlay" id="diagnosisOverlay">
+        <div class="diagnosis-content">
+            <div class="diagnosis-title"><i class="fas fa-brain"></i> 神经生物学解析：中央执行系统的资源分配故障</div>
+            
+            <div class="diagnosis-section">
+                <div class="section-title"><i class="fas fa-memory"></i> 【检测到"视觉空间画板 (Visuo-Spatial Sketchpad)"数据溢出】</div>
+                <p>根据Baddeley的工作记忆模型，ADHD患者的"语音回路"和"视觉空间画板"容量显著低于常人。这就好比电脑的内存条(RAM)只有极小的容量(约3秒时长)。新的感官信息一旦进入，旧的信息(几秒前看到的验证码)就会被立即覆盖或丢弃。</p>
+            </div>
+            
+            <div class="diagnosis-section">
+                <div class="section-title"><i class="fas fa-exchange-alt"></i> 1. 工作记忆容量极低 (Deficits in Working Memory Capacity)</div>
+                <p>刚才您经历的"看一眼就得重输"，在神经学上被称为任务转换缺陷。</p>
+                <p><span class="warning">正常大脑：</span> 前额叶皮层(PFC)可以同时维持"视觉记忆"和"手指运动"两个线程。</p>
+                <p><span class="warning">ADHD大脑：</span> 由于背外侧前额叶(DLPFC)激活不足，大脑无法同时分配资源给两个任务。当您从"看"切换到"写"时，大脑必须强制关闭"看"的进程来为"写"腾出资源，导致之前存储的信息被瞬间清空。</p>
+            </div>
+            
+            <div class="diagnosis-section">
+                <div class="section-title"><i class="fas fa-network-wired"></i> 2. 默认模式网络干扰 (DMN Interference)</div>
+                <p>那个突然出现的"无关念头"，源于大脑中的默认模式网络(Default Mode Network)未能正常关闭。它在您需要专注时发出了干扰信号，直接切断了您当前脆弱的记忆连接。</p>
+                <p>这种干扰使得ADHD患者难以维持持续注意力，即使在进行简单任务时也会频繁分心。</p>
+            </div>
+            
+            <div class="diagnosis-section">
+                <div class="section-title"><i class="fas fa-tachometer-alt"></i> 3. 任务转换的高昂代价 (High Task Switching Cost)</div>
+                <p>ADHD患者在任务切换时需要付出比常人更高的认知成本。每次视线在验证码和输入框之间移动，都相当于一次完整的任务切换，导致之前短暂存储的信息丢失。</p>
+                <p>这解释了为什么ADHD患者在"听写"或"抄录"类任务中表现特别困难——他们的读取和写入是完全互斥的，无法像常人一样流畅衔接。</p>
+            </div>
+            
+            <button class="close-diagnosis" id="closeDiagnosis">关闭解析</button>
+        </div>
+    </div>
+    
+    <footer>
+        <p>本模拟器旨在帮助理解ADHD患者面临的工作记忆挑战 | 模拟设计基于神经心理学研究</p>
+        <p>注意：这仅是一个简化模拟，实际ADHD体验因人而异且更为复杂</p>
+    </footer>
+
+    <script>
+        // 初始状态变量
+        let resetCount = 0;
+        let startTime = null;
+        let totalTime = 0;
+        let intrusionCount = 0;
+        let lastInputTime = null;
+        let fadeTimer = null;
+        let isBlurred = false;
+        let inputProgress = 0;
+        let intrusionTriggered = false;
+        let lookBackCount = 0;
+        let diagnosisShown = false;
+        
+        // DOM元素
+        const verificationCode = document.getElementById('verificationCode');
+        const codeContainer = document.getElementById('codeContainer');
+        const codeInput = document.getElementById('codeInput');
+        const codeHint = document.getElementById('codeHint');
+        const resetCountEl = document.getElementById('resetCount');
+        const charTimeEl = document.getElementById('charTime');
+        const totalTimeEl = document.getElementById('totalTime');
+        const intrusionCountEl = document.getElementById('intrusionCount');
+        const resetBtn = document.getElementById('resetBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const intrusionPopup = document.getElementById('intrusionPopup');
+        const intrusionText = document.getElementById('intrusionText');
+        const closeIntrusionBtn = document.getElementById('closeIntrusion');
+        const diagnosisOverlay = document.getElementById('diagnosisOverlay');
+        const closeDiagnosisBtn = document.getElementById('closeDiagnosis');
+        
+        // 思维入侵文本池
+        const intrusionThoughts = [
+            "刚才门锁了吗？",
+            "我是不是忘了回复那个邮件？",
+            "今天的会议是几点来着？",
+            "我好像听到手机响了？",
+            "等下要记得去超市买牛奶",
+            "昨天看的那部电影结局是什么？",
+            "我是不是该给植物浇水了？",
+            "明天需要带什么去上班？"
+        ];
+        
+        // 初始化
+        function initSimulation() {
+            resetCount = 0;
+            totalTime = 0;
+            intrusionCount = 0;
+            inputProgress = 0;
+            intrusionTriggered = false;
+            lookBackCount = 0;
+            diagnosisShown = false;
+            
+            // 重置显示
+            resetCountEl.textContent = resetCount;
+            intrusionCountEl.textContent = intrusionCount;
+            charTimeEl.textContent = "0.0";
+            totalTimeEl.textContent = "0";
+            codeInput.value = "";
+            
+            // 重置样式
+            verificationCode.classList.remove('blurred');
+            codeInput.style.opacity = "1";
+            
+            // 清除任何活动的计时器
+            if (fadeTimer) clearTimeout(fadeTimer);
+            
+            // 生成新的验证码
+            generateVerificationCode();
+            
+            // 开始计时
+            startTime = new Date();
+            
+            updateStats();
+            
+            // 重新绑定事件
+            bindEvents();
+            
+            // 重置提示
+            codeHint.textContent = "悬停鼠标在此区域查看验证码，但注意：查看验证码会导致输入框被清空";
+        }
+        
+        // 生成随机验证码
+        function generateVerificationCode() {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            let code = "";
+            
+            for (let i = 0; i < 12; i++) {
+                if (i === 3 || i === 7) {
+                    code += "-";
+                } else {
+                    const randomIndex = Math.floor(Math.random() * chars.length);
+                    code += chars[randomIndex];
+                }
+            }
+            
+            verificationCode.textContent = code;
+        }
+        
+        // 更新统计数据
+        function updateStats() {
+            if (startTime) {
+                const currentTime = new Date();
+                totalTime = Math.floor((currentTime - startTime) / 1000);
+                totalTimeEl.textContent = totalTime;
+                
+                // 计算平均每个字符耗时
+                const inputLength = codeInput.value.length;
+                if (inputLength > 0) {
+                    const avgTime = (totalTime / inputLength).toFixed(1);
+                    charTimeEl.textContent = avgTime;
+                }
+            }
+            
+            resetCountEl.textContent = resetCount;
+            intrusionCountEl.textContent = intrusionCount;
+        }
+        
+        // 绑定事件
+        function bindEvents() {
+            // 输入框获得焦点时，模糊验证码
+            codeInput.addEventListener('focus', function() {
+                verificationCode.classList.add('blurred');
+                isBlurred = true;
+                codeHint.textContent = "验证码已模糊 - 您正在输入模式，工作记忆资源被分配给手指运动";
+                
+                // 记录最后输入时间
+                lastInputTime = new Date();
+            });
+            
+            // 输入框失去焦点时，保持模糊（除非悬停在验证码上）
+            codeInput.addEventListener('blur', function() {
+                if (!codeContainer.matches(':hover')) {
+                    verificationCode.classList.add('blurred');
+                    isBlurred = true;
+                }
+            });
+            
+            // 鼠标悬停在验证码上时，清晰显示但清空输入框
+            codeContainer.addEventListener('mouseenter', function() {
+                verificationCode.classList.remove('blurred');
+                isBlurred = false;
+                
+                // 如果输入框有内容，清空它
+                if (codeInput.value.length > 0) {
+                    codeInput.value = "";
+                    resetCount++;
+                    lookBackCount++;
+                    
+                    // 更新提示
+                    codeHint.textContent = "输入框已被清空！切换回视觉接收模式导致运动执行数据丢失";
+                    
+                    // 更新进度
+                    inputProgress = 0;
+                    
+                    // 检查是否触发诊断图层
+                    if (lookBackCount >= 3 && !diagnosisShown) {
+                        setTimeout(() => {
+                            diagnosisOverlay.style.display = "block";
+                            diagnosisShown = true;
+                        }, 500);
+                    }
+                } else {
+                    codeHint.textContent = "您现在可以看清验证码，但输入框已被清空";
+                }
+                
+                updateStats();
+            });
+            
+            // 鼠标离开验证码区域
+            codeContainer.addEventListener('mouseleave', function() {
+                if (document.activeElement === codeInput) {
+                    verificationCode.classList.add('blurred');
+                    isBlurred = true;
+                    codeHint.textContent = "验证码再次模糊 - 您已切换回输入模式";
+                } else {
+                    codeHint.textContent = "悬停鼠标在此区域查看验证码，但注意：查看验证码会导致输入框被清空";
+                }
+            });
+            
+            // 输入事件 - 监测输入进度和触发思维入侵
+            codeInput.addEventListener('input', function() {
+                // 清除渐隐计时器
+                if (fadeTimer) clearTimeout(fadeTimer);
+                
+                // 重置透明度
+                codeInput.style.opacity = "1";
+                
+                // 更新最后输入时间
+                lastInputTime = new Date();
+                
+                // 更新输入进度
+                inputProgress = codeInput.value.length;
+                
+                // 检查是否触发思维入侵（达到50%进度且尚未触发）
+                if (inputProgress >= 6 && !intrusionTriggered) {
+                    setTimeout(triggerIntrusion, 500);
+                    intrusionTriggered = true;
+                }
+                
+                // 启动渐隐计时器
+                startFadeTimer();
+                
+                updateStats();
+            });
+            
+            // 键盘事件 - 重置最后输入时间
+            codeInput.addEventListener('keydown', function() {
+                lastInputTime = new Date();
+            });
+            
+            // 重置按钮
+            resetBtn.addEventListener('click', initSimulation);
+            
+            // 提示按钮
+            hintBtn.addEventListener('click', function() {
+                diagnosisOverlay.style.display = "block";
+            });
+            
+            // 关闭思维入侵弹窗
+            closeIntrusionBtn.addEventListener('click', function() {
+                intrusionPopup.style.display = "none";
+                
+                // 将输入框内容替换为乱码
+                if (codeInput.value.length > 0) {
+                    codeInput.value = "#".repeat(codeInput.value.length);
+                    resetCount++;
+                    updateStats();
+                }
+            });
+            
+            // 关闭诊断图层
+            closeDiagnosisBtn.addEventListener('click', function() {
+                diagnosisOverlay.style.display = "none";
+            });
+        }
+        
+        // 启动渐隐计时器
+        function startFadeTimer() {
+            if (fadeTimer) clearTimeout(fadeTimer);
+            
+            fadeTimer = setTimeout(() => {
+                // 开始渐隐效果
+                codeInput.classList.add('fade-out');
+                
+                // 渐隐完成后清空输入框
+                setTimeout(() => {
+                    if (codeInput.value.length > 0) {
+                        codeInput.value = "";
+                        resetCount++;
+                        codeInput.classList.remove('fade-out');
+                        codeInput.style.opacity = "1";
+                        codeHint.textContent = "记忆痕迹已衰退 - 由于缺乏持续复述，工作记忆内容已丢失";
+                        updateStats();
+                    }
+                }, 2000);
+            }, 1500); // 1.5秒后开始渐隐
+        }
+        
+        // 触发思维入侵
+        function triggerIntrusion() {
+            // 随机选择一个干扰思维
+            const randomThought = intrusionThoughts[Math.floor(Math.random() * intrusionThoughts.length)];
+            intrusionText.textContent = randomThought;
+            
+            // 显示弹窗
+            intrusionPopup.style.display = "block";
+            
+            // 增加入侵计数
+            intrusionCount++;
+            updateStats();
+        }
+        
+        // 初始化模拟
+        initSimulation();
+        
+        // 更新统计数据的计时器
+        setInterval(updateStats, 1000);
+    </script>
+</body>
+</html>
