@@ -1,909 +1,580 @@
-<!-- DMN DMN网络异常激活模拟-->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ADHD 专注干扰模拟（修复 IME 乱码/刷屏）</title>
+  <title>ADHD 模拟器 - 深度解析完成版</title>
   <style>
-    html, body { margin:0; padding:0; height:100%; font-family:sans-serif; background:#f3f4f6; overflow:hidden; }
+    html, body { margin:0; padding:0; height:100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:#f3f4f6; overflow:hidden; }
     .center-container{ width:100%; height:100%; display:flex; justify-content:center; align-items:center; }
+    
     .task-card{
-      background:#fff; padding:24px; border-radius:16px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.1);
-      max-width: 980px; width:min(980px, calc(100vw - 24px));
-      text-align:center; position:relative;
+      background:#fff; padding:24px; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.05);
+      max-width: 980px; width:min(980px, calc(100vw - 24px)); text-align:center; position:relative;
+      overflow: hidden; 
+      display: flex; flex-direction: column;
     }
 
-    .topbar{
-      display:flex; align-items:flex-start; justify-content:space-between;
-      gap:12px; margin-bottom:10px; flex-wrap:wrap;
+    .topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; }
+    .topbar-left { text-align: left; }
+    .topbar h1{ margin:0; font-size:20px; color:#111827; }
+    .topbar p{ margin:4px 0 0; font-size:13px; color:#6b7280; }
+    
+    .btn-group { display: flex; gap: 10px; }
+    .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; transition: transform 0.1s; text-decoration: none; display: inline-flex; justify-content: center; align-items: center; }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background: #111827; color: white; }
+    .btn-reset { background: #f3f4f6; color: #4b5563; }
+    
+    .btn-science { 
+      background: #059669; color: white; width: 100%; margin-top: 12px; padding: 12px; font-size: 16px;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
     }
-    .topbar-left{ text-align:left; flex:1; min-width: 280px; }
-    .topbar-left h1{ margin:0 0 6px; font-size:20px; }
-    .topbar-left p{ margin:0; color:#6b7280; font-size:14px; }
-    .topbar-right{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
-    .btn{
-      background:#111827; color:#fff; border:none;
-      padding:10px 14px; border-radius:12px;
-      font-size:14px; cursor:pointer;
-      transition:transform .06s ease, opacity .2s ease;
-      user-select:none;
-    }
-    .btn:active{ transform:scale(0.98); }
+    .btn-science:hover { background: #047857; box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3); }
 
-    .require-box{
-      text-align:left;
-      background:#f9fafb;
-      border:1px solid #e5e7eb;
-      border-radius:14px;
-      padding:12px;
-      margin: 10px 0 12px;
-    }
-    .require-box .title{
-      font-size:13px;
-      color:#6b7280;
-      margin-bottom:8px;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-    .progress-pill{
-      font-size:12px;
-      color:#6b7280;
-      border:1px solid #e5e7eb;
-      background:#fff;
-      padding:6px 10px;
-      border-radius:999px;
-      user-select:none;
-    }
-    .require-box pre{
-      margin:0;
-      white-space:pre-wrap;
-      word-break:break-word;
-      font-size:14px;
-      line-height:1.55;
-      color:#111827;
-    }
+    .require-box{ text-align:left; background:#f9fafb; border:1px solid #e5e7eb; border-radius:14px; padding:15px; margin: 15px 0; }
+    .task-desc { color: #374151; font-size: 14px; line-height: 1.6; margin-bottom: 8px; font-weight: 500; }
+    .highlight { color: #b91c1c; background: #fef2f2; padding: 0 4px; border-radius: 4px; }
+    
+    .task-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 8px; }
+    .progress-pill{ background:#fff; border:1px solid #e5e7eb; padding:2px 8px; border-radius:4px; transition: all 0.3s; }
+    .progress-pill.done { color: #059669; border-color: #059669; background: #ecfdf5; font-weight: bold; }
 
     .editor{
-      width:100%;
-      height: 520px;
-      padding:14px;
-      border-radius:12px;
-      border:1px solid #ccc;
-      background:#fff;
-      text-align:left;
-      outline:none;
-      line-height:1.55;
-      box-sizing:border-box;
-      overflow:auto;
-      position:relative;
-      font-size:16px;
-      color:#111;
-      white-space:pre-wrap;
-      word-break:break-word;
+      width:100%; height: 400px; padding:16px; border-radius:12px; border:1px solid #d1d5db;
+      background:#fff; text-align:left; outline:none; line-height:1.7; font-size:16px;
+      overflow-y:auto; position:relative; box-sizing: border-box; z-index: 10;
     }
-    .editor.is-empty::before{
-      content: attr(data-placeholder);
-      color:#9ca3af;
-      pointer-events:none;
-      white-space: pre-wrap;
+    .editor.locked { border-color: #ef4444; background: #fff5f5; animation: editorPulse 2s infinite; }
+    @keyframes editorPulse { 0%, 100% { box-shadow: 0 0 0px rgba(239, 68, 68, 0.2); } 50% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); } }
+
+    .editor.is-empty::before{ content: attr(data-placeholder); color:#9ca3af; pointer-events:none; position: absolute; }
+    .dmn-span{ color: #a1a1aa; font-style: italic; letter-spacing: 0.5px; }
+
+    .bottom-nav {
+      margin-top: 20px; padding-top: 15px; border-top: 1px solid #f3f4f6;
+      display: flex; justify-content: flex-start; align-items: center;
     }
-    .dmn-span{
-      color: rgba(107,114,128,0.55);
-      user-select:none;
-      pointer-events:none;
-      white-space:pre-wrap;
-      word-break:break-word;
+    .nav-link {
+      text-decoration: none; color: #9ca3af; font-size: 13px; display: flex; align-items: center; gap: 6px; transition: all 0.2s; padding: 6px 10px; border-radius: 6px;
     }
-    .locked{ box-shadow: 0 0 0 3px rgba(156,163,175,0.22) inset; }
+    .nav-link:hover { background: #f3f4f6; color: #4b5563; }
 
     .side-pop{
-      position:absolute;
-      width: 360px;
-      max-width: 40vw;
-      padding: 14px 16px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.94);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(229,231,235,0.95);
-      box-shadow: 0 12px 28px rgba(0,0,0,0.16);
-      color: rgba(107,114,128,0.78);
-      font-size: 15px;
-      line-height: 1.5;
-      pointer-events:none;
-      user-select:none;
-      white-space: pre-wrap;
-      word-break: break-word;
-      z-index: 30;
-
-      opacity: 0;
-      transform: translateY(10px) scale(0.985);
-      animation: popInOut 9.2s ease-in-out forwards;
+      position:absolute; width: 240px; padding: 12px 16px; border-radius: 12px;
+      background: rgba(255,255,255,0.95); border: 1px solid #e5e7eb;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      color: #6b7280; font-size: 13px; pointer-events:none; z-index: 20;
+      text-align: left; line-height: 1.5;
+      backdrop-filter: blur(4px);
+      animation: popInOut 5s ease-in-out forwards;
     }
     @keyframes popInOut{
-      0%   { opacity: 0; transform: translateY(14px) scale(0.985); }
-      10%  { opacity: 1; transform: translateY(0px)  scale(1); }
-      86%  { opacity: 1; transform: translateY(0px)  scale(1); }
-      100% { opacity: 0; transform: translateY(-10px) scale(0.985); }
+      0% { opacity:0; transform:translateY(15px) scale(0.95); }
+      10% { opacity:1; transform:translateY(0) scale(1); }
+      80% { opacity:1; transform:translateY(0) scale(1); }
+      100% { opacity:0; transform:translateY(-15px) scale(0.95); }
     }
 
     .meme-overlay{
-      position:fixed; inset:0; background:rgba(0,0,0,0.9);
-      display:none; justify-content:center; align-items:center; z-index:50;
+      position:fixed; inset:0; background:rgba(0,0,0,0.95);
+      display:none; justify-content:center; align-items:center; z-index:100; flex-direction:column;
     }
-    .meme-container{
-      width:100%; height:100%;
-      display:flex; justify-content:center; align-items:center;
-      flex-direction:column; gap:16px; padding:24px; box-sizing:border-box;
+    @keyframes zoomIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes glitch { 0% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 80% { transform: translate(2px, -2px); } 100% { transform: translate(0); } }
+    
+    .meme-overlay.active .meme-content { 
+      animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+      width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
     }
-    .meme-container img{ width:80vw; height:70vh; object-fit:contain; }
-    .close-btn{
-      font-size:18px; color:white; cursor:pointer; user-select:none;
-      opacity:0.9; transition:opacity .2s;
-      padding:10px 14px; border-radius:999px;
-      background:rgba(255,255,255,0.12);
-      border:1px solid rgba(255,255,255,0.2);
+    .meme-overlay.active img { animation: glitch 0.3s infinite; }
+    
+    .meme-overlay img { 
+      max-width: 90vw; max-height: 80vh; 
+      object-fit: contain; border-radius:12px; border: 4px solid #fff; 
+      box-shadow: 0 0 50px rgba(255,255,255,0.3); margin-bottom: 20px;
     }
-    .close-btn:hover{ opacity:1; }
-    .hint{ color:rgba(255,255,255,0.85); font-size:14px; text-align:center; max-width:560px; line-height:1.5; }
+    .meme-hint{ color:#fff; margin-bottom:15px; text-align:center; font-size: 24px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 
-    .submit-overlay{
-      position:fixed; inset:0;
-      display:none;
-      justify-content:center; align-items:center;
-      background: rgba(17,24,39,0.70);
-      z-index:60;
-      padding:18px;
-      box-sizing:border-box;
+    .btn-restore {
+      background: #ef4444; color: white; border: none; padding: 14px 40px; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); transition: transform 0.1s, box-shadow 0.1s; z-index: 101;
     }
-    .submit-panel{
-      width:min(760px, 100%);
-      background:#fff;
-      border-radius:18px;
-      box-shadow:0 24px 70px rgba(0,0,0,0.30);
-      padding:16px;
-      box-sizing:border-box;
-      text-align:left;
-    }
-    .submit-header{
-      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
-      border-bottom:1px solid #e5e7eb;
-      padding-bottom:10px; margin-bottom:12px;
-    }
-    .submit-header h2{ margin:0; font-size:18px; }
-    .submit-header .sub{ margin:6px 0 0; color:#6b7280; font-size:13px; line-height:1.5; }
-    .xbtn{
-      width:38px; height:38px; border-radius:12px;
-      border:1px solid #e5e7eb; background:#f9fafb;
-      display:flex; align-items:center; justify-content:center;
-      cursor:pointer; user-select:none;
-    }
-    .preview{
-      white-space:pre-wrap; word-break:break-word;
-      font-size:14px; line-height:1.6;
-      background:#f9fafb; border:1px solid #e5e7eb;
-      padding:12px; border-radius:14px;
-      max-height: 280px; overflow:auto;
-    }
-    .footer-actions{
-      display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
-      margin-top:12px;
-      border-top:1px solid #e5e7eb;
-      padding-top:12px;
-    }
+    .btn-restore:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(239, 68, 68, 0.8); }
+    .btn-restore:active { transform: scale(0.95); }
 
-    .debug{
-      position:absolute;
-      right: 18px;
-      bottom: 14px;
-      font-size: 12px;
-      color: #9ca3af;
-      user-select:none;
-      pointer-events:none;
+    /* 结算弹窗 */
+    .success-overlay {
+      position:fixed; inset:0; background:rgba(255,255,255,0.1); backdrop-filter: blur(8px);
+      display:none; justify-content:center; align-items:center; z-index: 200;
     }
+    .result-card {
+      background: #fff; width: 600px;
+      max-width: 90vw; max-height: 90vh; overflow-y: auto;
+      padding: 30px; border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2); text-align: center;
+      animation: cardUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 1px solid #e5e7eb;
+    }
+    @keyframes cardUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    
+    .result-icon { font-size: 48px; margin-bottom: 10px; display:block; }
+    .result-title { font-size: 24px; font-weight: bold; margin-bottom: 5px; color: #111827; }
+    .result-desc { color: #6b7280; font-size: 14px; margin-bottom: 25px; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 25px; }
+    .stat-item { background: #f9fafb; padding: 10px; border-radius: 12px; border: 1px solid #f3f4f6; }
+    .stat-val { display: block; font-size: 18px; font-weight: bold; color: #111827; }
+    .stat-label { font-size: 11px; color: #9ca3af; }
+
+    /* 体验解码区域 */
+    .debrief-box {
+        text-align: left;
+        background: #f0fdf4;
+        border: 1px solid #dcfce7;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    .debrief-title { font-size: 15px; font-weight: bold; color: #166534; margin-bottom: 12px; border-bottom: 1px solid #bbf7d0; padding-bottom: 8px; }
+    .debrief-item { margin-bottom: 10px; font-size: 13px; color: #374151; line-height: 1.5; display: flex; gap: 8px; }
+    .debrief-item:last-child { margin-bottom: 0; }
+    .debrief-icon { font-size: 16px; min-width: 20px; }
+    .debrief-bold { font-weight: 600; color: #111827; }
+
     .toast{
-      position:fixed;
-      left:50%;
-      bottom:22px;
-      transform:translateX(-50%);
-      background:rgba(17,24,39,0.92);
-      color:#fff;
-      padding:10px 14px;
-      border-radius:999px;
-      font-size:13px;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .18s ease, transform .18s ease;
-      z-index:70;
+      position:fixed; left:50%; bottom: 20%; transform:translateX(-50%);
+      background: rgba(220, 38, 38, 0.95); color: #fff; padding: 16px 32px; border-radius: 50px; font-size: 18px; font-weight: 600; box-shadow: 0 10px 25px rgba(220, 38, 38, 0.4); opacity: 0; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 200; pointer-events: none; white-space: nowrap;
     }
-    .toast.show{
-      opacity:1;
-      transform:translateX(-50%) translateY(-6px);
-    }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(-10px); }
+    .debug{ position:absolute; bottom:55px; right:20px; font-size:11px; color:#9ca3af; }
   </style>
 </head>
 <body>
-  <div class="center-container">
-    <div class="task-card" id="card">
-      <div class="topbar">
-        <div class="topbar-left">
-          <h1>写一封邮件，解释周报迟交的原因</h1>
-          <p>要求：语义清晰，无错别字（禁止粘贴/拖拽；提交按“正文包含指定段落”判定）</p>
-        </div>
-        <div class="topbar-right">
-          <button class="btn" id="submitBtn">提交</button>
-        </div>
+
+<div class="center-container">
+  <div class="task-card" id="taskCard">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>撰写：周报迟交解释邮件</h1>
+        <p>开放任务：请根据下方要求撰写邮件。</p>
       </div>
-
-      <div class="require-box">
-        <div class="title">
-          <span>提交条件：正文需包含下面段落（允许全角/半角标点、空格/换行差异）。</span>
-          <span class="progress-pill" id="typeProgress">0%</span>
-        </div>
-        <pre id="requiredTextUI"></pre>
-      </div>
-
-      <div id="editor" class="editor is-empty" contenteditable="true"
-           spellcheck="false"
-           data-placeholder="尊敬的领导，关于本周周报迟交的原因……"></div>
-
-      <div class="debug" id="debug"></div>
-    </div>
-  </div>
-
-  <!-- GIF 模块 -->
-  <div class="meme-overlay" id="memeOverlay">
-    <div class="meme-container">
-      <div class="hint">
-        注意力被劫持了。按住 <b>空格键</b> 1 秒把注意力拉回任务（或点击按钮恢复）。<br/>
-        <span style="opacity:.75;">恢复后会有冷却期，不会立刻再次触发。</span>
-      </div>
-      <img src="video/meme.gif" alt="attention hijack" />
-      <div class="close-btn" id="closeBtn">回到任务</div>
-    </div>
-  </div>
-
-  <!-- 提交成功反馈 -->
-  <div class="submit-overlay" id="submitOverlay">
-    <div class="submit-panel">
-      <div class="submit-header">
-        <div>
-          <h2>提交成功 ✅</h2>
-          <div class="sub">模拟发送完成（不会真的发送）。你可以继续编辑或关闭。</div>
-        </div>
-        <div class="xbtn" id="submitCloseX">×</div>
-      </div>
-      <div class="preview" id="submitPreview"></div>
-      <div class="footer-actions">
-        <button class="btn" id="submitOkBtn">继续编辑</button>
+      <div class="btn-group">
+        <button class="btn btn-reset" onclick="location.reload()">重置</button>
+        <button class="btn btn-primary" id="submitBtn">发送邮件</button>
       </div>
     </div>
+
+    <div class="require-box">
+      <div class="task-desc">
+        任务：给领导写一封邮件，解释<b>数据核对未完成</b>以及<b>周报迟交</b>的原因，并<span class="highlight">明确告知六点前补交</span>。<br>
+        要求：语义通顺，态度诚恳，内容完整。
+      </div>
+      <div class="task-meta">
+        <span>最低字数要求：50字</span>
+        <span class="progress-pill" id="charCount">0 / 50</span>
+      </div>
+    </div>
+
+    <div id="editor" class="editor is-empty" contenteditable="true" spellcheck="false" data-placeholder="尊敬的领导，非常抱歉..."></div>
+    
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-link">
+            <span>←</span> 返回主界面
+        </a>
+    </div>
+
+    <div class="debug" id="debug"></div>
   </div>
+</div>
 
-  <div class="toast" id="toast"></div>
+<div class="meme-overlay" id="memeOverlay">
+  <div class="meme-content">
+    <div class="meme-hint">⚠ 思维已过载 ⚠</div>
+    <img src="meme.gif" alt="Focus Hijack">
+    <button class="btn-restore" id="closeHijackBtn">强制重启大脑</button>
+  </div>
+</div>
 
-  <script>
-    // ===== 必填段落 =====
-    const REQUIRED_TEXT =
-`领导您好，本周周报迟交主要由于临时需求插入与数据口径需要重新核对，导致整理与复核时间超出预期。目前周报主体内容已完成，我正在补充最终数据与结论校验，预计今天18:00前补交完整版本。后续我会提前锁定口径并预留复核时间，避免再次出现类似延误。`;
+<div class="success-overlay" id="successOverlay">
+  <div class="result-card">
+    <span class="result-icon">🎉</span>
+    <div class="result-title">邮件发送成功！</div>
+    <div class="result-desc">你成功克服了拖延与焦虑，但刚才的体验并非游戏。</div>
+    
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-val" id="statTime">0s</span>
+        <span class="stat-label">总耗时</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val" id="statDeletes">0</span>
+        <span class="stat-label">删除杂念</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val" id="statDistractions">0</span>
+        <span class="stat-label">思维阻断</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val" id="statHijacks">0</span>
+        <span class="stat-label">被GIF劫持</span>
+      </div>
+    </div>
 
-    // ===== 灰字触发 =====
-    const TRIGGER = {
-      minCharsBeforePossible: 18,
-      baseProbPerInput: 0.06,
-      probGrowPerChar: 0.0015,
-      probCap: 0.22,
-      cooldownMs: 4500,
-      minGapBetweenLocksMs: 9000
-    };
-    const TRIGGER_WORDS = ["错误","抱歉","不好意思","来不及","拖延","失误","问题","出错","延期","耽误"];
+    <div class="debrief-box">
+        <div class="debrief-title">🔬 刚才发生了什么？体验背后的神经科学：</div>
+        
+        <div class="debrief-item">
+            <span class="debrief-icon">👻</span>
+            <div>
+                <span class="debrief-bold">自动生成的灰字 (思维阻断)：</span> 
+                模拟 <b>DMN（默认模式网络）过度活跃</b>。即便你想专注，大脑也会不断产生杂念、自我质疑（"这样写对吗？"）和无关联想，干扰你的思考流。
+            </div>
+        </div>
 
-    const DELETE_REBOUND = {
-      growUntil: 90,
-      addMin: 6,
-      addMax: 12,
-      removePerPress: 12,
-      hardCap: 140
-    };
+        <div class="debrief-item">
+            <span class="debrief-icon">🐈</span>
+            <div>
+                <span class="debrief-bold">强制全屏动图 (GIF劫持)：</span> 
+                模拟 <b>多巴胺匮乏导致的前额叶“死机”</b>。当认知疲劳达到极限，大脑会强制切断任务连接，寻找高刺激源（如刷手机、发呆），也就是俗称的“断片”。
+            </div>
+        </div>
 
-    const DMN_BANK = {
-      micro: ["...等等。","...不对。","...又来了。","...糟了。","...先停一下。","...刚刚那句怪怪的。","是不是太直接了？","语气要不要软一点？","我是不是在找借口？","我忘了什么吗？","标题写什么来着？"],
-      shame: ["…他们会不会觉得我不靠谱？","…我是不是又搞砸了？","…领导是不是已经不耐烦了？","…我为什么总是这样？","…我是不是不适合这份工作？"],
-      memory: ["…三年前那个项目也是这样拖到最后，会议室的灯好白。","…上次周报我写错日期，发出去两分钟才发现。","…那次复盘我明明准备了，但一开口就卡壳。"],
-      survival: ["…如果不干这行我去卖煎饼果子会不会更轻松？","…要不我开个小店？只卖两样东西。","…或者去当图书管理员？安静、整齐、可预测。"],
-      bodily: ["…手心怎么出汗了？","…肩膀又绷紧了。","…口干，要不要喝水？","…心跳太快了。"],
-      food: ["…中午吃什么？","…煎饼果子要不要加蛋？","…奶茶今天能不能喝？","…薄脆咔嚓那一下其实很治愈。"],
-      absurd: ["…我能不能把“迟交”写成“延迟同步”？","…要不我把周报做成 PPT？不，别给自己加戏。","…别再想表格对齐了，没人会看对齐。会吗？"],
-      rescue: ["…一句话就行：原因、进度、补救。","…先写重点：已完成什么、剩什么、什么时候补上。","…用事实，不要自责。"]
-    };
+        <div class="debrief-item">
+            <span class="debrief-icon">🛑</span>
+            <div>
+                <span class="debrief-bold">删不掉的错字/阻力：</span> 
+                模拟 <b>执行功能障碍</b>。这是典型的<b>“意向-行动断裂”</b>。大脑清楚地发出了指令，但身体却像“鬼压床”一样无法响应。简单的纠错动作，在神经回路中遭遇了巨大的<b>认知摩擦</b>，变得寸步难行。
+            </div>
+        </div>
+    </div>
 
-    const SIDE_POP = {
-      baseProbPerInput: 0.28,
-      lockedBoost: 0.18,
-      minGapMs: 320,
-      maxOnScreen: 3,
-      lifeMs: 9200,
-      maxJitterX: 90,
-      maxJitterY: 140,
-      ringPad: 18,
-      cardInnerPad: 10
-    };
+    <div style="display:flex; flex-direction:column; gap:8px;">
+        <a href="index.html#adhd" class="btn btn-science" style="text-decoration: none;">
+            🎓 了解更多：ADHD 的脑科学原理 →
+        </a>
+        
+        <button class="btn btn-reset" style="width:100%" onclick="location.reload()">再试一次</button>
+    </div>
+  </div>
+</div>
 
-    const HIJACK = {
-      deltaCharsThreshold: 35,
-      cooldownMs: 16000,
-      holdToResumeMs: 900
-    };
+<div class="toast" id="toast">提示</div>
 
-    // ===== DOM =====
-    const card = document.getElementById("card");
-    const editor = document.getElementById("editor");
-    const memeOverlay = document.getElementById("memeOverlay");
-    const closeBtn = document.getElementById("closeBtn");
-    const debugEl = document.getElementById("debug");
+<script>
+  const MIN_CHARS = 50;
+  const STATS = { startTime: Date.now(), deleteCount: 0, distractionCount: 0, hijackCount: 0 };
 
-    const submitBtn = document.getElementById("submitBtn");
-    const submitOverlay = document.getElementById("submitOverlay");
-    const submitPreview = document.getElementById("submitPreview");
-    const submitCloseX = document.getElementById("submitCloseX");
-    const submitOkBtn = document.getElementById("submitOkBtn");
-    const toast = document.getElementById("toast");
-
-    const requiredTextUI = document.getElementById("requiredTextUI");
-    const typeProgress = document.getElementById("typeProgress");
-    requiredTextUI.textContent = REQUIRED_TEXT;
-
-    // ===== 规范化（用于“包含判定”）=====
-    function normalizeForCheck(s){
-      if (!s) return "";
-      return s
-        .replace(/：/g, ":")
-        .replace(/，/g, ",")
-        .replace(/。/g, ".")
-        .replace(/；/g, ";")
-        .replace(/！/g, "!")
-        .replace(/？/g, "?")
-        .replace(/（/g, "(")
-        .replace(/）/g, ")")
-        .replace(/【/g, "[")
-        .replace(/】/g, "]")
-        .replace(/“|”/g, "\"")
-        .replace(/‘|’/g, "'")
-        .replace(/—/g, "-")
-        .replace(/…/g, "...")
-        .replace(/\s*:\s*/g, ":")
-        .replace(/\s/g, "");
+  const THEME_POOLS = {
+    etiquette: { 
+      label: "社交礼仪",
+      keywords: /(您|领导|经理|老师|抱歉|不好意思|辛苦)/, 
+      texts: ["…语气会不会太卑微了？","…要不要先问候一下他家里的猫？","…他现在肯定在生气。","…这句话读起来有点生硬。"] 
+    },
+    logic: { 
+      label: "逻辑漏洞",
+      keywords: /(因为|导致|所以|目前|但是|然而|由于)/, 
+      texts: ["…这逻辑狗屁不通，他一眼就能看穿。","…主体已完成？哪部分是主体？","…万一他问我具体的进度怎么办？"] 
+    },
+    data_panic: { 
+      label: "数据恐慌",
+      keywords: /(数据|核对|锁定|准确|源|检查|对账)/, 
+      texts: ["…锁定后就不能改了，万一有错怎么办？","…我是不是漏算了一个Sheet？","…那个VLOOKUP公式好像没拉到底。"] 
+    },
+    time_panic: { 
+      label: "时间恐慌",
+      keywords: /(时间|六点|补交|预计|迟|晚|18:00)/, 
+      texts: ["…六点会不会太晚了？要不要拼一下五点半？","…这时候发邮件，他会不会已经下班了？","…万一六点我也交不出呢？"] 
+    },
+    general: {
+      label: "杂念",
+      keywords: /.*/, 
+      texts: ["…好饿，想吃火锅。","…刚才那个红点还没消，好难受。","…我是不是不适合这份工作？","…手机刚才是不是震了一下？","…窗外这只鸟叫得真大声。"]
     }
-    const REQUIRED_NORM = normalizeForCheck(REQUIRED_TEXT);
+  };
 
-    // ===== 工具函数 =====
-    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-    function randInt(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
-    function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+  let lastActiveTheme = "logic";
+  let locked = false;
+  let dmnPhase = "grow"; 
+  let currentThought = ""; 
+  let thoughtIndex = 0;    
+  let triggerCooldown = 0;
+  let stressScore = 0;
+  let lastInputTime = Date.now();
+  let hijackCooldown = 0;
+  let currentLength = 0;
+  let isComposing = false;
 
-    function showToast(msg){
-      toast.textContent = msg;
-      toast.classList.add("show");
-      setTimeout(()=>toast.classList.remove("show"), 1600);
+  const editor = document.getElementById('editor');
+  const taskCard = document.getElementById('taskCard');
+  const toast = document.getElementById('toast');
+  const debugEl = document.getElementById('debug');
+  const memeOverlay = document.getElementById('memeOverlay');
+  const successOverlay = document.getElementById('successOverlay');
+  const submitBtn = document.getElementById('submitBtn');
+  const closeHijackBtn = document.getElementById('closeHijackBtn');
+  const charCountEl = document.getElementById('charCount');
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function showToast(msg) { 
+    toast.textContent = msg; toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  function getUserText() {
+    const clone = editor.cloneNode(true);
+    clone.querySelectorAll('.dmn-span').forEach(s => s.remove());
+    return clone.textContent || "";
+  }
+
+  function forceCaret() {
+    if (!locked) return;
+    const span = editor.querySelector('.dmn-span');
+    if (!span) return;
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.setStartBefore(span);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function spawnSidePop() {
+    if (document.querySelectorAll('.side-pop').length > 5) return;
+    const pop = document.createElement('div');
+    pop.className = 'side-pop';
+    const poolKey = Math.random() < 0.6 ? lastActiveTheme : pick(Object.keys(THEME_POOLS));
+    pop.textContent = pick(THEME_POOLS[poolKey].texts);
+    const cardRect = taskCard.getBoundingClientRect();
+    const x = 20 + Math.random() * (cardRect.width - 280);
+    const y = 80 + Math.random() * (cardRect.height - 140);
+    pop.style.left = x + 'px';
+    pop.style.top = y + 'px';
+    taskCard.appendChild(pop);
+    setTimeout(() => { if(pop.parentNode) pop.remove(); }, 5000);
+  }
+
+  submitBtn.addEventListener('click', () => {
+    if (currentLength < MIN_CHARS) {
+      showToast(`内容太少了！至少需要写 ${MIN_CHARS} 字 (当前: ${currentLength})`);
+      return;
     }
+    const duration = Math.floor((Date.now() - STATS.startTime) / 1000);
+    document.getElementById('statTime').textContent = duration + "s";
+    document.getElementById('statDeletes').textContent = STATS.deleteCount;
+    document.getElementById('statDistractions').textContent = STATS.distractionCount;
+    document.getElementById('statHijacks').textContent = STATS.hijackCount;
+    successOverlay.style.display = 'flex';
+  });
 
-    function orderedCoverLen(needle, hay){
-      let i=0, j=0;
-      while (i < needle.length && j < hay.length){
-        if (needle[i] === hay[j]) i++;
-        j++;
-      }
-      return i;
-    }
+  closeHijackBtn.addEventListener('click', () => {
+    memeOverlay.classList.remove('active');
+    memeOverlay.style.display = 'none';
+    stressScore = 0; 
+    hijackCooldown = Date.now() + 20000; 
+    editor.focus();
+    showToast("多巴胺平复，注意力回归...");
+  });
 
-    function getUserText(){
-      const clone = editor.cloneNode(true);
-      clone.querySelectorAll(".dmn-span").forEach(n => n.remove());
-      clone.querySelectorAll(".dmn-marker").forEach(n => n.remove());
-      return clone.textContent || "";
-    }
-
-    function updateProgressFromBody(){
-      const bodyNorm = normalizeForCheck(getUserText());
-      const matched = orderedCoverLen(REQUIRED_NORM, bodyNorm);
-      const pct = Math.floor((matched / REQUIRED_NORM.length) * 100);
-      typeProgress.textContent = `${pct}%`;
-    }
-
-    function hasRequiredInBody(){
-      return normalizeForCheck(getUserText()).includes(REQUIRED_NORM);
-    }
-
-    function updatePlaceholder(){
-      const t = normalizeForCheck(getUserText());
-      const hasDMN = !!editor.querySelector(".dmn-span");
-      editor.classList.toggle("is-empty", t.length === 0 && !hasDMN);
-    }
-
-    function ensureSelectionInEditor(){
-      const sel = window.getSelection();
-      if (sel && sel.rangeCount) {
-        const node = sel.anchorNode;
-        if (node && editor.contains(node)) return;
-      }
-      editor.focus();
-      const sel2 = window.getSelection();
-      const r = document.createRange();
-      r.selectNodeContents(editor);
-      r.collapse(false);
-      sel2.removeAllRanges();
-      sel2.addRange(r);
-    }
-
-    // ===== 灰字（锁定）核心 =====
-    let locked = false;
-    let dmnPhase = "grow";
-    let dmnSpan = null;
-    let marker = null;
-    let markerId = 0;
-
-    let triggerCooldownUntil = 0;
-    let lastLockAt = 0;
-    let lastUserText = "";
-
-    // GIF
-    let baseLen = 0;
-    let hijackCooldownUntil = 0;
-
-    // ✅ IME/DOM 回滚保护（关键修复）
-    let lockObserver = null;
-    let lockedHtmlSnapshot = "";
-    let internalDomWrite = false;
-    let lastWarnAt = 0;
-
-    function rebindLockedNodes(){
-      marker = editor.querySelector(".dmn-marker") || null;
-      dmnSpan = editor.querySelector(".dmn-span") || null;
-    }
-
-    function refreshLockedSnapshot(){
-      if (!locked) return;
-      lockedHtmlSnapshot = editor.innerHTML;
-    }
-
-    function startLockObserver(){
-      if (lockObserver) return;
-      lockObserver = new MutationObserver(() => {
-        if (!locked) return;
-        if (internalDomWrite) return;
-
-        // 有任何“非我们预期”的写入（IME 合成串等），立刻回滚
-        internalDomWrite = true;
-        editor.innerHTML = lockedHtmlSnapshot;
-        rebindLockedNodes();
-        setTimeout(() => {
-          forceCaretAtMarker();
-          internalDomWrite = false;
-        }, 0);
-      });
-      lockObserver.observe(editor, { childList:true, subtree:true, characterData:true });
-    }
-
-    function stopLockObserver(){
-      if (lockObserver) {
-        lockObserver.disconnect();
-        lockObserver = null;
-      }
-    }
-
-    function forceCaretAtMarker(){
-      if (!marker || !marker.isConnected) return;
-      editor.focus();
-      const sel = window.getSelection();
-      const r = document.createRange();
-      r.setStartBefore(marker);
-      r.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(r);
-    }
-
-    function genDMNText(){
-      const pools = ["micro","shame","memory","survival","bodily","food","absurd","rescue"];
-      const n = randInt(2, 4);
-      const chosen = [];
-      while (chosen.length < n) {
-        const k = pick(pools);
-        if (chosen.length === 0 || chosen[chosen.length-1] !== k) chosen.push(k);
-      }
-      const parts = chosen.map(k => pick(DMN_BANK[k]));
-      let text = parts.join(Math.random() < 0.5 ? " " : "…");
-      if (Math.random() < 0.25) text = "…" + text;
-      if (text.length > 140) text = text.slice(0, 140) + "…";
-      return text;
-    }
-
-    function enterLockedMode(){
-      locked = true;
-      dmnPhase = "grow";
-      editor.classList.add("locked");
-      refreshLockedSnapshot();
-      startLockObserver();
-      forceCaretAtMarker();
-    }
-
-    function exitLockedMode(){
-      locked = false;
-      dmnPhase = "grow";
-      editor.classList.remove("locked");
-      stopLockObserver();
-      lockedHtmlSnapshot = "";
-    }
-
-    function insertDMNAtCaret(text){
-      if (locked) return;
-
-      const now = Date.now();
-      if (now - lastLockAt < TRIGGER.minGapBetweenLocksMs) return;
-      if (now < triggerCooldownUntil) return;
-
-      ensureSelectionInEditor();
-      const sel = window.getSelection();
-      if (!sel || !sel.rangeCount) return;
-      const range = sel.getRangeAt(0);
-      range.collapse(true);
-
-      marker = document.createElement("span");
-      marker.className = "dmn-marker";
-      marker.setAttribute("data-mid", String(++markerId));
-
-      dmnSpan = document.createElement("span");
-      dmnSpan.className = "dmn-span";
-      dmnSpan.contentEditable = "false";
-      dmnSpan.textContent = text;
-
-      internalDomWrite = true;
-      range.insertNode(dmnSpan);
-      range.insertNode(marker);
-      internalDomWrite = false;
-
-      lastLockAt = now;
-      triggerCooldownUntil = now + TRIGGER.cooldownMs;
-
-      enterLockedMode();
-      updatePlaceholder();
-      editor.scrollTop = editor.scrollHeight;
-      updateDebug();
-    }
-
-    function appendMoreDMN(){
-      if (!dmnSpan) return;
-      const len = (dmnSpan.textContent || "").length;
-      if (len >= DELETE_REBOUND.hardCap) { dmnPhase = "shrink"; return; }
-
-      const addLen = randInt(DELETE_REBOUND.addMin, DELETE_REBOUND.addMax);
-      const piece = genDMNText().slice(0, addLen);
-      const room = DELETE_REBOUND.hardCap - len;
-
-      internalDomWrite = true;
-      dmnSpan.textContent += piece.slice(0, room);
-      internalDomWrite = false;
-
-      if ((dmnSpan.textContent || "").length >= DELETE_REBOUND.growUntil) dmnPhase = "shrink";
-      refreshLockedSnapshot();
-      editor.scrollTop = editor.scrollHeight;
-    }
-
-    function shrinkDMN(){
-      if (!dmnSpan) return;
-      const t = dmnSpan.textContent || "";
-      const n = DELETE_REBOUND.removePerPress;
-
-      internalDomWrite = true;
-      if (t.length <= n) {
-        internalDomWrite = false;
-        removeDMNAndUnlock();
-        return;
-      }
-      dmnSpan.textContent = t.slice(0, t.length - n);
-      internalDomWrite = false;
-
-      refreshLockedSnapshot();
-      editor.scrollTop = editor.scrollHeight;
-    }
-
-    function removeDMNAndUnlock(){
-      internalDomWrite = true;
-      if (dmnSpan && dmnSpan.parentNode) dmnSpan.parentNode.removeChild(dmnSpan);
-      if (marker && marker.parentNode) marker.parentNode.removeChild(marker);
-      internalDomWrite = false;
-
-      dmnSpan = null;
-      marker = null;
-
-      exitLockedMode();
-      ensureSelectionInEditor();
-      updatePlaceholder();
-      lastUserText = getUserText();
-      baseLen = (editor.textContent || "").length;
-      updateProgressFromBody();
-      updateDebug();
-    }
-
-    // ✅ 锁定时：点哪里都把光标拉回 marker 前
-    editor.addEventListener("mouseup", () => { if (locked) setTimeout(forceCaretAtMarker, 0); });
-    editor.addEventListener("keyup", () => { if (locked) setTimeout(forceCaretAtMarker, 0); });
-    editor.addEventListener("focus", () => { if (locked) setTimeout(forceCaretAtMarker, 0); });
-
-    // ✅ 关键：锁定时打断 IME 合成，防止拼音串进 DOM
-    editor.addEventListener("compositionstart", () => {
-      if (!locked) return;
-      // 打断合成：blur -> focus，并拉回光标
+  editor.addEventListener('compositionstart', (e) => {
+    if (locked) {
       editor.blur();
-      setTimeout(() => {
-        editor.focus();
-        forceCaretAtMarker();
-      }, 0);
-    });
+      setTimeout(() => { editor.focus(); forceCaret(); }, 10);
+      showToast("杂念太多，暂时打不出字...");
+      return;
+    }
+    isComposing = true;
+  });
 
-    // ===== 禁止粘贴/拖拽 =====
-    editor.addEventListener("paste", (e) => { e.preventDefault(); showToast("禁止粘贴：需要手动输入"); });
-    editor.addEventListener("drop", (e) => { e.preventDefault(); showToast("禁止拖拽：需要手动输入"); });
-    editor.addEventListener("dragover", (e) => e.preventDefault());
-    editor.addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && (e.key === "v" || e.key === "V")) {
-        e.preventDefault();
-        showToast("禁止粘贴：需要手动输入");
-      }
-    });
-
-    // ===== 锁定期拦截：只允许 delete 玩法 =====
-    editor.addEventListener("beforeinput", (e) => {
-      // 非锁定：正常
-      if (!locked) {
-        const t = e.inputType || "";
-        if (t === "insertFromPaste" || t === "insertFromDrop") {
-          e.preventDefault();
-          showToast("禁止粘贴/拖拽：需要手动输入");
-          return;
+  editor.addEventListener('compositionend', (e) => {
+    isComposing = false;
+    setTimeout(() => {
+        checkAndTrigger(true);
+        if (stressScore >= 100 && Date.now() > hijackCooldown) {
+            triggerHijack();
         }
-        return;
-      }
+    }, 10);
+  });
 
-      // 锁定：硬拦截所有输入，只处理 delete
-      if (memeOverlay.style.display === "flex") { e.preventDefault(); return; }
-      if (submitOverlay.style.display === "flex") { e.preventDefault(); return; }
+  editor.addEventListener('focus', () => {
+    if (memeOverlay.style.display === 'flex') {
+      editor.blur(); 
+    }
+  });
 
-      const t = e.inputType || "";
+  editor.addEventListener('beforeinput', (e) => {
+    if (memeOverlay.style.display === 'flex') {
       e.preventDefault();
-      forceCaretAtMarker();
-
-      if (t.startsWith("delete")) {
-        if (dmnPhase === "grow") appendMoreDMN();
-        else shrinkDMN();
-        maybeSpawnSidePop(true);
-      } else {
-        const now = Date.now();
-        if (now - lastWarnAt > 900) {
-          showToast("灰字挡住了：先按删除键把它删掉");
-          lastWarnAt = now;
-        }
-        if (Math.random() < 0.18) maybeSpawnSidePop(true);
-      }
-      updateDebug();
-    }, true);
-
-    // keydown 双保险（尤其对 IME 某些键）
-    document.addEventListener("keydown", (e) => {
-      if (!locked) return;
-      if (memeOverlay.style.display === "flex") return;
-      if (submitOverlay.style.display === "flex") return;
-      if (document.activeElement !== editor) return;
-
-      // 只放行 Backspace/Delete，其余都阻止
-      if (e.key !== "Backspace" && e.key !== "Delete") {
-        e.preventDefault();
-        forceCaretAtMarker();
-        const now = Date.now();
-        if (now - lastWarnAt > 900) {
-          showToast("灰字挡住了：先按删除键把它删掉");
-          lastWarnAt = now;
-        }
-        return;
-      }
-
+      return;
+    }
+    if (locked && !e.inputType.startsWith('deleteContent')) {
       e.preventDefault();
-      forceCaretAtMarker();
-      if (dmnPhase === "grow") appendMoreDMN();
-      else shrinkDMN();
-      maybeSpawnSidePop(true);
-      updateDebug();
-    }, true);
+      forceCaret();
+    }
+  });
 
-    // ===== 非锁定 input：触发灰字/弹窗/GIF + 更新进度 =====
-    editor.addEventListener("input", () => {
-      if (locked) return;
-      updatePlaceholder();
-      updateProgressFromBody();
-      maybeSpawnSidePop(false);
-      maybeTriggerDMN();
-      maybeTriggerHijack();
-      updateDebug();
-    });
-
-    function maybeTriggerDMN(){
-      const nowText = getUserText();
-      const delta = nowText.slice(lastUserText.length);
-      lastUserText = nowText;
-
-      if (delta && TRIGGER_WORDS.some(w => delta.includes(w))) {
-        insertDMNAtCaret(genDMNText());
-        return;
-      }
-
-      if (nowText.length < TRIGGER.minCharsBeforePossible) return;
-
-      const extra = Math.max(0, nowText.length - TRIGGER.minCharsBeforePossible);
-      let p = TRIGGER.baseProbPerInput + extra * TRIGGER.probGrowPerChar;
-      p = Math.min(TRIGGER.probCap, Math.max(0, p));
-
-      if (Math.random() < p) insertDMNAtCaret(genDMNText());
+  editor.addEventListener('keydown', (e) => {
+    if (memeOverlay.style.display === 'flex') {
+      e.preventDefault(); 
+      e.stopPropagation();
+      return; 
     }
 
-    // ===== 侧边弹窗 =====
-    let lastSidePopAt = 0;
-    function currentSidePops(){ return card.querySelectorAll(".side-pop").length; }
+    if (!locked) return;
 
-    function spawnSidePop(){
-      if (currentSidePops() >= SIDE_POP.maxOnScreen) return;
+    if (e.key === "Backspace" || e.key === "Delete") {
+      e.preventDefault();
+      STATS.deleteCount++;
+      const span = editor.querySelector('.dmn-span');
+      if (!span) { unlock(); return; }
 
-      const pop = document.createElement("div");
-      pop.className = "side-pop";
-      pop.textContent = genDMNText();
-      card.appendChild(pop);
-
-      const cardRect = card.getBoundingClientRect();
-      const editorRect = editor.getBoundingClientRect();
-      const popRect = pop.getBoundingClientRect();
-      const popW = popRect.width || 360;
-      const popH = popRect.height || 120;
-
-      const eL = editorRect.left - cardRect.left;
-      const eR = editorRect.right - cardRect.left;
-      const eT = editorRect.top - cardRect.top;
-      const eB = editorRect.bottom - cardRect.top;
-
-      const zone = Math.random();
-      let x, y;
-
-      if (zone < 0.35) {
-        x = eL - SIDE_POP.ringPad - popW - randInt(0, SIDE_POP.maxJitterX);
-        y = randInt(eT - SIDE_POP.maxJitterY, eB - popH + SIDE_POP.maxJitterY);
-      } else if (zone < 0.70) {
-        x = eR + SIDE_POP.ringPad + randInt(0, SIDE_POP.maxJitterX);
-        y = randInt(eT - SIDE_POP.maxJitterY, eB - popH + SIDE_POP.maxJitterY);
-      } else if (zone < 0.85) {
-        x = randInt(eL - SIDE_POP.maxJitterX, eR - popW + SIDE_POP.maxJitterX);
-        y = eT - SIDE_POP.ringPad - popH - randInt(0, SIDE_POP.maxJitterY);
+      if (dmnPhase === "grow") {
+        thoughtIndex += 2; 
+        span.textContent = currentThought.slice(0, thoughtIndex);
+        if (thoughtIndex >= currentThought.length) dmnPhase = "shrink";
+        if (Math.random() < 0.25) spawnSidePop();
       } else {
-        x = randInt(eL - SIDE_POP.maxJitterX, eR - popW + SIDE_POP.maxJitterX);
-        y = eB + SIDE_POP.ringPad + randInt(0, SIDE_POP.maxJitterY);
+        thoughtIndex -= 3;
+        span.textContent = currentThought.slice(0, Math.max(0, thoughtIndex));
+        if (thoughtIndex <= 0) unlock();
       }
+    } else if (!e.ctrlKey && !e.metaKey && e.key !== "Shift") {
+      e.preventDefault();
+      showToast("杂念太多，暂时打不出字...");
+      forceCaret();
+    }
+    updateDebug();
+  });
 
-      const pad = SIDE_POP.cardInnerPad;
-      x = clamp(x, pad, cardRect.width - popW - pad);
-      y = clamp(y, pad + 40, cardRect.height - popH - pad);
+  function unlock() {
+    const span = editor.querySelector('.dmn-span');
+    if (span) span.remove();
+    locked = false;
+    currentThought = "";
+    thoughtIndex = 0;
+    editor.classList.remove('locked');
+    triggerCooldown = Date.now() + 4000;
+  }
 
-      pop.style.left = `${x}px`;
-      pop.style.top  = `${y}px`;
+  function insertDMN(text) {
+    if (locked) return;
+    STATS.distractionCount++;
+    locked = true;
+    dmnPhase = "grow";
+    currentThought = text;
+    thoughtIndex = Math.floor(text.length / 4); 
+    editor.classList.add('locked');
+    const sel = window.getSelection();
+    if (!sel.rangeCount) editor.focus();
+    const range = sel.getRangeAt(0);
+    const span = document.createElement('span');
+    span.className = 'dmn-span';
+    span.contentEditable = 'false';
+    span.textContent = currentThought.slice(0, thoughtIndex);
+    range.insertNode(span);
+    forceCaret();
+    triggerCooldown = Date.now() + 5000;
+  }
 
-      setTimeout(() => { if (pop.parentNode) pop.parentNode.removeChild(pop); }, SIDE_POP.lifeMs);
+  function checkAndTrigger(forceTrigger = false) {
+    const fullText = getUserText();
+    const recentText = fullText.slice(-12); 
+    const lastChar = recentText.slice(-1);
+    
+    const isPunctuation = /([，。,.\s])$/.test(lastChar);
+    if (isPunctuation) {
+        if (Math.random() < 0.05) spawnSidePop();
+        return; 
     }
 
-    function maybeSpawnSidePop(force=false){
-      const now = Date.now();
-      if (memeOverlay.style.display === "flex") return;
-      if (submitOverlay.style.display === "flex") return;
-      if (now - lastSidePopAt < SIDE_POP.minGapMs) return;
+    let matchedThemeKey = null;
+    let minDistance = 999;
 
-      const pLocked = (locked || force) ? SIDE_POP.lockedBoost : 0;
-      let p = SIDE_POP.baseProbPerInput + pLocked;
-      if (p > 0.92) p = 0.92;
+    for(let key in THEME_POOLS) {
+      if (key === "general") continue;
+      const regex = THEME_POOLS[key].keywords;
+      const match = recentText.match(regex);
+      if (match) {
+        const distance = recentText.length - (match.index + match[0].length);
+        if (distance < 5 && distance < minDistance) {
+          minDistance = distance;
+          matchedThemeKey = key;
+        }
+      }
+    }
 
-      if (Math.random() < p) {
-        lastSidePopAt = now;
+    let shouldTrigger = false;
+    let textToInsert = "";
+
+    if (matchedThemeKey) {
+      if (Math.random() < 0.50) {
+        lastActiveTheme = matchedThemeKey;
+        textToInsert = pick(THEME_POOLS[matchedThemeKey].texts);
+        shouldTrigger = true;
+      } else {
+        lastActiveTheme = matchedThemeKey;
+        if(Math.random() < 0.5) spawnSidePop();
+      }
+    } else {
+      if (Math.random() < 0.04) {
         spawnSidePop();
       }
     }
 
-    // ===== GIF =====
-    function canHijackNow(){ return Date.now() >= hijackCooldownUntil; }
-    function showHijack(){ memeOverlay.style.display = "flex"; editor.blur(); }
-    function hideHijack(){
-      memeOverlay.style.display = "none";
-      hijackCooldownUntil = Date.now() + HIJACK.cooldownMs;
-      baseLen = (editor.textContent || "").length;
-      editor.focus();
-      if (locked) forceCaretAtMarker();
-      updateDebug();
+    if (shouldTrigger && textToInsert) {
+      insertDMN(textToInsert);
     }
-    function maybeTriggerHijack(){
-      if (memeOverlay.style.display === "flex") return;
-      if (!canHijackNow()) return;
+  }
 
-      const delta = (editor.textContent || "").length - baseLen;
-      if (delta >= HIJACK.deltaCharsThreshold) showHijack();
-    }
+  editor.addEventListener('input', () => {
+    if (locked) return;
+    editor.classList.toggle('is-empty', editor.textContent === "");
+    
+    const text = getUserText().replace(/\s/g, ""); 
+    currentLength = text.length;
+    charCountEl.textContent = `${currentLength} / ${MIN_CHARS}`;
+    if (currentLength >= MIN_CHARS) charCountEl.classList.add('done');
+    else charCountEl.classList.remove('done');
 
-    let holding=false, holdStart=0;
-    window.addEventListener("keydown", (e) => {
-      if (e.code !== "Space") return;
-      if (memeOverlay.style.display !== "flex") return;
-      if (!holding) { holding=true; holdStart=Date.now(); }
-    });
-    window.addEventListener("keyup", (e) => {
-      if (e.code !== "Space") return;
-      if (memeOverlay.style.display !== "flex") return;
-      const held = Date.now() - holdStart;
-      holding=false;
-      if (held >= HIJACK.holdToResumeMs) hideHijack();
-    });
-    closeBtn.addEventListener("click", () => { if (memeOverlay.style.display === "flex") hideHijack(); });
+    const now = Date.now();
+    const timeGap = now - lastInputTime;
+    lastInputTime = now;
 
-    // ===== 提交（放宽：只查包含段落；仍要求没有灰字锁定）=====
-    submitBtn.addEventListener("click", () => {
-      if (memeOverlay.style.display === "flex") return;
+    stressScore += 1.6; 
+    
+    if (Math.random() < 0.08) stressScore += 5;
+    if (timeGap > 3000) stressScore = Math.max(0, stressScore - 15);
 
-      if (locked || editor.querySelector(".dmn-span")) {
-        showToast("先把灰色联想文字删掉，才能提交");
-        return;
-      }
-
-      const userText = getUserText().trim();
-      if (!userText) {
-        showToast("还没写内容，先写几句再提交");
-        return;
-      }
-
-      if (!hasRequiredInBody()) {
-        showToast("正文需要包含上方必填段落（允许全角/半角标点、空格/换行差异）");
-        return;
-      }
-
-      submitPreview.textContent = userText;
-      submitOverlay.style.display = "flex";
-      editor.blur();
-    });
-
-    function closeSubmitOverlay(){
-      submitOverlay.style.display = "none";
-      editor.focus();
-      baseLen = (editor.textContent || "").length;
-      if (locked) forceCaretAtMarker();
-      updateDebug();
-    }
-    submitCloseX.addEventListener("click", closeSubmitOverlay);
-    submitOkBtn.addEventListener("click", closeSubmitOverlay);
-    submitOverlay.addEventListener("click", (e) => { if (e.target === submitOverlay) closeSubmitOverlay(); });
-
-    // ===== Debug =====
-    function updateDebug(){
-      const len = (editor.textContent || "").length;
-      const delta = len - baseLen;
-      const cd = Math.max(0, hijackCooldownUntil - Date.now());
-      const dmnLen = dmnSpan ? (dmnSpan.textContent || "").length : 0;
-      debugEl.textContent =
-        `锁定:${locked ? "是" : "否"} 灰字:${dmnLen}/${DELETE_REBOUND.growUntil} 阶段:${dmnPhase} | GIF:${delta}/${HIJACK.deltaCharsThreshold} 冷却:${Math.ceil(cd/1000)}s | 进度:${typeProgress.textContent}`;
+    if (isComposing) {
+        if (Math.random() < 0.05) spawnSidePop();
+        updateDebug();
+        return; 
     }
 
-    // ===== 初始化 =====
-    setTimeout(() => {
-      editor.focus();
-      updatePlaceholder();
-      baseLen = (editor.textContent || "").length;
-      lastUserText = getUserText();
-      updateProgressFromBody();
-      updateDebug();
-    }, 50);
-  </script>
+    if (now > triggerCooldown) {
+      checkAndTrigger();
+    }
+
+    if (stressScore >= 100 && now > hijackCooldown) {
+      triggerHijack();
+    }
+    updateDebug();
+  });
+
+  function triggerHijack() {
+    STATS.hijackCount++;
+    memeOverlay.style.display = 'flex';
+    setTimeout(() => memeOverlay.classList.add('active'), 10);
+    editor.blur(); 
+  }
+
+  editor.addEventListener('paste', e => e.preventDefault());
+  
+  function updateDebug() {
+    const cd = Math.max(0, Math.ceil((hijackCooldown - Date.now())/1000));
+    const themeLabel = THEME_POOLS[lastActiveTheme] ? THEME_POOLS[lastActiveTheme].label : "无";
+    debugEl.textContent = `疲劳度: ${Math.floor(stressScore)}% | 主题: ${themeLabel} | 冷却: ${cd}s`;
+  }
+</script>
+
 </body>
 </html>
-

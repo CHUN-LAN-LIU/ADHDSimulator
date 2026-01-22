@@ -103,11 +103,28 @@
         .verification-code {
             font-size: 42px;
             font-weight: 700;
-            letter-spacing: 6px;
+            /* letter-spacing: 6px; Removed for flex layout */
             color: #f59e0b;
             font-family: 'Courier New', monospace;
             transition: filter 0.5s ease;
             user-select: none;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .verification-code span {
+            transition: filter 0.5s ease;
+            filter: blur(0);
+        }
+        
+        /* 手电筒模式下禁用过渡，保证实时响应 */
+        .verification-code.flashlight-mode span {
+            transition: none;
+        }
+
+        .verification-code.blurred span {
+            filter: blur(10px);
         }
 
         .blur-overlay {
@@ -157,6 +174,43 @@
             position: relative;
         }
 
+        .input-mirror {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            font-weight: 600;
+            padding: 18px; /* Match input padding */
+            color: #334155;
+            opacity: 0;
+            z-index: 5;
+        }
+        
+        .input-mirror span {
+            /* 保持与输入框一致的间距逻辑 */
+            margin: 0 2px; /* 模拟 letter-spacing: 4px 的一半左右，或者直接用 flex gap */
+            transition: filter 0.5s ease;
+        }
+
+        .input-wrapper.blur-mode #verification-input {
+            color: transparent;
+        }
+        
+        .input-wrapper.blur-mode .input-mirror {
+            opacity: 1;
+        }
+
+        .input-wrapper.blur-mode .input-mirror span {
+            filter: blur(6px);
+        }
+
         #verification-input {
             width: 100%;
             padding: 18px;
@@ -171,15 +225,14 @@
             text-align: center;
             outline: none;
             transition: border-color 0.3s;
+            caret-color: #ef4444; /* 显眼的光标颜色 */
         }
 
-        #verification-input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-        }
-
-        #verification-input.decaying {
-            opacity: 0.3;
+        /* 尝试增加光标的视觉权重（仅在部分支持的浏览器有效，通常光标宽度难以直接修改） */
+        @supports (caret-color: red) {
+            #verification-input {
+                caret-color: #ef4444;
+            }
         }
 
         .submit-btn {
@@ -394,8 +447,14 @@
             font-weight: 600;
         }
 
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
         .close-data {
-            width: 100%;
+            flex: 1;
             padding: 15px;
             background-color: #3b82f6;
             color: white;
@@ -404,7 +463,28 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 25px;
+            transition: background-color 0.3s;
+        }
+
+        .close-data:hover {
+            background-color: #2563eb;
+        }
+
+        .go-home {
+            flex: 1;
+            padding: 15px;
+            background-color: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .go-home:hover {
+            background-color: #059669;
         }
 
         .footer-note {
@@ -428,30 +508,29 @@
             border: 1px solid #e2e8f0;
         }
 
-        .mechanism-indicator {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            gap: 10px;
+        /* ========== 开发者作弊按钮 - 后期删除 ========== */
+        .dev-cheat-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #ef4444;
+            color: white;
+            border: 2px solid #dc2626;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            transition: all 0.3s;
         }
 
-        .indicator {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            color: #64748b;
-            padding: 6px 12px;
-            border-radius: 20px;
-            background-color: rgba(241, 245, 249, 0.8);
-            border: 1px solid #e2e8f0;
+        .dev-cheat-btn:hover {
+            background-color: #dc2626;
+            transform: scale(1.05);
         }
-
-        .indicator.active {
-            color: #f59e0b;
-            background-color: rgba(245, 158, 11, 0.1);
-            border-color: rgba(245, 158, 11, 0.3);
-        }
+        /* ========== 开发者作弊按钮 END ========== */
 
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -474,13 +553,23 @@
             }
             
             .verification-code {
-                font-size: 32px;
-                letter-spacing: 4px;
+                font-size: 20px;
+                gap: 8px;
             }
             
             #verification-input {
-                font-size: 20px;
-                padding: 15px;
+                font-size: 16px;
+                padding: 12px;
+                letter-spacing: 1px;
+            }
+
+            .input-mirror {
+                font-size: 16px;
+                padding: 12px;
+            }
+            
+            .input-mirror span {
+                margin: 0 1px;
             }
             
             .stats-grid {
@@ -498,7 +587,7 @@
 
         <div class="task-instruction">
             <h3><i class="fas fa-tasks"></i> 任务说明</h3>
-            <p>请将上方显示的10位验证码准确输入到下方的输入框中。注意：在这个过程中，您将体验到ADHD患者的认知处理方式。</p>
+            <p>请将上方显示的16位验证码准确输入到下方的输入框中。注意：在这个过程中，您将体验到ADHD患者的认知处理方式。</p>
         </div>
 
         <div class="counter">
@@ -510,30 +599,17 @@
                 <div class="verification-code-label">
                     <i class="fas fa-eye"></i> 验证码 (鼠标悬停上方区域查看，点击下方区域输入)
                 </div>
-                <div class="verification-code" id="verification-code">8 5 1 3 9 2 7 4 6 0</div>
-                <div class="blur-overlay" id="code-blur">
-                    
-                </div>
-            </div>
-
-            <div class="mechanism-indicator">
-                <div class="indicator" id="mutual-exclusion-indicator">
-                    <i class="fas fa-exchange-alt"></i> 互斥视野
-                </div>
-                <div class="indicator" id="time-decay-indicator">
-                    <i class="fas fa-hourglass-half"></i> 时间腐蚀
-                </div>
-                <div class="indicator" id="intrusion-indicator">
-                    <i class="fas fa-cloud"></i> 思维入侵
-                </div>
+                <div class="verification-code" id="verification-code">8 5 1 3 9 2 7 4 6 0 1 2 3 4 5 6</div>
+                <!-- 移除遮罩，改用字符模糊 -->
             </div>
 
             <div class="input-area" id="input-area">
                 <div class="input-label">
                     <i class="fas fa-keyboard"></i> 输入验证码
                 </div>
-                <div class="input-wrapper">
-                    <input type="text" id="verification-input" maxlength="10" placeholder="在此输入验证码">
+                <div class="input-wrapper" id="input-wrapper-div">
+                    <input type="text" id="verification-input" maxlength="16" placeholder="在此输入16位验证码">
+                    <div id="input-mirror" class="input-mirror"></div>
                 </div>
                 <div class="blur-overlay" id="input-blur">
                     <div>
@@ -548,6 +624,12 @@
             <p>此模拟基于ADHD患者的认知处理特点：工作记忆短暂、任务切换困难、易受干扰。</p>
         </div>
     </div>
+
+    <!-- ========== 开发者作弊按钮 - 后期删除 ========== -->
+    <button class="dev-cheat-btn" id="dev-cheat-btn">
+        <i class="fas fa-rocket"></i> DEV: 直达结果
+    </button>
+    <!-- ========== 开发者作弊按钮 END ========== -->
 
     <!-- 思维入侵弹窗 -->
     <div class="intrusion-popup" id="intrusion-popup">
@@ -601,7 +683,10 @@
                 <p><i class="fas fa-tint"></i> 系统判定：您为了完成这个简单的"3秒任务"，消耗了普通人8倍的精力。这就是ADHD患者大脑的"高能耗、低产出"日常。</p>
             </div>
 
-            <button class="close-data" id="close-data">理解并关闭</button>
+            <div class="button-group">
+                <button class="go-home" id="go-home"><i class="fas fa-home"></i> 回到首页</button>
+                <button class="close-data" id="close-data"><i class="fas fa-redo"></i> 重新体验</button>
+            </div>
         </div>
     </div>
 
@@ -611,15 +696,28 @@
         let eyeSwitchCount = 0;
         let memoryResetCount = 0;
         let attemptCount = 0;
-        let decayTimeout;
-        let inputDecayTimeout;
+        // let decayTimeout; // Removed
+        // let inputDecayTimeout; // Removed
         let isInputFocused = false;
         let isCodeHovered = false;
         let lastInputTime = Date.now();
-        let decayStartTime = 0;
+        // let decayStartTime = 0; // Removed
         let inputProgress = 0;
         let isIntrusionTriggered = false;
         let verificationCode = generateRandomCode();
+        
+        // 手电筒模式变量
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let lastMouseTime = 0;
+        let spanPositions = [];
+        let seenIndices = new Set();
+        let isViewLocked = false;
+        let lockTimeout;
+        let hoverStopTimer;
+        let isFocusLost = false;
+        let hasShownOverloadMessage = false;
+        let hasIntrusionHappened = false;
         
         // 干扰想法列表
         const intrusionThoughts = [
@@ -636,9 +734,11 @@
         // DOM 元素
         const codeArea = document.getElementById('code-area');
         const inputArea = document.getElementById('input-area');
-        const codeBlur = document.getElementById('code-blur');
+        // const codeBlur = document.getElementById('code-blur'); // Removed
         const inputBlur = document.getElementById('input-blur');
         const verificationInput = document.getElementById('verification-input');
+        const inputWrapperDiv = document.getElementById('input-wrapper-div');
+        const inputMirror = document.getElementById('input-mirror');
         const submitBtn = document.getElementById('submit-btn');
         const verificationCodeElement = document.getElementById('verification-code');
         const intrusionPopup = document.getElementById('intrusion-popup');
@@ -646,6 +746,7 @@
         const closeIntrusionBtn = document.getElementById('close-intrusion');
         const dataOverlay = document.getElementById('data-overlay');
         const closeDataBtn = document.getElementById('close-data');
+        const goHomeBtn = document.getElementById('go-home');
         const timeConsumedElement = document.getElementById('time-consumed');
         const avgTimePerCharElement = document.getElementById('avg-time-per-char');
         const eyeSwitchesElement = document.getElementById('eye-switches');
@@ -655,11 +756,17 @@
         const mutualExclusionIndicator = document.getElementById('mutual-exclusion-indicator');
         const timeDecayIndicator = document.getElementById('time-decay-indicator');
         const intrusionIndicator = document.getElementById('intrusion-indicator');
+        
+        // ========== 开发者作弊按钮 - 后期删除 ==========
+        const devCheatBtn = document.getElementById('dev-cheat-btn');
+        // ========== 开发者作弊按钮 END ==========
 
         // 初始化
         function init() {
             startTime = Date.now();
-            verificationCodeElement.textContent = formatCode(verificationCode);
+            verificationCodeElement.innerHTML = formatCode(verificationCode);
+            // 初始状态保持清晰，给用户“平静的假象”
+            // verificationCodeElement.classList.add('blurred'); 
             
             // 事件监听器
             verificationInput.addEventListener('focus', handleInputFocus);
@@ -676,6 +783,11 @@
             submitBtn.addEventListener('click', handleSubmit);
             closeIntrusionBtn.addEventListener('click', closeIntrusion);
             closeDataBtn.addEventListener('click', closeDataOverlay);
+            goHomeBtn.addEventListener('click', goToHome);
+            
+            // ========== 开发者作弊按钮 - 后期删除 ==========
+            devCheatBtn.addEventListener('click', devShowResult);
+            // ========== 开发者作弊按钮 END ==========
             
             // 初始状态
             updateIndicators();
@@ -684,7 +796,7 @@
         // 生成随机验证码
         function generateRandomCode() {
             let code = '';
-            for (let i = 0; i < 10; i++) { // 将验证码长度从12改为10
+            for (let i = 0; i < 16; i++) { 
                 code += Math.floor(Math.random() * 10).toString();
             }
             return code;
@@ -692,23 +804,31 @@
         
         // 格式化验证码显示
         function formatCode(code) {
-            return code.split('').join(' ');
+            return code.split('').map(char => `<span>${char}</span>`).join('');
         }
         
         // 处理输入框获取焦点
         function handleInputFocus() {
             isInputFocused = true;
-            codeBlur.classList.add('active');
+            inputWrapperDiv.classList.remove('blur-mode'); // 获得焦点（点击）时恢复清晰
+            verificationCodeElement.classList.add('blurred');
             mutualExclusionIndicator.classList.add('active');
             eyeSwitchCount++;
             updateCounters();
             updateIndicators();
+
+            // 如果输入框中有内容，光标随机出现在某个位置
+            if (verificationInput.value.length > 0) {
+                setTimeout(() => {
+                    const randomPos = Math.floor(Math.random() * (verificationInput.value.length + 1));
+                    verificationInput.setSelectionRange(randomPos, randomPos);
+                }, 0);
+            }
         }
         
         // 处理输入框失去焦点
         function handleInputBlur() {
             isInputFocused = false;
-            codeBlur.classList.remove('active');
             mutualExclusionIndicator.classList.remove('active');
             updateIndicators();
         }
@@ -718,52 +838,34 @@
             const currentTime = Date.now();
             lastInputTime = currentTime;
 
+            // Update mirror
+            updateInputMirror();
+
+            // 移除旧的腐蚀逻辑
+            /*
             // 清除之前的腐蚀计时器
             if (inputDecayTimeout) {
                 clearTimeout(inputDecayTimeout);
             }
-
-            // 如果输入框有内容，开始时间腐蚀计时器
-            if (verificationInput.value.length > 0) {
-                timeDecayIndicator.classList.add('active');
-                inputDecayTimeout = setTimeout(startInputDecay, 1000); // 1秒后开始数字变透明
-            } else {
-                timeDecayIndicator.classList.remove('active');
-            }
-
-            // 重置腐蚀效果
-            if (decayTimeout) {
-                clearInterval(decayTimeout);
-                verificationInput.classList.remove('decaying');
-                verificationInput.style.opacity = 1; // 恢复透明度
-            }
+            // ... (Removed decay logic)
+            */
 
             // 启用/禁用提交按钮
-            submitBtn.disabled = verificationInput.value.length !== 10;
+            submitBtn.disabled = verificationInput.value.length !== 16;
 
             updateIndicators();
-        }
-        
-        // 开始输入腐蚀
-        function startInputDecay() {
-            verificationInput.classList.add('decaying');
-            decayStartTime = Date.now();
             
-            // 逐渐增加透明度
-            decayTimeout = setInterval(() => {
-                const elapsed = Date.now() - decayStartTime;
-                const opacity = Math.max(0, 1 - (elapsed / 2000)); // 2秒内逐渐透明
-                
-                verificationInput.style.opacity = opacity;
-                
-                // 如果完全透明，清除输入内容
-                if (opacity <= 0) {
-                    clearInterval(decayTimeout);
-                    verificationInput.value = '';
-                    verificationInput.classList.remove('decaying');
-                    verificationInput.style.opacity = 1; // 恢复透明度以备后续输入
-                }
-            }, 50);
+            // 检测输入到第8个字符时触发弹窗（仅触发一次）
+            if (verificationInput.value.length === 8 && !hasIntrusionHappened) {
+                hasIntrusionHappened = true;
+                triggerIntrusion();
+            }
+        }
+
+        function updateInputMirror() {
+            const text = verificationInput.value;
+            // 保持一致的间距，使用 span
+            inputMirror.innerHTML = text.split('').map(char => `<span>${char === ' ' ? '&nbsp;' : char}</span>`).join('');
         }
         
         // 触发思维入侵
@@ -772,56 +874,182 @@
             intrusionText.textContent = randomThought;
             intrusionPopup.classList.add('active');
             intrusionIndicator.classList.add('active');
+            isIntrusionTriggered = true;
+            
+            // 弹窗出现时立即清空输入
+            verificationInput.value = '';
+            updateInputMirror();
+            memoryResetCount++;
+            updateCounters();
+            
+            showTemporaryMessage("思维入侵导致记忆清零", "error");
         }
         
         // 关闭思维入侵弹窗
         function closeIntrusion() {
             intrusionPopup.classList.remove('active');
-            
-            // 将输入内容变为乱码
-            const originalValue = verificationInput.value;
-            verificationInput.value = '#'.repeat(originalValue.length);
-            
-            // 短暂延迟后清空输入
-            setTimeout(() => {
-                verificationInput.value = '';
-                verificationInput.classList.add('shake');
-                memoryResetCount++;
-                updateCounters();
-                isIntrusionTriggered = false;
-                intrusionIndicator.classList.remove('active');
-                
-                // 显示重置消息
-                showTemporaryMessage("思维入侵导致记忆清零", "error");
-                
-                // 移除抖动效果
-                setTimeout(() => {
-                    verificationInput.classList.remove('shake');
-                }, 500);
-            }, 800);
+            isIntrusionTriggered = false;
+            intrusionIndicator.classList.remove('active');
         }
         
         // 处理验证码区域鼠标进入
-        function handleCodeMouseEnter() {
-            isCodeHovered = true;
-            //if (!isInputFocused) {
-            //    inputBlur.classList.add('active'); // 输入框高斯模糊覆盖
-            //}
-            // 本次修改：鼠标移入时，无论是否在输入，都强制显示验证码（移除模糊）
-            codeBlur.classList.remove('active'); 
+        function handleCodeMouseEnter(e) {
+            // 如果处于过载锁定状态，禁止启用手电筒
+            if (isViewLocked) return;
 
-            // 本次修改：为了保持互斥视野的模拟体验，看验证码时，输入框应该变模糊
-            inputBlur.classList.add('active');
+            isCodeHovered = true;
+            isFocusLost = false; // 重置失效状态
+            seenIndices.clear(); // 重置已看过的字符集合
+            
+            // 鼠标悬停时，强制输入框失去焦点
+            verificationInput.blur();
+
+            // 移除默认模糊类，添加手电筒模式类
+            verificationCodeElement.classList.remove('blurred');
+            verificationCodeElement.classList.add('flashlight-mode');
+
+            // 为了保持互斥视野的模拟体验，看验证码时，输入框应该变模糊
+            // inputBlur.classList.add('active'); // 移除旧的覆盖层模糊
+            inputWrapperDiv.classList.add('blur-mode'); // 启用新的输入框字符模糊模式
+
+            // 缓存所有字符的位置信息，减少mousemove时的计算量
+            updateSpanPositions();
+
+            // 记录初始鼠标位置和时间
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            lastMouseTime = Date.now();
+
+            // 初始启动静止检测（如果刚进去就不动）
+            resetHoverDescayTimer();
+
+            // 添加鼠标移动监听
+            codeArea.addEventListener('mousemove', handleCodeMouseMove);
+            
+            // 立即执行一次由于进入可能没有触发 move
+            handleCodeMouseMove(e);
+        }
+
+        // 更新字符位置缓存
+        function updateSpanPositions() {
+            const spans = verificationCodeElement.querySelectorAll('span');
+            spanPositions = Array.from(spans).map(span => {
+                const rect = span.getBoundingClientRect();
+                return {
+                    element: span,
+                    centerX: rect.left + rect.width / 2,
+                    centerY: rect.top + rect.height / 2,
+                    width: rect.width
+                };
+            });
+        }
+
+        // 处理手电筒效果 (已移除运动模糊)
+        function handleCodeMouseMove(e) {
+            // 安全检查
+            if (isViewLocked || isFocusLost) return;
+            
+            // 重置静止检测
+            resetHoverDescayTimer();
+
+            // 应用光圈效果
+            spanPositions.forEach((pos, index) => {
+                // 计算鼠标到字符中心的水平距离（只考虑X轴，符合阅读习惯）
+                const distX = Math.abs(e.clientX - pos.centerX);
+                const distY = Math.abs(e.clientY - pos.centerY);
+                
+                // 调整光圈参数以适应更大的字符间距
+                // 增大清晰半径，让中心字符更容易看清
+                const clearRadius = pos.width * 1.2; 
+                // 大幅增加渐变半径，让旁边两个字符能看清一半
+                const fadeRadius = pos.width * 4.5; 
+
+                let blurAmount = 10; // 默认背景模糊
+
+                // 只有在垂直范围内才应用手电筒
+                if (distY < 100) { 
+                    if (distX < clearRadius) {
+                        blurAmount = 0;
+                        // 标记该字符已查看
+                        seenIndices.add(index);
+                    } else if (distX < fadeRadius) {
+                        // 线性渐变：从 clearRadius 处的 0 到 fadeRadius 处的 8
+                        const ratio = (distX - clearRadius) / (fadeRadius - clearRadius);
+                        blurAmount = ratio * 10;
+                    }
+                }
+
+                pos.element.style.filter = `blur(${blurAmount}px)`;
+            });
+
+            // 检查认知过载
+            if (seenIndices.size > 3) {
+                triggerCognitiveOverload();
+            }
+        }
+
+        // 触发认知过载锁定
+        function triggerCognitiveOverload() {
+            isViewLocked = true;
+            
+            // 立即强制结束本次查看 session
+            handleCodeMouseLeave();
+            
+            // 显示警告
+            if (!hasShownOverloadMessage) {
+                showTemporaryMessage("认知过载！短期记忆容量已满...(等待1s或点击输入框后可重新查看)", "error");
+                hasShownOverloadMessage = true;
+            }
+            
+            // 3秒后解锁
+            if (lockTimeout) clearTimeout(lockTimeout);
+            lockTimeout = setTimeout(() => {
+                isViewLocked = false;
+                //showTemporaryMessage("认知负荷已恢复，可继续查看", "info");
+            }, 1000); // 1秒冷却
+        }
+
+        // 新增 resetHoverDescayTimer
+        function resetHoverDescayTimer() {
+            if (hoverStopTimer) clearTimeout(hoverStopTimer);
+            hoverStopTimer = setTimeout(triggerFocusLoss, 300); // 0.3s
+        }
+
+        // 新增 triggerFocusLoss
+        function triggerFocusLoss() {
+            isFocusLost = true;
+            
+            // 强制模糊
+            verificationCodeElement.classList.remove('flashlight-mode');
+            verificationCodeElement.classList.add('blurred');
+            // 清除内联样式
+            const spans = verificationCodeElement.querySelectorAll('span');
+            spans.forEach(span => {
+                span.style.filter = '';
+            });
         }
 
         // 处理验证码区域鼠标离开
         function handleCodeMouseLeave() {
             isCodeHovered = false;
-            inputBlur.classList.remove('active'); // 移除高斯模糊
-            // 本次修改：核心逻辑 —— 移开鼠标后，如果焦点还在输入框里，验证码必须马上变回模糊
-            if (isInputFocused) {
-                codeBlur.classList.add('active');
-            }
+            // inputBlur.classList.remove('active'); 
+            // inputWrapperDiv.classList.remove('blur-mode'); // Removed: 输入框现在只在点击时恢复清晰，而不是离开验证码区域时
+            
+            if (hoverStopTimer) clearTimeout(hoverStopTimer);
+            isFocusLost = false;
+
+            // 移除监听器
+            codeArea.removeEventListener('mousemove', handleCodeMouseMove);
+
+            // 清除手电筒模式，恢复默认模糊
+            verificationCodeElement.classList.remove('flashlight-mode');
+            verificationCodeElement.classList.add('blurred');
+            
+            // 清除所有内联样式，让 CSS 类接管
+            const spans = verificationCodeElement.querySelectorAll('span');
+            spans.forEach(span => {
+                span.style.filter = '';
+            });
         }
         
         // 处理输入区域鼠标进入
@@ -856,7 +1084,7 @@
             if (inputValue === verificationCode) {
                 // 计算统计数据
                 const timeElapsed = Math.floor((Date.now() - startTime) / 1000);
-                const avgTimePerChar = (timeElapsed / 10).toFixed(1);
+                const avgTimePerChar = (timeElapsed / 16).toFixed(1);
                 
                 // 更新数据展示
                 timeConsumedElement.textContent = `${timeElapsed} 秒`;
@@ -890,6 +1118,30 @@
             }
         }
         
+        // 回到首页
+        function goToHome() {
+            window.location.href = 'index.html';
+        }
+        
+        // ========== 开发者作弊函数 - 后期删除 ==========
+        function devShowResult() {
+            // 设置一些示例数据
+            const fakeTimeElapsed = 45;
+            const fakeAvgTime = (fakeTimeElapsed / 16).toFixed(1);
+            const fakeEyeSwitches = 23;
+            const fakeMemoryResets = 5;
+            
+            // 更新数据展示
+            timeConsumedElement.textContent = `${fakeTimeElapsed} 秒`;
+            avgTimePerCharElement.textContent = `${fakeAvgTime} 秒`;
+            eyeSwitchesElement.textContent = `${fakeEyeSwitches} 次`;
+            memoryResetsElement.textContent = `${fakeMemoryResets} 次`;
+            
+            // 显示数据弹窗
+            dataOverlay.classList.add('active');
+        }
+        // ========== 开发者作弊函数 END ==========
+        
         // 关闭数据弹窗
         function closeDataOverlay() {
             dataOverlay.classList.remove('active');
@@ -903,18 +1155,25 @@
         // 重置模拟
         function resetSimulation() {
             verificationCode = generateRandomCode();
-            verificationCodeElement.textContent = formatCode(verificationCode);
+            verificationCodeElement.innerHTML = formatCode(verificationCode);
+            // 重置时恢复清晰状态，重新建立“平静假象”
+            verificationCodeElement.classList.remove('blurred');
             verificationInput.value = '';
+            
+            // 重要：一定要重置镜像，否则会残留之前的文字
+            updateInputMirror();
+
             submitBtn.disabled = true;
             isIntrusionTriggered = false;
+            hasIntrusionHappened = false;
             
-            // 重置计时器
-            if (decayTimeout) clearInterval(decayTimeout);
-            if (inputDecayTimeout) clearTimeout(inputDecayTimeout);
+            // 重置计时器 (Decay logic removed)
+            // if (decayTimeout) clearInterval(decayTimeout);
+            // if (inputDecayTimeout) clearTimeout(inputDecayTimeout);
             
             // 重置样式
-            verificationInput.classList.remove('decaying');
-            verificationInput.style.opacity = 1;
+            // verificationInput.classList.remove('decaying');
+            // verificationInput.style.opacity = 1;
             
             // 更新指示器
             updateIndicators();
@@ -939,11 +1198,15 @@
             }
             
             // 时间腐蚀指示器
+            /* 逻辑移除，不再点亮
             if (verificationInput.value.length > 0 && isInputFocused) {
                 timeDecayIndicator.classList.add('active');
             } else {
                 timeDecayIndicator.classList.remove('active');
             }
+            */
+            // 暂时移除指示器的激活状态，因为核心逻辑已删除
+            timeDecayIndicator.classList.remove('active');
             
             // 思维入侵指示器
             if (isIntrusionTriggered) {

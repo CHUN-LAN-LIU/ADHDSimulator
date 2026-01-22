@@ -14,7 +14,7 @@
         }
 
         :root {
-            --primary: #4a6fa5;
+            --primary: #518feb;
             --primary-light: #6b8cbc;
             --secondary: #166088;
             --accent: #ff9a76;
@@ -36,7 +36,7 @@
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 20px;
         }
 
         /* 头部导航 */
@@ -52,7 +52,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 18px 0;
+            padding: 10px 0;
         }
 
         .logo {
@@ -63,19 +63,19 @@
 
         .logo-icon {
             color: var(--primary);
-            font-size: 28px;
+            font-size: 24px;
         }
 
         .logo-text {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 700;
             color: var(--primary);
         }
 
         .logo-subtitle {
-            font-size: 14px;
+            font-size: 12px;
             color: var(--gray);
-            margin-top: -5px;
+            margin-top: -3px;
         }
 
         .nav-links {
@@ -112,7 +112,7 @@
                 }
 
         .cta-button {
-            background-color: var(--primary);
+            background-color: #ff6347;
             color: white;
             border: none;
             padding: 10px 24px;
@@ -123,7 +123,7 @@
         }
 
             .cta-button:hover {
-                background-color: var(--secondary);
+                background-color: #ff6347;
                 transform: translateY(-2px);
                 box-shadow: 0 5px 15px rgba(74, 111, 165, 0.3);
             }
@@ -140,10 +140,12 @@
 
         /* 英雄区域 */
         .hero {
-            padding: 80px 0 60px;
-            background: linear-gradient(135deg, #f5f7fb 0%, #e3e8f5 100%);
+            min-height: calc(100vh - 60px);
+            background: linear-gradient(135deg, #f5f7fb 0%, #dde4f7 100%);
             position: relative;
             overflow: hidden;
+            display: flex;
+            align-items: center;
         }
 
         .hero-content {
@@ -170,20 +172,20 @@
             }
 
         .hero h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             line-height: 1.2;
-            margin-bottom: 20px;
-            color: var(--secondary);
+            margin-bottom: 15px;
+            color: var(--dark);
         }
 
             .hero h1 span {
-                color: var(--primary);
+                color: #ff6347;
             }
 
         .hero p {
-            font-size: 1.2rem;
+            font-size: 1rem;
             color: var(--gray);
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             max-width: 600px;
         }
 
@@ -203,41 +205,44 @@
 
         /* ADHD介绍区域 */
         .adhd-intro {
-            padding: 80px 0;
+            min-height: calc(100vh - 60px);
+            padding: 40px 0;
             background-color: white;
+            display: flex;
+            align-items: center;
         }
 
         .section-title {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 30px;
         }
 
             .section-title h2 {
-                font-size: 2.5rem;
-                color: var(--secondary);
-                margin-bottom: 15px;
+                font-size: 2rem;
+                color: var(--dark);
+                margin-bottom: 10px;
             }
 
             .section-title p {
-                color: var(--gray);
+                color: var(--dark);
                 max-width: 700px;
                 margin: 0 auto;
             }
 
         .adhd-features {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            margin-top: 40px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
         }
 
         .feature-card {
             background-color: var(--light);
             border-radius: 10px;
-            padding: 30px;
+            padding: 20px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             transition: var(--transition);
-            border-top: 4px solid var(--primary);
+            border-top: 4px solid var(--dark);
         }
 
             .feature-card:hover {
@@ -246,86 +251,31 @@
             }
 
         .feature-icon {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #ff6347;
+            margin-bottom: 15px;
         }
 
         .feature-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            color: var(--secondary);
-        }
-
-        /* 科普入口区域 */
-        .science-entrance {
-            padding: 70px 0;
-            background-color: #f0f4f8;
-        }
-
-        .science-content {
-            display: flex;
-            align-items: center;
-            gap: 50px;
-        }
-
-        .science-text {
-            flex: 1;
-        }
-
-        .science-image {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-        }
-
-            .science-image img {
-                width: 100%;
-                max-width: 500px;
-                border-radius: 10px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            }
-
-        .science-text h2 {
-            font-size: 2.2rem;
-            color: var(--secondary);
-            margin-bottom: 20px;
-        }
-
-        .science-text p {
-            color: var(--gray);
-            margin-bottom: 25px;
-            font-size: 1.1rem;
-        }
-
-        .science-points {
-            margin-top: 30px;
-        }
-
-        .science-point {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .point-icon {
-            color: var(--primary);
-            font-size: 1.2rem;
-            margin-top: 5px;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #45c77e;
         }
 
         /* 体验项目展示 - 2×2排列 */
         .experiences {
-            padding: 80px 0;
+            min-height: calc(100vh - 60px);
+            padding: 40px 0;
             background-color: white;
+            display: flex;
+            align-items: center;
         }
 
         .experience-cards {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-            margin-top: 40px;
+            gap: 20px;
+            margin-top: 20px;
         }
 
         .experience-card {
@@ -346,34 +296,34 @@
             }
 
         .exp-header {
-            padding: 25px 25px 15px;
+            padding: 15px 20px 10px;
             color: white;
             flex-shrink: 0;
         }
 
             .exp-header.dmn {
-                background-color: #4a6fa5; /* 蓝色 */
+                background-color: #518feb; /* 蓝色 */
             }
 
             .exp-header.start {
-                background-color: #166088; /* 深蓝色 */
+                background-color: #45c77e; /* 深绿色 */
             }
 
             .exp-header.sensory {
-                background-color: #ff9a76; /* 橙色 */
+                background-color: #FF6347; /* 橙色 */
             }
 
             .exp-header.memory {
-                background-color: #6b8cbc; /* 浅蓝色 */
+                background-color: #FADD1F; /* 黄色 */
             }
 
             .exp-header h3 {
                 font-size: 1.5rem;
-                margin-bottom: 10px;
+                margin-bottom: 8px;
             }
 
         .exp-body {
-            padding: 25px;
+            padding: 15px 20px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -381,58 +331,20 @@
 
         .exp-desc {
             color: var(--gray);
-            margin-bottom: 20px;
-            line-height: 1.7;
+            margin-bottom: 15px;
+            line-height: 1.5;
             flex-grow: 1;
+            font-size: 0.95rem;
         }
 
         .exp-tag {
             display: inline-block;
             background-color: rgba(74, 111, 165, 0.1);
-            color: var(--primary);
+            color: var(--dark);
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        /* 价值展示 - 2×2排列 */
-        .value-section {
-            padding: 80px 0;
-            background-color: #f0f4f8;
-        }
-
-        .value-content {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .value-card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: var(--transition);
-            height: 100%;
-        }
-
-            .value-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            }
-
-        .value-icon {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 20px;
-        }
-
-        .value-card h3 {
-            font-size: 1.5rem;
-            color: var(--secondary);
             margin-bottom: 15px;
         }
 
@@ -445,7 +357,7 @@
 
         .footer-content {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 40px;
             margin-bottom: 40px;
         }
@@ -453,7 +365,7 @@
         .footer-column h3 {
             font-size: 1.3rem;
             margin-bottom: 20px;
-            color: var(--accent);
+            color: var(--light);
         }
 
         .footer-links a {
@@ -559,12 +471,9 @@
                 <div class="nav-links">
                     <a href="#home">首页</a>
                     <a href="#adhd">了解ADHD</a>
-                    <a href="#science">科普知识</a>
                     <a href="#experience">体验项目</a>
-                    <a href="#value">平台价值</a>
                     <a href="#about">关于我们</a>
                 </div>
-                <button class="cta-button" id="startExperience">开始体验</button>
             </nav>
         </div>
     </header>
@@ -578,16 +487,90 @@
                     <p>通过四个沉浸式模拟体验，理解注意缺陷多动障碍的真实神经认知机制。我们基于神经科学设计<span class="highlight">DMN、启动障碍、感官门控失控和工作记忆泄露</span>四大体验模块。</p>
                     <p>本平台作为<span class="highlight">"数字基础设施"</span>，通过沉浸式破冰体验快速建立认知基线和情感共鸣，解决<span class="highlight">"最后一公里"</span>的共情缺失问题。</p>
                     <div class="button-group">
-                        <button class="cta-button" style="padding: 15px 30px; font-size: 1.1rem;">
+                        <a href="#experience" class="cta-button" style="padding: 15px 30px; font-size: 1.1rem;">
                             <i class="fas fa-play-circle"></i> 开始体验
-                        </button>
-                        <button class="cta-button secondary-button" style="padding: 15px 30px; font-size: 1.1rem;" id="toScience">
+                        </a>
+                        <a href="#adhd" class="cta-button secondary-button" style="padding: 15px 30px; font-size: 1.1rem;">
                             <i class="fas fa-book"></i> 学习科普
-                        </button>
+                        </a>
                     </div>
                 </div>
                 <div class="hero-image">
-                    <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="ADHD认知之窗">
+                    <img src="image\opening.png" alt="ADHD认知之窗">
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- 体验项目展示 - 2×2排列 -->
+    <section class="experiences" id="experience">
+        <div class="container">
+            <div class="section-title">
+                <h2>体验模块</h2>
+                <p>基于神经科学设计的沉浸式体验，让您亲身感受ADHD背后的认知机制</p>
+            </div>
+
+            <div class="experience-cards">
+                <!-- DMN模拟 -->
+                <div class="experience-card">
+                    <div class="exp-header dmn">
+                        <h3>默认模式网络(DMN)过度活跃</h3>
+                        <p>思维漫游与注意分散</p>
+                    </div>
+                    <div class="exp-body">
+                        <div class="exp-tag">神经机制模拟</div>
+                        <p class="exp-desc">体验ADHD患者默认模式网络无法正常抑制的状态。在需要专注的任务中，思维会不受控制地漫游到无关想法、回忆和想象中，无法维持在任务相关思维上。</p>
+                        <a href="DMN.html" class="cta-button" style="width: 100%; background-color: #518feb; text-align: center; text-decoration: none; display: block; padding: 12px; margin-top: auto;">
+                            进入DMN体验页面
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 启动障碍模拟 -->
+                <div class="experience-card">
+                    <div class="exp-header start">
+                        <h3>任务启动障碍</h3>
+                        <p>想做却动不了的"瘫痪"</p>
+                    </div>
+                    <div class="exp-body">
+                        <div class="exp-tag">执行功能模拟</div>
+                        <p class="exp-desc">具象化动机与行为之间的断裂。当试图开始枯燥任务时，会感受到强大的"阻力"，直观体验多巴胺不足导致大脑将任务识别为"痛苦"并强制刹车的状态。</p>
+                        <a href="IP.html" class="cta-button" style="width: 100%; background-color: #45c77e; text-align: center; text-decoration: none; display: block; padding: 12px; margin-top: auto;">
+                            进入启动障碍体验页面
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 感官门控失控模拟 -->
+                <div class="experience-card">
+                    <div class="exp-header sensory">
+                        <h3>感官门控失控</h3>
+                        <p>无法屏蔽的噪音与干扰</p>
+                    </div>
+                    <div class="exp-body">
+                        <div class="exp-tag">感知处理模拟</div>
+                        <p class="exp-desc">模拟感觉门控失效导致无法过滤无关感官输入。在看似平静的环境中，背景噪音和视觉干扰指数级增强，体验大脑被迫处理所有输入直到过载的状态。</p>
+                        <a href="SGF.html" class="cta-button" style="width: 100%; background-color: #ff6347; text-align: center; text-decoration: none; display: block; padding: 12px; margin-top: auto;">
+                            进入感官门控体验页面
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 工作记忆泄露模拟 -->
+                <div class="experience-card">
+                    <div class="exp-header memory">
+                        <h3>工作记忆泄露</h3>
+                        <p>信息保持与处理困难</p>
+                    </div>
+                    <div class="exp-body">
+                        <div class="exp-tag">记忆功能模拟</div>
+                        <p class="exp-desc">模拟工作记忆容量减少和信息保持困难。在需要记住和操作信息的任务中，关键信息会不断"泄露"和消失，体验ADHD患者在复杂任务中的认知负荷。</p>
+                        <a href="WML.html" class="cta-button" style="width: 100%; background-color: #fadd1f; text-align: center; text-decoration: none; display: block; padding: 12px; margin-top: auto; ">
+                            进入工作记忆体验页面
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -617,182 +600,6 @@
                     <h3>多动与冲动</h3>
                     <p>多巴胺系统功能异常，导致行为抑制困难，偏好即时奖励而非长期回报。儿童表现为过度运动，成人多为内在躁动感。</p>
                 </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-cogs"></i>
-                    </div>
-                    <h3>执行功能障碍</h3>
-                    <p>工作记忆、任务启动、认知灵活性和计划组织能力受损，导致日常生活、学习和工作中遇到系统性困难。</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 科普知识入口 -->
-    <section class="science-entrance" id="science">
-        <div class="container">
-            <div class="science-content">
-                <div class="science-text">
-                    <h2>ADHD科普知识库</h2>
-                    <p>深入了解ADHD的神经科学基础、认知机制和应对策略。我们的科普内容基于最新研究，以易懂的方式呈现复杂的神经认知概念。</p>
-
-                    <div class="science-points">
-                        <div class="science-point">
-                            <div class="point-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div>
-                                <h4>神经生物学基础</h4>
-                                <p>前额叶皮层、基底神经节、多巴胺系统等神经基础的功能异常</p>
-                            </div>
-                        </div>
-
-                        <div class="science-point">
-                            <div class="point-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div>
-                                <h4>认知机制详解</h4>
-                                <p>工作记忆、执行功能、感觉门控、默认模式网络等认知机制解析</p>
-                            </div>
-                        </div>
-
-                        <div class="science-point">
-                            <div class="point-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div>
-                                <h4>干预与支持策略</h4>
-                                <p>行为干预、环境调整、药物治疗、心理支持等多维度应对方法</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="cta-button" style="padding: 15px 30px; margin-top: 20px;" id="enterScience">
-                        <i class="fas fa-graduation-cap"></i> 进入科普知识库
-                    </button>
-                </div>
-
-                <div class="science-image">
-                    <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="科普知识">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 体验项目展示 - 2×2排列 -->
-    <section class="experiences" id="experience">
-        <div class="container">
-            <div class="section-title">
-                <h2>四大模拟体验模块</h2>
-                <p>基于神经科学设计的沉浸式体验，让您亲身感受ADHD背后的认知机制</p>
-            </div>
-
-            <div class="experience-cards">
-                <!-- DMN模拟 -->
-                <div class="experience-card">
-                    <div class="exp-header dmn">
-                        <h3>默认模式网络(DMN)过度活跃</h3>
-                        <p>思维漫游与注意分散</p>
-                    </div>
-                    <div class="exp-body">
-                        <div class="exp-tag">神经机制模拟</div>
-                        <p class="exp-desc">体验ADHD患者默认模式网络无法正常抑制的状态。在需要专注的任务中，思维会不受控制地漫游到无关想法、回忆和想象中，无法维持在任务相关思维上。</p>
-                        <a href="DMN.html" class="cta-button" style="width: 100%; background-color: #4a6fa5; text-align: center; text-decoration: none; display: block; padding: 12px; margin-top: auto;">
-                            进入DMN体验页面
-                        </a>
-                    </div>
-                </div>
-
-                <!-- 启动障碍模拟 -->
-                <div class="experience-card">
-                    <div class="exp-header start">
-                        <h3>任务启动障碍</h3>
-                        <p>想做却动不了的"瘫痪"</p>
-                    </div>
-                    <div class="exp-body">
-                        <div class="exp-tag">执行功能模拟</div>
-                        <p class="exp-desc">具象化动机与行为之间的断裂。当试图开始枯燥任务时，会感受到强大的"阻力"，直观体验多巴胺不足导致大脑将任务识别为"痛苦"并强制刹车的状态。</p>
-                        <a href="IP.html" class="cta-button" style="width: 100%; background-color: #166088; text-align: center; text-decoration: none; display: block; padding: 12px; margin-top: auto;">
-                            进入启动障碍体验页面
-                        </a>
-                    </div>
-                </div>
-
-                <!-- 感官门控失控模拟 -->
-                <div class="experience-card">
-                    <div class="exp-header sensory">
-                        <h3>感官门控失控</h3>
-                        <p>无法屏蔽的噪音与干扰</p>
-                    </div>
-                    <div class="exp-body">
-                        <div class="exp-tag">感知处理模拟</div>
-                        <p class="exp-desc">模拟感觉门控失效导致无法过滤无关感官输入。在看似平静的环境中，背景噪音和视觉干扰指数级增强，体验大脑被迫处理所有输入直到过载的状态。</p>
-                        <a href="SGF.html" class="cta-button" style="width: 100%; background-color: #ff9a76; text-align: center; text-decoration: none; display: block; padding: 12px; margin-top: auto;">
-                            进入感官门控体验页面
-                        </a>
-                    </div>
-                </div>
-
-                <!-- 工作记忆泄露模拟 -->
-                <div class="experience-card">
-                    <div class="exp-header memory">
-                        <h3>工作记忆泄露</h3>
-                        <p>信息保持与处理困难</p>
-                    </div>
-                    <div class="exp-body">
-                        <div class="exp-tag">记忆功能模拟</div>
-                        <p class="exp-desc">模拟工作记忆容量减少和信息保持困难。在需要记住和操作信息的任务中，关键信息会不断"泄露"和消失，体验ADHD患者在复杂任务中的认知负荷。</p>
-                        <a href="WML.html" class="cta-button" style="width: 100%; background-color: #6b8cbc; text-align: center; text-decoration: none; display: block; padding: 12px; margin-top: auto;">
-                            进入工作记忆体验页面
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 价值展示 - 2×2排列 -->
-    <section class="value-section" id="value">
-        <div class="container">
-            <div class="section-title">
-                <h2>平台核心价值</h2>
-                <p>认知之窗ADHD体验平台的多维度价值与社会意义</p>
-            </div>
-
-            <div class="value-content">
-                <div class="value-card">
-                    <div class="value-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>建立共情桥梁</h3>
-                    <p>通过神经科学视角的沉浸式体验，让教师、家长和同学理解ADHD患者的真实困境，减少误解与偏见，创造友好的支持环境。</p>
-                </div>
-
-                <div class="value-card">
-                    <div class="value-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <h3>优化教育策略</h3>
-                    <p>帮助教育工作者理解学生的神经认知特点，基于科学证据优化教学策略与引导措施，实现个性化教育支持。</p>
-                </div>
-
-                <div class="value-card">
-                    <div class="value-icon">
-                        <i class="fas fa-heartbeat"></i>
-                    </div>
-                    <h3>促进自我理解</h3>
-                    <p>帮助ADHD个体理解自己的认知特点，减少自责与挫败感，发展有效的应对策略和自我接纳。</p>
-                </div>
-
-                <div class="value-card">
-                    <div class="value-icon">
-                        <i class="fas fa-flask"></i>
-                    </div>
-                    <h3>推动科普创新</h3>
-                    <p>将复杂的神经科学概念转化为可体验的交互模拟，推动公众神经科学教育和共情能力培养的创新方法。</p>
-                </div>
             </div>
         </div>
     </section>
@@ -808,24 +615,11 @@
                 </div>
 
                 <div class="footer-column">
-                    <h3>项目团队</h3>
-                    <div class="team-members">
-                        <div class="team-member">付永茜</div>
-                        <div class="team-member">冉家铖</div>
-                        <div class="team-member">刘纯兰</div>
-                        <div class="team-member">杨云涵</div>
-                    </div>
-                    <p style="margin-top: 20px;">指导教师：《程序设计实践》课程组</p>
-                </div>
-
-                <div class="footer-column">
                     <h3>快速链接</h3>
                     <div class="footer-links">
                         <a href="#home">首页</a>
                         <a href="#adhd">了解ADHD</a>
-                        <a href="#science">科普知识</a>
                         <a href="#experience">体验项目</a>
-                        <a href="#value">平台价值</a>
                     </div>
                 </div>
 
@@ -883,60 +677,60 @@
         function showSciencePage() {
             const modal = document.createElement('div');
             modal.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background-color: rgba(0,0,0,0.8);
-                    z-index: 2000;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    padding: 20px;
-                `;
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background-color: rgba(0,0,0,0.8);
+                            z-index: 2000;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            padding: 20px;
+                        `;
 
             modal.innerHTML = `
-                    <div style="
-                        background: white;
-                        border-radius: 10px;
-                        padding: 30px;
-                        max-width: 800px;
-                        width: 100%;
-                        max-height: 90vh;
-                        overflow-y: auto;
-                        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                    ">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <h2 style="color: var(--primary); margin: 0;">ADHD科普知识库</h2>
-                            <button id="closeModal" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--gray);">&times;</button>
-                        </div>
+                            <div style="
+                                background: white;
+                                border-radius: 10px;
+                                padding: 30px;
+                                max-width: 800px;
+                                width: 100%;
+                                max-height: 90vh;
+                                overflow-y: auto;
+                                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                            ">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                    <h2 style="color: var(--primary); margin: 0;">ADHD科普知识库</h2>
+                                    <button id="closeModal" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--gray);">&times;</button>
+                                </div>
 
-                        <div style="margin-bottom: 25px;">
-                            <h3 style="color: var(--secondary); margin-bottom: 10px;">神经科学基础</h3>
-                            <p>ADHD与多个脑区功能异常相关，包括前额叶皮层（执行功能）、基底神经节（运动控制和奖励处理）、小脑（计时和协调）以及默认模式网络（静息态脑活动）。</p>
-                        </div>
+                                <div style="margin-bottom: 25px;">
+                                    <h3 style="color: var(--secondary); margin-bottom: 10px;">神经科学基础</h3>
+                                    <p>ADHD与多个脑区功能异常相关，包括前额叶皮层（执行功能）、基底神经节（运动控制和奖励处理）、小脑（计时和协调）以及默认模式网络（静息态脑活动）。</p>
+                                </div>
 
-                        <div style="margin-bottom: 25px;">
-                            <h3 style="color: var(--secondary); margin-bottom: 10px;">认知机制</h3>
-                            <p>ADHD的核心认知缺陷包括：工作记忆容量减少、反应抑制困难、任务启动障碍、时间感知异常以及情绪调节困难。这些缺陷相互影响，形成复杂的症状表现。</p>
-                        </div>
+                                <div style="margin-bottom: 25px;">
+                                    <h3 style="color: var(--secondary); margin-bottom: 10px;">认知机制</h3>
+                                    <p>ADHD的核心认知缺陷包括：工作记忆容量减少、反应抑制困难、任务启动障碍、时间感知异常以及情绪调节困难。这些缺陷相互影响，形成复杂的症状表现。</p>
+                                </div>
 
-                        <div style="margin-bottom: 25px;">
-                            <h3 style="color: var(--secondary); margin-bottom: 10px;">四大模拟模块的科学依据</h3>
-                            <ul style="padding-left: 20px;">
-                                <li style="margin-bottom: 8px;"><strong>DMN过度活跃</strong>：ADHD患者在需要专注的任务中，默认模式网络抑制不足，导致思维漫游增加</li>
-                                <li style="margin-bottom: 8px;"><strong>任务启动障碍</strong>：与前额叶皮层和基底神经节的多巴胺功能异常相关，导致动机-行动转换困难</li>
-                                <li style="margin-bottom: 8px;"><strong>感官门控失控</strong>：感觉门控机制异常，导致过滤无关感官输入的能力下降</li>
-                                <li><strong>工作记忆泄露</strong>：工作记忆容量减少和信息保持困难，影响复杂任务的执行</li>
-                            </ul>
-                        </div>
+                                <div style="margin-bottom: 25px;">
+                                    <h3 style="color: var(--secondary); margin-bottom: 10px;">四大模拟模块的科学依据</h3>
+                                    <ul style="padding-left: 20px;">
+                                        <li style="margin-bottom: 8px;"><strong>DMN过度活跃</strong>：ADHD患者在需要专注的任务中，默认模式网络抑制不足，导致思维漫游增加</li>
+                                        <li style="margin-bottom: 8px;"><strong>任务启动障碍</strong>：与前额叶皮层和基底神经节的多巴胺功能异常相关，导致动机-行动转换困难</li>
+                                        <li style="margin-bottom: 8px;"><strong>感官门控失控</strong>：感觉门控机制异常，导致过滤无关感官输入的能力下降</li>
+                                        <li><strong>工作记忆泄露</strong>：工作记忆容量减少和信息保持困难，影响复杂任务的执行</li>
+                                    </ul>
+                                </div>
 
-                        <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
-                            <button class="cta-button" id="closeModalBtn" style="padding: 10px 25px;">关闭</button>
-                        </div>
-                    </div>
-                `;
+                                <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
+                                    <button class="cta-button" id="closeModalBtn" style="padding: 10px 25px;">关闭</button>
+                                </div>
+                            </div>
+                        `;
 
             document.body.appendChild(modal);
 

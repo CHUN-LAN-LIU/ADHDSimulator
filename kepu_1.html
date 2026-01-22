@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>认知解码 - ADHD 注意力缺陷的生物学机制</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        :root {
+            --primary: #4a6fa5;
+            --primary-light: #6b8cbc;
+            --secondary: #166088;
+            --accent: #ff6347;
+            --accent-light: #ff9a76;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.8;
+        }
+
+        /* 头部导航 */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            color: var(--primary);
+            font-size: 28px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logo-subtitle {
+            font-size: 14px;
+            color: var(--gray);
+            margin-top: -5px;
+            margin-left: 10px;
+            padding-left: 10px;
+            border-left: 1px solid #ddd;
+        }
+
+        .cta-button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .cta-button:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 111, 165, 0.3);
+        }
+
+        /* 页面头部英雄区 */
+        .page-header {
+            background: linear-gradient(135deg, #f5f7fb 0%, #e3e8f5 100%);
+            padding: 80px 0 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .page-header h1 span {
+            color: var(--accent);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .page-header h1 span::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 99, 71, 0.2);
+            z-index: -1;
+        }
+
+        .page-header p {
+            font-size: 1.3rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto 30px;
+            font-weight: 300;
+        }
+
+        /* 主内容区域 */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .section {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            padding: 50px;
+            margin-bottom: 50px;
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-title {
+            color: var(--primary);
+            border-bottom: 2px solid var(--light-gray);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 700;
+        }
+
+        .section-title i {
+            color: var(--accent);
+            background: rgba(255, 99, 71, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* 科学卡片样式 */
+        .science-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--light);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+            border-left: 5px solid var(--accent);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feature-card.blue { border-left-color: #4a6fa5; }
+        .feature-card.green { border-left-color: #2e8b57; }
+        .feature-card.yellow { border-left-color: #fadd1f; }
+        .feature-card.red { border-left-color: #ff6347; }
+
+        .feature-card h3 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .sim-tag {
+            font-size: 0.8rem;
+            background: #fff;
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: var(--gray);
+            border: 1px solid #ddd;
+            font-weight: normal;
+        }
+
+        .feature-card p {
+            color: #555;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        /* 信息框 */
+        .info-box {
+            display: flex;
+            gap: 25px;
+            margin: 40px 0;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            border-top: 4px solid var(--primary);
+            align-items: flex-start;
+        }
+
+        .info-box-icon {
+            flex-shrink: 0;
+            width: 70px;
+            height: 70px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 10px 20px rgba(74, 111, 165, 0.3);
+        }
+
+        .info-box-content h3 {
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 1.3rem;
+        }
+
+        /* 对比表格 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 30px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+        }
+
+        .comparison-table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 18px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 18px;
+            border-bottom: 1px solid var(--light-gray);
+            background: white;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:nth-child(even) td {
+            background-color: #fcfcfc;
+        }
+
+        /* 大脑图解 (高保真矢量版) */
+        .brain-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px 0;
+            background: radial-gradient(circle at center, #f0f4f8 0%, transparent 70%);
+            padding: 40px 0;
+        }
+
+        .brain-container {
+            position: relative;
+            width: 600px; 
+            height: 400px;
+        }
+        
+        .brain-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 15px 30px rgba(74, 111, 165, 0.15));
+        }
+
+        .brain-path {
+            fill: #ffffff;
+            stroke: #cbd5e1;
+            stroke-width: 2.5;
+            transition: all 0.5s ease;
+        }
+        
+        .brain-inner-line {
+            fill: none;
+            stroke: #e2e8f0;
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        .brain-part {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+            border: 2px solid white;
+        }
+
+        .brain-part::after {
+            content: '';
+            position: absolute;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            border: 1px solid currentColor;
+            animation: ripple 2s infinite;
+            opacity: 0.5;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        .brain-part:hover {
+            transform: scale(1.2) translateY(-5px);
+            z-index: 20;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .part-1 { background-color: #ff6347; color: #ff6347; top: 32%; left: 20%; } 
+        .part-2 { background-color: #4a6fa5; color: #4a6fa5; top: 25%; left: 60%; } 
+        .part-3 { background-color: #2e8b57; color: #2e8b57; top: 58%; left: 45%; } 
+        .part-4 { background-color: #fadd1f; color: #fadd1f; top: 62%; left: 55%; } 
+        
+        .part-1, .part-2, .part-3 { color: white !important; }
+        .part-4 { color: #333 !important; }
+
+        .part-tooltip {
+            position: absolute;
+            background: white;
+            color: var(--dark);
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            width: 280px;
+            display: none;
+            z-index: 100;
+            top: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            pointer-events: none;
+            text-align: left;
+            line-height: 1.6;
+            border: 1px solid #eee;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .part-tooltip::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 8px 8px 8px;
+            border-style: solid;
+            border-color: transparent transparent white transparent;
+        }
+        
+        .part-tooltip strong {
+            display: block;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--primary);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .brain-part:hover .part-tooltip { display: block; opacity: 1; }
+
+        /* 策略列表 */
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .strategy-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--light-gray);
+            transition: var(--transition);
+        }
+
+        .strategy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border-color: var(--primary);
+        }
+
+        .strategy-icon {
+            width: 60px;
+            height: 60px;
+            background-color: var(--light);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.5rem;
+        }
+
+        /* 页脚 */
+        footer {
+            background-color: var(--secondary);
+            color: white;
+            padding: 60px 0 30px;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--light);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .footer-links a {
+            display: block;
+            color: #d1d9e6;
+            text-decoration: none;
+            margin-bottom: 12px;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a0b4d0;
+            font-size: 0.9rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .science-grid, .stats-grid, .strategy-grid, .footer-content {
+                grid-template-columns: 1fr;
+            }
+            .page-header h1 { font-size: 2rem; }
+            .section { padding: 30px 20px; }
+            
+            .brain-container {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 600/400;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-brain"></i></div>
+                <div>
+                    <div class="logo-text">认知之窗</div>
+                    <div class="logo-subtitle">ADHD科普体验平台</div>
+                </div>
+            </a>
+            <a href="index.html" class="cta-button">
+                <i class="fas fa-arrow-left"></i> 返回体验大厅
+            </a>
+        </div>
+    </header>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>神经解码：<span>ADHD 注意力缺陷的生物学真相</span></h1>
+            <p>专注于解析 ADHD 核心症状——<b>注意调控障碍</b>。这并非单纯的“分心”或“态度问题”，而是大脑执行功能网络在调节、维持和分配注意力时发生的神经生物学“断路”。</p>
+        </div>
+    </section>
+
+    <main class="container">
+        
+        <section class="section" id="intro">
+            <h2 class="section-title"><i class="fas fa-microscope"></i> 注意力调节障碍而非“性格缺陷”</h2>
+            <div class="info-box">
+                <div class="info-box-icon">
+                    <i class="fas fa-dna"></i>
+                </div>
+                <div class="info-box-content">
+                    <h3>执行功能系统的“短路”</h3>
+                    <p>ADHD 患者的“注意力缺陷”实质上是<b>注意调控障碍 (Attention Regulation Disorder)</b>。这就像一个失灵的闸门：大脑无法根据主观意愿自如地开启或关闭对特定信息的关注。这不是因为“不想专心”，而是前额叶皮层对注意力的指挥权被削弱了。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="mechanisms">
+            <h2 class="section-title"><i class="fas fa-network-wired"></i> 四大核心认知障碍机制</h2>
+            <p>通过刚才的体验，您可能已经直观感受到了注意力是如何失效的。以下是这些体验背后的科学解释：</p>
+
+            <div class="science-grid">
+                <div class="feature-card blue">
+                    <h3>默认模式网络 (DMN) <span class="sim-tag">破坏注意力的：指向性</span></h3>
+                    <p><strong>机制：</strong>大脑有两套网络：专注时的“任务网络”和发呆时的“默认模式网络(DMN)”。普通人专注时 DMN 会自动关闭；而 ADHD 患者的 DMN 无法有效抑制，始终处于活跃状态。</p>
+                    <p><strong>后果：</strong>这就是为什么您想把注意力指向“写邮件”，脑子却不受控地指向“无关杂念”。注意力的方向盘失灵了，思维不断被内部噪音带偏。</p>
+                </div>
+
+                <div class="feature-card green">
+                    <h3>多巴胺奖励回路缺陷 <span class="sim-tag">破坏注意力的：持久性</span></h3>
+                    <p><strong>机制：</strong>维持枯燥任务的注意力需要持续的“多巴胺”供给。ADHD 大脑的多巴胺传递效率低，导致大脑无法为“无聊但重要”的任务维持长久的关注。</p>
+                    <p><strong>后果：</strong>这就是“启动瘫痪”和“虎头蛇尾”。大脑因为缺乏燃料，无法将注意力锁定在当前任务上，反而会本能地排斥它，去寻找高刺激（如游戏）来补充多巴胺。</p>
+                </div>
+
+                <div class="feature-card red">
+                    <h3>感官门控 (Sensory Gating) 失效 <span class="sim-tag">破坏注意力的：抗干扰性</span></h3>
+                    <p><strong>机制：</strong>丘脑是大脑的“过滤器”，负责屏蔽99%的无关感官信息。ADHD 患者的这道门控较弱，无法有效区分“背景噪音”和“核心信息”。</p>
+                    <p><strong>后果：</strong>所有信息都以同等高优先级涌入大脑。为了处理过载信息，宝贵的注意力资源被迅速耗尽，导致您在嘈杂环境中极易分心，无法聚焦主线任务。</p>
+                </div>
+
+                <div class="feature-card yellow">
+                    <h3>工作记忆容量 (RAM) 短缺 <span class="sim-tag">破坏注意力的：连贯性</span></h3>
+                    <p><strong>机制：</strong>工作记忆是注意力的“在线缓存”。ADHD 患者的前额叶皮层激活不足，导致这个缓存容量极小且不稳定。</p>
+                    <p><strong>后果：</strong>注意力的连贯性被打断。您无法“一边记住验证码一边输入”，一旦中间插入微小干扰，注意力链条就会断裂，导致任务进度丢失，必须反复从头开始。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="brain-map">
+            <h2 class="section-title"><i class="fas fa-brain"></i> 大脑故障点定位</h2>
+            <div class="brain-section">
+                <div class="brain-container">
+                    <svg class="brain-svg" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#ccc"/>
+                            </filter>
+                        </defs>
+                        
+                        <path class="brain-path" d="M320,320 L320,380 C320,380 300,380 290,360 L290,320" fill="#e2e8f0"/>
+                        
+                        <path class="brain-path" d="M340,300 C390,300 440,320 430,360 C420,390 350,380 330,340 Z" fill="#e2e8f0"/>
+                        <path class="brain-inner-line" d="M350,320 C380,320 400,340 390,360" stroke="#cbd5e1"/>
+                        <path class="brain-inner-line" d="M360,340 C380,340 390,350 380,360" stroke="#cbd5e1"/>
+
+                        <path class="brain-path" filter="url(#shadow)" 
+                              d="M150,250 
+                                 C80,250 50,200 60,150 
+                                 C70,80 150,40 250,30 
+                                 C380,20 480,80 500,160 
+                                 C520,240 480,300 400,320 
+                                 C360,330 320,300 300,300 
+                                 C250,300 200,320 150,250 Z" 
+                              fill="#f8f9fa"/>
+                        
+                        <path class="brain-inner-line" d="M100,160 Q140,120 180,150 T260,140" />
+                        <path class="brain-inner-line" d="M120,200 Q160,180 200,210" />
+                        <path class="brain-inner-line" d="M280,80 Q320,120 360,90 T440,130" />
+                        <path class="brain-inner-line" d="M300,180 Q350,220 400,190" />
+                        <path class="brain-inner-line" d="M250,250 Q300,280 350,260" />
+                    </svg>
+
+                    <div class="brain-part part-1">
+                        PFC
+                        <div class="part-tooltip">
+                            <strong>前额叶皮层 (PFC)</strong>
+                            <div style="font-size:0.85rem; color:#666; margin-bottom:5px;">对应体验：工作记忆泄露</div>
+                            负责执行功能、计划和短时记忆。此处激活不足导致“内存”过小，信息容易丢失。
+                        </div>
+                    </div>
+
+                    <div class="brain-part part-2">
+                        DMN
+                        <div class="part-tooltip">
+                            <strong>后扣带回 (PCC/DMN)</strong>
+                            <div style="font-size:0.85rem; color:#666; margin-bottom:5px;">对应体验：思维漫游</div>
+                            默认模式网络的核心节点。本应在专注时关闭，抑制失败导致杂念丛生。
+                        </div>
+                    </div>
+
+                    <div class="brain-part part-3">
+                        Str
+                        <div class="part-tooltip">
+                            <strong>纹状体 (Striatum)</strong>
+                            <div style="font-size:0.85rem; color:#666; margin-bottom:5px;">对应体验：启动困难</div>
+                            多巴胺奖赏回路的核心。对延迟奖励不敏感，导致对枯燥任务缺乏“点火”动力。
+                        </div>
+                    </div>
+
+                    <div class="brain-part part-4">
+                        Tha
+                        <div class="part-tooltip">
+                            <strong>丘脑 (Thalamus)</strong>
+                            <div style="font-size:0.85rem; color:#666; margin-bottom:5px;">对应体验：感官过载</div>
+                            大脑的“感官中转站”和过滤器。门控失效导致噪音、光线等无关刺激长驱直入。
+                        </div>
+                    </div>
+                </div>
+                <p style="text-align:center; color:#666; margin-top:20px; font-size:0.9rem;">
+                    <i class="fas fa-mouse-pointer"></i> 悬停在圆点上查看各脑区功能异常
+                </p>
+            </div>
+        </section>
+
+        <section class="section" id="comparison">
+            <h2 class="section-title"><i class="fas fa-balance-scale"></i> 神经典型大脑 vs ADHD 大脑（注意力维度）</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th width="20%">注意维度</th>
+                        <th width="40%">神经典型大脑 (Neurotypical)</th>
+                        <th width="40%">ADHD 大脑 (Neurodivergent)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>注意指向</strong></td>
+                        <td>能根据主观意愿，稳定指向目标</td>
+                        <td>容易被 DMN（内部想法）或外部强刺激劫持</td>
+                    </tr>
+                    <tr>
+                        <td><strong>注意维持</strong></td>
+                        <td>能维持对低刺激（枯燥）任务的关注</td>
+                        <td>对低多巴胺任务极不耐受，注意力迅速耗散</td>
+                    </tr>
+                    <tr>
+                        <td><strong>注意广度</strong></td>
+                        <td>能同时容纳多个相关信息（工作记忆）</td>
+                        <td>"带宽"较窄，容易因过载而丢失当前信息</td>
+                    </tr>
+                    <tr>
+                        <td><strong>注意切换</strong></td>
+                        <td>平滑切换，不易卡顿</td>
+                        <td>切换困难（过分专注）或切换过于频繁（分心）</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section" id="strategies">
+            <h2 class="section-title"><i class="fas fa-tools"></i> 针对注意力缺陷的应对策略</h2>
+            <p style="margin-bottom:30px;">既然我们知道是“硬件”上的注意力调节机制出了问题，我们就需要安装“外挂”软件来辅助运行。</p>
+            
+            <div class="strategy-grid">
+                <div class="strategy-card">
+                    <div class="strategy-icon"><i class="fas fa-clock"></i></div>
+                    <h3>时间具象化</h3>
+                    <p>应对<b>启动障碍</b>：使用可视化的计时器（如 Time Timer），将抽象的时间变成可见的图形，增加紧迫感，刺激多巴胺分泌。</p>
+                </div>
+                <div class="strategy-card">
+                    <div class="strategy-icon"><i class="fas fa-list-ul"></i></div>
+                    <h3>任务外包</h3>
+                    <p>应对<b>工作记忆短缺</b>：不要试图用脑子记。使用清单、备忘录，将大脑内存清空，只用来处理当前那一件小事。</p>
+                </div>
+                <div class="strategy-card">
+                    <div class="strategy-icon"><i class="fas fa-headphones"></i></div>
+                    <h3>环境工程</h3>
+                    <p>应对<b>感官过载</b>：人为制造“门控”。使用降噪耳机、白噪音或极简环境，物理隔绝干扰，减少丘脑的过滤负担。</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>认知之窗</h3>
+                <p>ADHD科普体验平台，基于神经科学的沉浸式模拟体验，致力于消除误解，建立共情。</p>
+            </div>
+
+            <div class="footer-column">
+                <h3>快速导航</h3>
+                <div class="footer-links">
+                    <a href="index.html">返回首页</a>
+                    <a href="#mechanisms">核心机制</a>
+                    <a href="#comparison">大脑对比</a>
+                    <a href="#strategies">应对策略</a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h3>体验模块回顾</h3>
+                <div class="footer-links">
+                    <a href="DMN.html">DMN 思维漫游</a>
+                    <a href="IP.html">启动障碍模拟</a>
+                    <a href="SGF.html">感官门控模拟</a>
+                    <a href="WML.html">工作记忆模拟</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p>&copy; 2023 认知之窗 - ADHD科普体验平台。本平台内容仅供教育参考，不构成医疗建议。</p>
+        </div>
+    </footer>
+
+    <script>
+        // 大脑部位提示交互增强
+        document.addEventListener('DOMContentLoaded', function () {
+            // 平滑滚动到锚点
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // 导航栏滚动效果
+            window.addEventListener('scroll', function () {
+                const header = document.querySelector('header');
+                if (window.scrollY > 50) {
+                    header.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.1)';
+                } else {
+                    header.style.boxShadow = '0 2px 15px rgba(0, 0, 0, 0.08)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

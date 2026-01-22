@@ -1,0 +1,162 @@
+/* 第三界面：十任务分散布局 */
+.ten-tasks-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.ten-tasks-title {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.ten-tasks-instruction {
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    color: #666;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 8px 15px;
+    border-radius: 5px;
+    z-index: 10;
+}
+
+.ten-tasks-container {
+    position: relative;
+    width: 100%;
+    height: 80%;
+    margin-top: 100px;
+}
+
+/* 任务按钮样式 - 纯色 */
+.scattered-task-btn {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: #777; /* 纯色 */
+    color: #fff;
+    border: none;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5),
+                inset 0 0 5px rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    z-index: 5;
+    text-align: center;
+    padding: 5px;
+}
+
+.scattered-task-btn:hover {
+    transform: scale(1.05);
+}
+
+.scattered-task-btn::before {
+    content: '';
+    position: absolute;
+    width: 60%;
+    height: 60%;
+    border-radius: 50%;
+    background: radial-gradient(circle at center,
+            rgba(255, 255, 255, 0.2) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            transparent 70%);
+    pointer-events: none;
+}
+
+.scattered-task-btn-text {
+    position: relative;
+    z-index: 2;
+}
+
+.scattered-task-btn-title {
+    font-size: 10px;
+    margin-bottom: 2px;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    line-height: 1.2;
+}
+
+/* 正确按钮的特殊样式 - 蓝色纯色 */
+.correct-task-btn {
+    background: #2196F3 !important; /* 蓝色纯色 */
+    box-shadow: 0 0 15px rgba(33, 150, 243, 0.6), inset 0 0 8px rgba(255, 255, 255, 0.3) !important;
+}
+
+.ten-tasks-back-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+    z-index: 10;
+}
+
+.ten-tasks-back-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+/* 计时器显示 */
+.ten-tasks-timer {
+    position: absolute;
+    top: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    background: rgba(255,255,255,0.9);
+    padding: 8px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 10;
+}
+
+.ten-tasks-hint {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: #666;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 8px 15px;
+    border-radius: 8px;
+    text-align: center;
+    z-index: 10;
+}
