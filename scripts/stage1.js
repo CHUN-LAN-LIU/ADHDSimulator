@@ -2,7 +2,7 @@
 
 // 全局状态
 const gameState = {
-    mousePos: { x: window.innerWidth/2, y: window.innerHeight/2 },
+    mousePos: { x: window.innerWidth * 0.15, y: window.innerHeight * 0.25 },
     isLocked: false,
     isNearButton: false,
     isInCoreZone: false,
@@ -27,34 +27,48 @@ const gameState = {
     
     centerHoldStartTime: 0,
     isInCenterZone: false,
-    centerHoldInterval: null
+    centerHoldInterval: null,
+    
+    isSuccessful: false,
+    
+    // 自动广告吸引相关
+    autoAttractionInterval: null,
+    lastMovementTime: 0,
+    isBeingAttracted: false
 };
 
-// 常量
+// 常量 - 修改了广告吸引力的范围和强度
 const GRAVITY_WELL_RADIUS = 200;
-const RESISTANCE_AREA_RADIUS = 400;
+const RESISTANCE_AREA_RADIUS = 450; // 扩大外部区域，增加快速移动的范围
 const BUTTON_RADIUS = 29.5;
 const HALO_RADIUS = 50;
 
-const HIGH_RESISTANCE_RADIUS = 200;
-const MEDIUM_RESISTANCE_RADIUS = 300;
-const LOW_RESISTANCE_RADIUS = 350;
+// 修改：调整阻力区域半径，使阻力梯度更明显
+const HIGH_RESISTANCE_RADIUS = 150;  // 缩小核心高阻力区域
+const MEDIUM_RESISTANCE_RADIUS = 250; // 中等阻力区域
+const LOW_RESISTANCE_RADIUS = 350;    // 低阻力区域
 
-const AD_ATTRACTION_RADIUS = 100;
-const AD_ATTRACTION_FORCE = 0.15;
+// 修改：适度的广告吸引力范围和强度
+const AD_ATTRACTION_RADIUS = 300;  // 缩小到200px，只在广告附近吸引
+const AD_ATTRACTION_FORCE = 0.5;   // 降低到0.3，温和的吸引力
 
 const DISTRACTION_TIMEOUT = 1000;
 
-const CENTER_ZONE_RADIUS = 40;
-const CENTER_HOLD_TIME = 2000;
+const CENTER_ZONE_RADIUS = 50; // 从40增加到50，扩大成功区域
+const CENTER_HOLD_TIME = 2000; // 从2000降到1500毫秒，更容易成功
 
 const RESISTANCE_ENERGY_COST_MULTIPLIER = 2.0;
-const AD_ESCAPE_ENERGY_COST_MULTIPLIER = 2.0;
+const AD_ESCAPE_ENERGY_COST_MULTIPLIER = 1.0;  // 降低到1.2，减少逃脱广告的能量消耗
 const BUTTON_REPULSION_ENERGY_COST_MULTIPLIER = 1.5;
 
+// 自动广告吸引常量
+const AUTO_ATTRACTION_DELAY = 10; // 鼠标停止300毫秒后开始自动吸引
+const AUTO_ATTRACTION_SPEED = 1.5; // 自动吸引的速度，降低防止太快
+
 // 元素引用
-let gravityWell, taskBtn, taskButtonContainer, buttonHalo, zone1, zone2, energyFill, energyValue;
-let gravityWellCenter, zone1Center, zone2Center, zone1Rect, zone2Rect;
+let gravityWell, taskBtn, taskButtonContainer, buttonHalo, zone1, zone2, zone3, zone4, zone5, zone6, energyFill, energyValue;
+let gravityWellRect, gravityWellCenter, zone1Rect, zone2Rect, zone3Rect, zone4Rect, zone5Rect, zone6Rect;
+let zone1Center, zone2Center, zone3Center, zone4Center, zone5Center, zone6Center;
 
 // 初始化第一阶段
 function initFirstStage() {
@@ -67,6 +81,10 @@ function initFirstStage() {
     buttonHalo = document.getElementById('buttonHalo');
     zone1 = document.getElementById('zone1');
     zone2 = document.getElementById('zone2');
+    zone3 = document.getElementById('zone3');
+    zone4 = document.getElementById('zone4');
+    zone5 = document.getElementById('zone5');
+    zone6 = document.getElementById('zone6');
     energyFill = document.getElementById('energyFill');
     energyValue = document.getElementById('energyValue');
     
@@ -76,7 +94,7 @@ function initFirstStage() {
     }
     
     // 重置状态
-    gameState.mousePos = { x: window.innerWidth/2, y: window.innerHeight/2 };
+    gameState.mousePos = { x: window.innerWidth * 0.15, y: window.innerHeight * 0.25 };
     gameState.energy = 100;
     gameState.failCount = 0;
     gameState.isFrozen = false;
@@ -136,6 +154,11 @@ function updateElementPositions() {
 
     zone1Rect = zone1.getBoundingClientRect();
     zone2Rect = zone2.getBoundingClientRect();
+    zone3Rect = zone3.getBoundingClientRect();
+    zone4Rect = zone4.getBoundingClientRect();
+    zone5Rect = zone5.getBoundingClientRect();
+    zone6Rect = zone6.getBoundingClientRect();
+    
     zone1Center = {
         x: zone1Rect.left + zone1Rect.width / 2,
         y: zone1Rect.top + zone1Rect.height / 2
@@ -143,6 +166,22 @@ function updateElementPositions() {
     zone2Center = {
         x: zone2Rect.left + zone2Rect.width / 2,
         y: zone2Rect.top + zone2Rect.height / 2
+    };
+    zone3Center = {
+        x: zone3Rect.left + zone3Rect.width / 2,
+        y: zone3Rect.top + zone3Rect.height / 2
+    };
+    zone4Center = {
+        x: zone4Rect.left + zone4Rect.width / 2,
+        y: zone4Rect.top + zone4Rect.height / 2
+    };
+    zone5Center = {
+        x: zone5Rect.left + zone5Rect.width / 2,
+        y: zone5Rect.top + zone5Rect.height / 2
+    };
+    zone6Center = {
+        x: zone6Rect.left + zone6Rect.width / 2,
+        y: zone6Rect.top + zone6Rect.height / 2
     };
 }
 
@@ -154,9 +193,12 @@ function startTimer() {
     gameState.timeNearButton = 0;
     gameState.lastMouseMoveTime = Date.now();
     
-    const randomZone = Math.random() > 0.5 ? zone1Center : zone2Center;
-    gameState.mousePos.x = randomZone.x;
-    gameState.mousePos.y = randomZone.y;
+    // 让鼠标出现在中心区域旁边，用户容易看到的位置
+    // 在中心上方150-200px的位置，这样既能看见又不会太远
+    const offsetDistance = 150 + Math.random() * 50; // 150-200px
+    const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI / 3; // 中心上方±30度范围
+    gameState.mousePos.x = gravityWellCenter.x + Math.cos(angle) * offsetDistance;
+    gameState.mousePos.y = gravityWellCenter.y + Math.sin(angle) * offsetDistance;
     
     const customCursor = document.getElementById('customCursor');
     if (customCursor) {
@@ -211,6 +253,7 @@ function startTimer() {
     
     startDistractionDetection();
     startCenterHoldDetection();
+    startAutoAttraction(); // 启动自动广告吸引
 }
 
 // 停止计时器
@@ -222,6 +265,7 @@ function stopTimer() {
     }
     stopDistractionDetection();
     stopCenterHoldDetection();
+    stopAutoAttraction(); // 停止自动广告吸引
 }
 
 // 更新失败次数显示
@@ -337,13 +381,145 @@ function stopDistractionDetection() {
 
 function updateMouseMoveTime() {
     gameState.lastMouseMoveTime = Date.now();
+    gameState.lastMovementTime = Date.now(); // 更新移动时间
     gameState.isDistractionActive = false;
+    gameState.isBeingAttracted = false; // 重置吸引状态
+}
+
+// ========== 自动广告吸引功能 ==========
+function startAutoAttraction() {
+    if (gameState.autoAttractionInterval) clearInterval(gameState.autoAttractionInterval);
+    
+    gameState.autoAttractionInterval = setInterval(() => {
+        // 如果已经成功、冻结或未锁定，停止吸引
+        if (gameState.isFrozen || !gameState.isLocked || gameState.isSuccessful) return;
+        
+        const now = Date.now();
+        const timeSinceLastMove = now - gameState.lastMovementTime;
+        
+        // 如果鼠标停止移动超过300毫秒，开始自动吸引
+        if (timeSinceLastMove > AUTO_ATTRACTION_DELAY) {
+            const buttonCenterX = gravityWellCenter.x + gameState.buttonOffset.x;
+            const buttonCenterY = gravityWellCenter.y + gameState.buttonOffset.y;
+            const distanceToButton = Math.hypot(gameState.mousePos.x - buttonCenterX, gameState.mousePos.y - buttonCenterY);
+            
+            // 只有在离按钮100px之外才被广告吸引
+            if (distanceToButton > 100) {
+                // 找到最近的广告
+                const allZones = [
+                    { center: zone1Center, element: zone1, color: '#4caf50' },
+                    { center: zone2Center, element: zone2, color: '#ff9800' },
+                    { center: zone3Center, element: zone3, color: '#9c27b0' },
+                    { center: zone4Center, element: zone4, color: '#f44336' },
+                    { center: zone5Center, element: zone5, color: '#2196f3' },
+                    { center: zone6Center, element: zone6, color: '#ff5722' }
+                ];
+                
+                let closestZone = null;
+                let closestDistance = Infinity;
+                
+                for (const zone of allZones) {
+                    const dist = Math.hypot(zone.center.x - gameState.mousePos.x, zone.center.y - gameState.mousePos.y);
+                    if (dist < closestDistance) {
+                        closestDistance = dist;
+                        closestZone = zone;
+                    }
+                }
+                
+                // 如果最近的广告在500px范围内，开始吸引
+                if (closestZone && closestDistance < 500) {
+                    gameState.isBeingAttracted = true;
+                    
+                    // 计算向广告移动的向量
+                    const angle = Math.atan2(closestZone.center.y - gameState.mousePos.y, closestZone.center.x - gameState.mousePos.x);
+                    
+                    // 移动速度随距离递增，越近越快
+                    const normalizedDist = Math.min(1, closestDistance / 500);
+                    const speed = AUTO_ATTRACTION_SPEED * (1.5 - normalizedDist); // 1.5到0.5倍速度
+                    
+                    const moveX = Math.cos(angle) * speed;
+                    const moveY = Math.sin(angle) * speed;
+                    
+                    // 更新鼠标位置
+                    gameState.mousePos.x += moveX;
+                    gameState.mousePos.y += moveY;
+                    
+                    // 更新光标显示
+                    const customCursor = document.getElementById('customCursor');
+                    if (customCursor) {
+                        customCursor.style.left = `${gameState.mousePos.x - 10}px`;
+                        customCursor.style.top = `${gameState.mousePos.y - 10}px`;
+                        customCursor.style.background = closestZone.color;
+                        customCursor.style.transform = 'scale(1.2)';
+                    }
+                    
+                    // 广告视觉反馈
+                    if (closestZone.element) {
+                        const attractionStrength = Math.min(1, (500 - closestDistance) / 500);
+                        closestZone.element.style.boxShadow = `0 8px ${30 + attractionStrength * 40}px ${closestZone.color}`;
+                        closestZone.element.style.transform = `scale(${1 + attractionStrength * 0.15})`;
+                        closestZone.element.style.borderWidth = '4px';
+                        closestZone.element.style.borderColor = closestZone.color;
+                    }
+                    
+                    // 音频反馈
+                    if (window.isAudioEnabled && window.audioContext && closestDistance < 300) {
+                        const attractionStrength = (300 - closestDistance) / 300;
+                        if (Math.random() < 0.1) { // 10%概率播放声音，避免过于频繁
+                            const adSound = window.audioContext.createOscillator();
+                            const adGain = window.audioContext.createGain();
+                            
+                            adSound.type = 'sine';
+                            adSound.frequency.setValueAtTime(120 + (attractionStrength * 200), window.audioContext.currentTime);
+                            adGain.gain.setValueAtTime(attractionStrength * 0.05, window.audioContext.currentTime);  // 降低音量：0.15→0.05
+                        }
+                    }
+                } else {
+                    gameState.isBeingAttracted = false;
+                }
+            } else {
+                gameState.isBeingAttracted = false;
+            }
+        } else {
+            gameState.isBeingAttracted = false;
+            
+            // 重置所有广告的视觉效果
+            const allZoneElements = [zone1, zone2, zone3, zone4, zone5, zone6];
+            for (const zoneEl of allZoneElements) {
+                if (zoneEl) {
+                    zoneEl.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.1)';
+                    zoneEl.style.transform = 'scale(1)';
+                    zoneEl.style.borderWidth = '3px';
+                }
+            }
+        }
+    }, 16); // 60fps
+}
+
+function stopAutoAttraction() {
+    if (gameState.autoAttractionInterval) {
+        clearInterval(gameState.autoAttractionInterval);
+        gameState.autoAttractionInterval = null;
+    }
+    gameState.isBeingAttracted = false;
+    
+    // 重置所有广告的视觉效果
+    const allZoneElements = [zone1, zone2, zone3, zone4, zone5, zone6];
+    for (const zoneEl of allZoneElements) {
+        if (zoneEl) {
+            zoneEl.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.1)';
+            zoneEl.style.transform = 'scale(1)';
+            zoneEl.style.borderWidth = '3px';
+        }
+    }
 }
 
 function triggerDistraction() {
     gameState.isDistractionActive = true;
     
-    const randomZone = Math.random() > 0.5 ? zone1Center : zone2Center;
+    // 从6个广告区域中随机选择一个
+    const zones = [zone1Center, zone2Center, zone3Center, zone4Center, zone5Center, zone6Center];
+    const randomZone = zones[Math.floor(Math.random() * zones.length)];
     const targetX = randomZone.x;
     const targetY = randomZone.y;
     
@@ -351,11 +527,11 @@ function triggerDistraction() {
         const distractionSound = window.audioContext.createOscillator();
         const distractionGain = window.audioContext.createGain();
         
-        distractionSound.type = 'triangle';
+        distractionSound.type = 'sine';  // 改为更柔和的sine波
         distractionSound.frequency.setValueAtTime(400, window.audioContext.currentTime);
         distractionSound.frequency.exponentialRampToValueAtTime(1000, window.audioContext.currentTime + 0.2);
         
-        distractionGain.gain.setValueAtTime(0.3, window.audioContext.currentTime);
+        distractionGain.gain.setValueAtTime(0.15, window.audioContext.currentTime);  // 降低音量：0.3→0.15
         distractionGain.gain.exponentialRampToValueAtTime(0.01, window.audioContext.currentTime + 0.3);
         
         distractionSound.connect(distractionGain);
@@ -367,41 +543,78 @@ function triggerDistraction() {
     
     const distractionHint = document.createElement('div');
     distractionHint.textContent = "注意力快速分散！";
-    distractionHint.style.position = 'absolute';
-    distractionHint.style.top = '200px';
+    distractionHint.style.position = 'fixed';
+    distractionHint.style.bottom = '100px';
     distractionHint.style.left = '50%';
     distractionHint.style.transform = 'translateX(-50%)';
-    distractionHint.style.color = '#FF5722';
-    distractionHint.style.fontSize = '14px';
+    distractionHint.style.color = '#fff';
+    distractionHint.style.fontSize = '16px';
     distractionHint.style.fontWeight = 'bold';
-    distractionHint.style.background = 'rgba(255, 255, 255, 0.95)';
-    distractionHint.style.padding = '8px 15px';
-    distractionHint.style.borderRadius = '8px';
+    distractionHint.style.background = 'linear-gradient(135deg, #FF5722 0%, #FF9800 100%)';
+    distractionHint.style.padding = '12px 24px';
+    distractionHint.style.borderRadius = '25px';
     distractionHint.style.zIndex = '1001';
-    distractionHint.style.boxShadow = '0 3px 15px rgba(255, 87, 34, 0.6)';
+    distractionHint.style.boxShadow = '0 6px 20px rgba(255, 87, 34, 0.5)';
     document.body.appendChild(distractionHint);
     
-    gameState.mousePos.x = targetX;
-    gameState.mousePos.y = targetY;
+    // 平滑吸附动画 - 记录起始位置
+    const startX = gameState.mousePos.x;
+    const startY = gameState.mousePos.y;
+    const startTime = Date.now();
+    const duration = 400; // 吸附动画持续时间（毫秒）
+    
     const customCursor = document.getElementById('customCursor');
-    if (customCursor) {
-        customCursor.style.left = `${gameState.mousePos.x - 10}px`;
-        customCursor.style.top = `${gameState.mousePos.y - 10}px`;
+    
+    // 使用动画帧实现平滑移动
+    function animateAttraction() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1); // 0到1之间
         
-        customCursor.style.transform = 'scale(1.3)';
-        customCursor.style.background = '#FF5722';
+        // 使用缓动函数（easeInOutCubic）使动画更自然
+        const easeProgress = progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        
+        // 计算当前位置
+        gameState.mousePos.x = startX + (targetX - startX) * easeProgress;
+        gameState.mousePos.y = startY + (targetY - startY) * easeProgress;
+        
+        // 更新光标位置
+        if (customCursor) {
+            customCursor.style.left = `${gameState.mousePos.x - 10}px`;
+            customCursor.style.top = `${gameState.mousePos.y - 10}px`;
+            
+            // 动画过程中光标变化
+            const scale = 1 + easeProgress * 0.3;
+            customCursor.style.transform = `scale(${scale})`;
+            customCursor.style.background = '#FF5722';
+        }
+        
+        // 继续动画或结束
+        if (progress < 1) {
+            requestAnimationFrame(animateAttraction);
+        } else {
+            // 动画结束后的处理
+            setTimeout(() => {
+                if (customCursor) {
+                    customCursor.style.transform = 'scale(1)';
+                    customCursor.style.background = '#FF9800'; // 橙色高亮
+                }
+                document.body.removeChild(distractionHint);
+                updateMouseMoveTime();
+            }, 300);
+        }
     }
     
-    setTimeout(() => {
-        if (customCursor) {
-            customCursor.style.transform = 'scale(1)';
-            customCursor.style.background = '#666';
-        }
-        document.body.removeChild(distractionHint);
-        updateMouseMoveTime();
-    }, 300);
+    // 开始动画
+    requestAnimationFrame(animateAttraction);
     
-    const selectedZone = randomZone === zone1Center ? zone1 : zone2;
+    // 根据随机选择的zone设置对应的DOM元素
+    const zoneElements = [zone1, zone2, zone3, zone4, zone5, zone6];
+    const zoneCenters = [zone1Center, zone2Center, zone3Center, zone4Center, zone5Center, zone6Center];
+    const selectedZoneIndex = zoneCenters.indexOf(randomZone);
+    const selectedZone = zoneElements[selectedZoneIndex];
+    
     selectedZone.style.boxShadow = '0 8px 40px rgba(255, 87, 34, 0.9)';
     selectedZone.style.transform = 'scale(1.15)';
     selectedZone.style.borderColor = '#FF5722';
@@ -477,6 +690,10 @@ function stopCenterHoldDetection() {
 }
 
 function triggerCenterSuccess() {
+    // 立即标记为成功，防止其他操作
+    gameState.isSuccessful = true;
+    gameState.isFrozen = true;
+    
     if (window.isAudioEnabled && window.audioContext) {
         const successOscillator = window.audioContext.createOscillator();
         const successGain = window.audioContext.createGain();
@@ -485,9 +702,9 @@ function triggerCenterSuccess() {
         successOscillator.frequency.setValueAtTime(523.25, window.audioContext.currentTime);
         successOscillator.frequency.setValueAtTime(659.25, window.audioContext.currentTime + 0.1);
         successOscillator.frequency.setValueAtTime(783.99, window.audioContext.currentTime + 0.2);
-        
+
         successGain.gain.setValueAtTime(0, window.audioContext.currentTime);
-        successGain.gain.linearRampToValueAtTime(0.3, window.audioContext.currentTime + 0.05);
+        successGain.gain.linearRampToValueAtTime(0.2, window.audioContext.currentTime + 0.05);  // 降低音量：0.3→0.2
         successGain.gain.exponentialRampToValueAtTime(0.01, window.audioContext.currentTime + 0.5);
         
         successOscillator.connect(successGain);
@@ -516,7 +733,8 @@ function triggerCenterSuccess() {
 
 // 处理鼠标相对移动：圆形阻力场计算
 function handleMouseMove(e) {
-    if (gameState.isFrozen) return;
+    // 如果已经成功或冻结，立即返回，不处理任何逻辑
+    if (gameState.isFrozen || gameState.isSuccessful) return;
     
     // 确保 event 对象有正确的值
     if (!e.movementX && !e.movementY) {
@@ -539,96 +757,59 @@ function handleMouseMove(e) {
     gameState.isNearButton = distanceToButton <= effectiveButtonRadius;
     
     let adAttractionForce = 0;
+    let closestZoneCenter = null;
+    let closestZoneDistance = Infinity;
     
-    let distanceToZone1 = 0;
-    let distanceToZone2 = 0;
+    // 修改：只有在中心按钮100px之外才受到广告吸引力
+    const isOutsideButtonRadius = distanceToButton > 100; // 100px之外
     
-    const zone1Left = zone1Rect.left;
-    const zone1Right = zone1Rect.right;
-    const zone1Top = zone1Rect.top;
-    const zone1Bottom = zone1Rect.bottom;
-    
-    const zone1ExtendedLeft = zone1Left - 100;
-    const zone1ExtendedRight = zone1Right + 100;
-    const zone1ExtendedTop = zone1Top - 100;
-    const zone1ExtendedBottom = zone1Bottom + 100;
-    
-    const isInZone1Extended = gameState.mousePos.x >= zone1ExtendedLeft && 
-                             gameState.mousePos.x <= zone1ExtendedRight && 
-                             gameState.mousePos.y >= zone1ExtendedTop && 
-                             gameState.mousePos.y <= zone1ExtendedBottom;
-    
-    if (isInZone1Extended) {
-        const distToLeft = Math.abs(gameState.mousePos.x - zone1ExtendedLeft);
-        const distToRight = Math.abs(gameState.mousePos.x - zone1ExtendedRight);
-        const distToTop = Math.abs(gameState.mousePos.y - zone1ExtendedTop);
-        const distToBottom = Math.abs(gameState.mousePos.y - zone1ExtendedBottom);
+    if (isOutsideButtonRadius) {
+        // 计算到所有6个广告区域中心的距离，找到最近的
+        const allZones = [
+            { center: zone1Center, element: zone1, color: '#4caf50' },
+            { center: zone2Center, element: zone2, color: '#ff9800' },
+            { center: zone3Center, element: zone3, color: '#9c27b0' },
+            { center: zone4Center, element: zone4, color: '#f44336' },
+            { center: zone5Center, element: zone5, color: '#2196f3' },
+            { center: zone6Center, element: zone6, color: '#ff5722' }
+        ];
         
-        distanceToZone1 = Math.min(distToLeft, distToRight, distToTop, distToBottom);
-        distanceToZone1 = 100 - distanceToZone1;
-    }
-    
-    const zone2Left = zone2Rect.left;
-    const zone2Right = zone2Rect.right;
-    const zone2Top = zone2Rect.top;
-    const zone2Bottom = zone2Rect.bottom;
-    
-    const zone2ExtendedLeft = zone2Left - 100;
-    const zone2ExtendedRight = zone2Right + 100;
-    const zone2ExtendedTop = zone2Top - 100;
-    const zone2ExtendedBottom = zone2Bottom + 100;
-    
-    const isInZone2Extended = gameState.mousePos.x >= zone2ExtendedLeft && 
-                             gameState.mousePos.x <= zone2ExtendedRight && 
-                             gameState.mousePos.y >= zone2ExtendedTop && 
-                             gameState.mousePos.y <= zone2ExtendedBottom;
-    
-    if (isInZone2Extended) {
-        const distToLeft = Math.abs(gameState.mousePos.x - zone2ExtendedLeft);
-        const distToRight = Math.abs(gameState.mousePos.x - zone2ExtendedRight);
-        const distToTop = Math.abs(gameState.mousePos.y - zone2ExtendedTop);
-        const distToBottom = Math.abs(gameState.mousePos.y - zone2ExtendedBottom);
-        
-        distanceToZone2 = Math.min(distToLeft, distToRight, distToTop, distToBottom);
-        distanceToZone2 = 100 - distanceToZone2;
-    }
-    
-    let nearestAdDistance = 0;
-    if (distanceToZone1 > 0 && distanceToZone2 > 0) {
-        nearestAdDistance = Math.max(distanceToZone1, distanceToZone2);
-    } else if (distanceToZone1 > 0) {
-        nearestAdDistance = distanceToZone1;
-    } else if (distanceToZone2 > 0) {
-        nearestAdDistance = distanceToZone2;
-    }
-    
-    if (nearestAdDistance > 0) {
-        adAttractionForce = nearestAdDistance / 100;
-        adAttractionForce = adAttractionForce * AD_ATTRACTION_FORCE;
-        
-        if (window.isAudioEnabled && window.audioContext && adAttractionForce > 0.03) {
-            const adSound = window.audioContext.createOscillator();
-            const adGain = window.audioContext.createGain();
-            
-            adSound.type = 'sine';
-            adSound.frequency.setValueAtTime(120 + (adAttractionForce * 80), window.audioContext.currentTime);
-            
-            adGain.gain.setValueAtTime(adAttractionForce * 0.1, window.audioContext.currentTime);
-            
-            adSound.connect(adGain);
-            adGain.connect(window.audioContext.destination);
-            
-            adSound.start();
-            adSound.stop(window.audioContext.currentTime + 0.1);
+        for (const zone of allZones) {
+            const dist = Math.hypot(zone.center.x - gameState.mousePos.x, zone.center.y - gameState.mousePos.y);
+            if (dist < closestZoneDistance) {
+                closestZoneDistance = dist;
+                closestZoneCenter = zone.center;
+                gameState.closestZone = zone; // 保存最近的广告信息
+            }
         }
         
-        const customCursor = document.getElementById('customCursor');
-        if (customCursor) {
-            customCursor.style.transform = `scale(${1 + adAttractionForce * 0.2})`;
-            if (distanceToZone1 >= distanceToZone2 && distanceToZone1 > 0) {
-                customCursor.style.background = '#2196F3';
-            } else {
-                customCursor.style.background = '#E91E63';
+        // 如果在吸引范围内，计算吸引力
+        if (closestZoneDistance < AD_ATTRACTION_RADIUS) {
+            // 吸引力随距离非线性增加（越近越强）
+            const normalizedDist = closestZoneDistance / AD_ATTRACTION_RADIUS;
+            adAttractionForce = (1 - normalizedDist) * (1 - normalizedDist) * AD_ATTRACTION_FORCE;
+            
+            // 音频反馈
+            if (window.isAudioEnabled && window.audioContext && adAttractionForce > 0.05) {
+                const adSound = window.audioContext.createOscillator();
+                const adGain = window.audioContext.createGain();
+                
+                adSound.type = 'sine';
+                adSound.frequency.setValueAtTime(120 + (adAttractionForce * 200), window.audioContext.currentTime);
+                adGain.gain.setValueAtTime(adAttractionForce * 0.2, window.audioContext.currentTime);
+                
+                adSound.connect(adGain);
+                adGain.connect(window.audioContext.destination);
+                
+                adSound.start();
+                adSound.stop(window.audioContext.currentTime + 0.1);
+            }
+            
+            // 视觉反馈 - 光标变色
+            const customCursor = document.getElementById('customCursor');
+            if (customCursor && gameState.closestZone) {
+                customCursor.style.transform = `scale(${1 + adAttractionForce * 0.5})`;
+                customCursor.style.background = gameState.closestZone.color;
             }
         }
     }
@@ -637,8 +818,11 @@ function handleMouseMove(e) {
     let resistance = 0;
     let zoneType = 'outside';
     
+    // 修改：使用非线性阻力曲线，越靠近中心阻力越大，效果更明显
     if (distanceToCenter <= HIGH_RESISTANCE_RADIUS) {
-        resistance = 0.8;
+        // 最内圈：使用指数增长的阻力，非常接近中心时几乎无法移动
+        const innerRatio = 1 - (distanceToCenter / HIGH_RESISTANCE_RADIUS);
+        resistance = 0.88 + (innerRatio * innerRatio * 0.105); // 0.88-0.985的阻力（提高了基础值和最大值）
         zoneType = 'high';
         gameState.isInCoreZone = true;
         
@@ -648,74 +832,112 @@ function handleMouseMove(e) {
             buttonHalo.style.opacity = '0.4';
         }
     } else if (distanceToCenter <= MEDIUM_RESISTANCE_RADIUS) {
+        // 中间圈：使用平方曲线，阻力明显但可以移动
         const normalized = (distanceToCenter - HIGH_RESISTANCE_RADIUS) / (MEDIUM_RESISTANCE_RADIUS - HIGH_RESISTANCE_RADIUS);
-        resistance = 0.7 - (normalized * 0.2);
+        resistance = 0.85 - (normalized * normalized * 0.25); // 0.6-0.85的阻力
         zoneType = 'medium';
         gameState.isInCoreZone = false;
     } else if (distanceToCenter <= LOW_RESISTANCE_RADIUS) {
+        // 外圈：线性递减阻力
         const normalized = (distanceToCenter - MEDIUM_RESISTANCE_RADIUS) / (LOW_RESISTANCE_RADIUS - MEDIUM_RESISTANCE_RADIUS);
-        resistance = 0.5 - (normalized * 0.2);
+        resistance = 0.6 - (normalized * 0.35); // 0.25-0.6的阻力
         zoneType = 'low';
         gameState.isInCoreZone = false;
     } else if (distanceToCenter <= RESISTANCE_AREA_RADIUS) {
+        // 边缘区：快速递减到零
         const normalized = (distanceToCenter - LOW_RESISTANCE_RADIUS) / (RESISTANCE_AREA_RADIUS - LOW_RESISTANCE_RADIUS);
-        resistance = 0.3 - (normalized * 0.2);
+        resistance = 0.25 - (normalized * 0.25); // 0-0.25的阻力
         zoneType = 'verylow';
         gameState.isInCoreZone = false;
     } else {
-        resistance = 0;
+        // 外部：无阻力，移动速度加倍
+        resistance = -0.5; // 负阻力=加速效果
         zoneType = 'outside';
         gameState.isInCoreZone = false;
     }
     
-    gameState.currentResistance = resistance;
+    gameState.currentResistance = Math.max(0, resistance);
     
     // ========== 应用阻力和吸引力 ==========
-    const moveX = e.movementX * (1 - resistance);
-    const moveY = e.movementY * (1 - resistance);
+    // 修改：在外部区域（负阻力）时增加移动速度，内部区域减小移动速度
+    let speedMultiplier;
+    if (resistance < 0) {
+        // 外部区域：1.5倍速度
+        speedMultiplier = 1.5;
+    } else {
+        // 内部区域：应用阻力
+        speedMultiplier = 1 - resistance;
+    }
+    
+    const moveX = e.movementX * speedMultiplier;
+    const moveY = e.movementY * speedMultiplier;
     
     // ========== 克服阻力消耗能量 ==========
+    // 只有在有阻力（resistance > 0）的情况下才消耗能量
     if (resistance > 0) {
         const movementMagnitude = Math.sqrt(e.movementX * e.movementX + e.movementY * e.movementY);
         if (movementMagnitude > 0) {
-            const resistanceEnergyCost = movementMagnitude * resistance * RESISTANCE_ENERGY_COST_MULTIPLIER * 0.01;
+            // 使用平方关系：阻力越大，能量消耗越多
+            const resistanceEnergyCost = movementMagnitude * (resistance * resistance) * RESISTANCE_ENERGY_COST_MULTIPLIER * 0.015;
             reduceEnergy(resistanceEnergyCost);
             
-            if (resistanceEnergyCost > 0.5) {
-                const intensity = Math.min(1, resistanceEnergyCost / 2);
+            // 音频反馈：阻力越大，耳鸣声越强
+            if (window.isAudioEnabled && resistance > 0.5) {
+                window.playCurrentSound(resistance * 0.8); // 阻力越大声音越强
+            }
+            
+            // 视觉反馈：高阻力时光标变红
+            if (resistanceEnergyCost > 0.3) {
+                const intensity = Math.min(1, resistanceEnergyCost / 1.5);
                 const customCursor = document.getElementById('customCursor');
                 if (customCursor) {
-                    customCursor.style.background = `rgb(${200 + Math.floor(55 * intensity)}, ${160 - Math.floor(100 * intensity)}, ${120 - Math.floor(70 * intensity)})`;
+                    const red = 200 + Math.floor(55 * intensity);
+                    const green = 160 - Math.floor(100 * intensity);
+                    const blue = 120 - Math.floor(70 * intensity);
+                    customCursor.style.background = `rgb(${red}, ${green}, ${blue})`;
+                    customCursor.style.transform = `scale(${1 + intensity * 0.3})`; // 阻力越大光标越大
                 }
             }
         }
+    } else if (resistance < 0) {
+        // 外部区域：快速恢复能量
+        restoreEnergy(0.2);
     }
     
-    if (adAttractionForce > 0) {
-        let targetCenter;
-        if (distanceToZone1 >= distanceToZone2 && distanceToZone1 > 0) {
-            targetCenter = zone1Center;
-        } else {
-            targetCenter = zone2Center;
-        }
-        
+    // ========== 广告吸引力应用 ==========
+    if (adAttractionForce > 0 && isOutsideButtonRadius && closestZoneCenter) {
+        const targetCenter = closestZoneCenter;
         const angleToAd = Math.atan2(targetCenter.y - gameState.mousePos.y, targetCenter.x - gameState.mousePos.x);
-        const attractionStrength = adAttractionForce * 30;
-        const attractionX = Math.cos(angleToAd) * attractionStrength;
-        const attractionY = Math.sin(angleToAd) * attractionStrength;
+        
+        // 温和的吸引力强度 - 大幅降低防止抖动
+        const attractionStrength = adAttractionForce * 15; // 从40降低到15
+        
+        // 非线性吸引力 - 越靠近广告吸引力越强，但衰减更快
+        const normalizedDist = closestZoneDistance / AD_ATTRACTION_RADIUS;
+        const proximityMultiplier = Math.pow(1 - normalizedDist, 3); // 使用三次方，让远离时快速衰减
+        const finalAttractionStrength = attractionStrength * proximityMultiplier; // 完全依赖距离，不设最小值
+        
+        // 添加阑制，防止吸引力过强导致抖动
+        const maxAttractionPerFrame = 2; // 每帧最大吸引像素
+        const clampedAttractionStrength = Math.min(finalAttractionStrength, maxAttractionPerFrame);
+        
+        const attractionX = Math.cos(angleToAd) * clampedAttractionStrength;
+        const attractionY = Math.sin(angleToAd) * clampedAttractionStrength;
         
         gameState.mousePos.x += moveX + attractionX;
         gameState.mousePos.y += moveY + attractionY;
         
-        const adScale = 1 + adAttractionForce * 0.05;
-        const adShadowIntensity = 25 + (adAttractionForce * 20);
-        
-        if (distanceToZone1 >= distanceToZone2 && distanceToZone1 > 0) {
-            zone1.style.boxShadow = `0 8px ${adShadowIntensity}px rgba(33, 150, 243, 0.7)`;
-            zone1.style.transform = `scale(${adScale})`;
-        } else {
-            zone2.style.boxShadow = `0 8px ${adShadowIntensity}px rgba(233, 30, 99, 0.7)`;
-            zone2.style.transform = `scale(${adScale})`;
+        // 广告区域的视觉效果
+        if (gameState.closestZone && gameState.closestZone.element) {
+            const adScale = 1 + adAttractionForce * 0.15;
+            const adShadowIntensity = 30 + (adAttractionForce * 40);
+            const zoneElement = gameState.closestZone.element;
+            const zoneColor = gameState.closestZone.color;
+            
+            zoneElement.style.boxShadow = `0 8px ${adShadowIntensity}px ${zoneColor}`;
+            zoneElement.style.transform = `scale(${adScale})`;
+            zoneElement.style.borderWidth = '4px';
+            zoneElement.style.borderColor = zoneColor;
         }
         
         const userMoveAngle = Math.atan2(e.movementY, e.movementX);
@@ -740,9 +962,9 @@ function handleMouseMove(e) {
                 const resistGain = window.audioContext.createGain();
                 
                 resistSound.type = 'sawtooth';
-                resistSound.frequency.setValueAtTime(200 + (resistanceStrength * 300), window.audioContext.currentTime);
+                resistSound.frequency.setValueAtTime(200 + (resistanceStrength * 400), window.audioContext.currentTime);
                 
-                resistGain.gain.setValueAtTime(resistanceStrength * 0.15, window.audioContext.currentTime);
+                resistGain.gain.setValueAtTime(resistanceStrength * 0.2, window.audioContext.currentTime);
                 resistGain.gain.exponentialRampToValueAtTime(0.01, window.audioContext.currentTime + 0.2);
                 
                 resistSound.connect(resistGain);
@@ -757,15 +979,20 @@ function handleMouseMove(e) {
         gameState.mousePos.x += moveX;
         gameState.mousePos.y += moveY;
         
-        zone1.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.4)';
-        zone1.style.transform = 'scale(1)';
-        zone2.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.4)';
-        zone2.style.transform = 'scale(1)';
+        // 重置所有广告区域的视觉效果
+        const allZoneElements = [zone1, zone2, zone3, zone4, zone5, zone6];
+        for (const zoneEl of allZoneElements) {
+            if (zoneEl) {
+                zoneEl.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.1)';
+                zoneEl.style.transform = 'scale(1)';
+                zoneEl.style.borderWidth = '3px';
+            }
+        }
         
         const customCursor = document.getElementById('customCursor');
         if (customCursor && (!gameState.isInCoreZone || !gameState.isNearButton)) {
             customCursor.style.transform = 'scale(1)';
-            customCursor.style.background = '#666';
+            customCursor.style.background = '#FF9800'; // 橙色高亮
         }
         
         let recoveryRate = 0.10;
@@ -794,26 +1021,27 @@ function handleMouseMove(e) {
         gameState.timeNearButton += 0.016;
         
         if (window.isAudioEnabled) {
-            window.playCurrentSound(repulsionForce);
+            window.playCurrentSound(repulsionForce * 0.5); // 降低音量强度
         }
         
         if (customCursor) {
-            customCursor.style.transform = `scale(${1 + repulsionForce * 1.5})`;
-            customCursor.style.opacity = `${0.8 - repulsionForce * 0.3}`;
-            customCursor.style.background = `rgb(${Math.floor(200 - repulsionForce * 80)}, ${Math.floor(160 - repulsionForce * 80)}, ${Math.floor(120 - repulsionForce * 50)})`;
+            customCursor.style.transform = `scale(${1 + repulsionForce * 0.8})`; // 减小缩放效果
+            customCursor.style.opacity = `1`; // 保持不透明
+            customCursor.style.background = `rgb(${Math.floor(200 - repulsionForce * 40)}, ${Math.floor(160 - repulsionForce * 40)}, ${Math.floor(120 - repulsionForce * 25)})`; // 减小颜色变化
         }
         
-        const shakeAmount = 15;
-        const xShake = (Math.random() - 0.5) * 2 * shakeAmount * repulsionForce;
-        const yShake = (Math.random() - 0.5) * 2 * shakeAmount * repulsionForce;
+        // 大幅降低抖动强度，让按钮更稳定
+        const shakeAmount = 5; // 从15降到5
+        const xShake = (Math.random() - 0.5) * 2 * shakeAmount * repulsionForce * 0.3; // 额外降低30%
+        const yShake = (Math.random() - 0.5) * 2 * shakeAmount * repulsionForce * 0.3;
         
-        gameState.buttonOffset.x = gameState.buttonOffset.x * 0.7 + xShake * 0.3;
-        gameState.buttonOffset.y = gameState.buttonOffset.y * 0.7 + yShake * 0.3;
+        gameState.buttonOffset.x = gameState.buttonOffset.x * 0.8 + xShake * 0.2; // 更平滑的过渡
+        gameState.buttonOffset.y = gameState.buttonOffset.y * 0.8 + yShake * 0.2;
         
         taskButtonContainer.style.transform = `translate(-50%, -50%) translate(${gameState.buttonOffset.x}px, ${gameState.buttonOffset.y}px)`;
         
         const totalShake = Math.abs(gameState.buttonOffset.x) + Math.abs(gameState.buttonOffset.y);
-        gameState.canClickButton = totalShake < 3;
+        gameState.canClickButton = totalShake < 8; // 从3提高到8，更容易点击
         
         if (gameState.canClickButton) {
             taskBtn.style.boxShadow = `0 0 30px rgba(76, 175, 80, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.3)`;
@@ -823,13 +1051,16 @@ function handleMouseMove(e) {
         buttonHalo.style.boxShadow = `0 0 ${12 + repulsionForce * 18}px rgba(255, 100, 100, ${0.3 + repulsionForce * 0.25})`;
         
         const timeInZone = (Date.now() - gameState.energyDepletionStartTime) / 1000;
-        const targetEnergy = Math.max(0, 100 - (timeInZone / 4) * 100);
+        const targetEnergy = Math.max(0, 100 - (timeInZone / 6) * 100); // 从4秒改为6秒，给更多时间
         const energyDiff = gameState.energy - targetEnergy;
         
         if (energyDiff > 0) {
-            reduceEnergy(energyDiff * BUTTON_REPULSION_ENERGY_COST_MULTIPLIER);
+            reduceEnergy(energyDiff * BUTTON_REPULSION_ENERGY_COST_MULTIPLIER * 0.5); // 降低能量消耗
         }
         
+        // 移除斥力推开机制，让用户可以稳定停留在按钮上
+        // 注释掉原有的斥力代码
+        /*
         if (distanceToButton < BUTTON_RADIUS) {
             const pushForce = 0.25 + repulsionForce * 0.35;
             const angleToCenter = Math.atan2(gameState.mousePos.y - buttonCenterY, gameState.mousePos.x - buttonCenterX);
@@ -843,8 +1074,9 @@ function handleMouseMove(e) {
             gameState.mousePos.x += (Math.random() - 0.5) * pushForce * 12;
             gameState.mousePos.y += (Math.random() - 0.5) * pushForce * 12;
         }
+        */
         
-    } else if (!adAttractionForce) {
+    } else if (!adAttractionForce || !isOutsideButtonRadius) {
         gameState.energyDepletionStartTime = 0;
         gameState.buttonFound = false;
         gameState.canClickButton = false;
@@ -856,7 +1088,7 @@ function handleMouseMove(e) {
         if (customCursor && !adAttractionForce && (!gameState.isInCoreZone || !gameState.isNearButton)) {
             customCursor.style.transform = 'scale(1)';
             customCursor.style.opacity = '1';
-            customCursor.style.background = '#666';
+            customCursor.style.background = '#FF9800'; // 橙色高亮
         }
         
         gameState.buttonOffset.x *= 0.85;
@@ -878,7 +1110,7 @@ function handleMouseMove(e) {
         restoreEnergy(recoveryRate);
     }
 
-    if (gameState.energy <= 0 && !gameState.isFrozen) {
+    if (gameState.energy <= 0 && !gameState.isFrozen && !gameState.isSuccessful) {
         gameState.isFrozen = true;
         const customCursor = document.getElementById('customCursor');
         if (customCursor) customCursor.style.background = '#f00';
@@ -901,9 +1133,48 @@ function handleMouseMove(e) {
             screamOscillator.stop(window.audioContext.currentTime + 1.5);
         }
         
+        // 显示能量耗尽提示并在2秒后重置
+        const energyDepletedHint = document.createElement('div');
+        energyDepletedHint.style.position = 'fixed';
+        energyDepletedHint.style.top = '50%';
+        energyDepletedHint.style.left = '50%';
+        energyDepletedHint.style.transform = 'translate(-50%, -50%)';
+        energyDepletedHint.style.background = 'rgba(244, 67, 54, 0.95)';
+        energyDepletedHint.style.color = 'white';
+        energyDepletedHint.style.padding = '30px 50px';
+        energyDepletedHint.style.borderRadius = '15px';
+        energyDepletedHint.style.fontSize = '24px';
+        energyDepletedHint.style.fontWeight = 'bold';
+        energyDepletedHint.style.zIndex = '100000';
+        energyDepletedHint.style.textAlign = 'center';
+        energyDepletedHint.style.boxShadow = '0 10px 40px rgba(0, 0, 0, 0.5)';
+        energyDepletedHint.innerHTML = '<i class="fas fa-battery-empty"></i> 能量耗尽！<br><small style="font-size: 16px; margin-top: 10px; display: block;">正在重置...</small>';
+        document.body.appendChild(energyDepletedHint);
+        
         setTimeout(() => {
-            triggerDiagnosisOverlay();
-        }, 500);
+            document.body.removeChild(energyDepletedHint);
+            // 重置游戏状态
+            gameState.energy = 100;
+            gameState.isFrozen = false;
+            gameState.failCount = 0;
+            gameState.attemptTimer = 0;
+            gameState.timeNearButton = 0;
+            gameState.currentResistance = 0;
+            gameState.isInCenterZone = false;
+            gameState.centerHoldStartTime = 0;
+            
+            // 重置UI
+            if (energyFill) energyFill.style.width = '100%';
+            if (energyValue) {
+                energyValue.textContent = '100%';
+                energyValue.style.color = 'var(--dark)';
+            }
+            if (customCursor) customCursor.style.background = 'var(--primary)';
+            
+            updateFailCountDisplay();
+            
+            console.log('游戏已重置');
+        }, 2000);
     }
 }
 
@@ -924,6 +1195,10 @@ function setupTaskButtonClick() {
         const isMouseOverButton = distanceToButton <= BUTTON_RADIUS * 1.1;
         
         if (isMouseOverButton && gameState.isInCoreZone && gameState.canClickButton) {
+            // 立即标记为成功，防止其他操作
+            gameState.isSuccessful = true;
+            gameState.isFrozen = true;
+            
             if (window.isAudioEnabled && window.audioContext) {
                 const successOscillator = window.audioContext.createOscillator();
                 const successGain = window.audioContext.createGain();
@@ -967,18 +1242,18 @@ function setupTaskButtonClick() {
             
             const failHint = document.createElement('div');
             failHint.textContent = `点击失败！按钮不稳定 (失败次数: ${gameState.failCount})`;
-            failHint.style.position = 'absolute';
-            failHint.style.top = '200px';
+            failHint.style.position = 'fixed';
+            failHint.style.bottom = '100px';
             failHint.style.left = '50%';
             failHint.style.transform = 'translateX(-50%)';
-            failHint.style.color = '#F44336';
-            failHint.style.fontSize = '14px';
+            failHint.style.color = '#fff';
+            failHint.style.fontSize = '16px';
             failHint.style.fontWeight = 'bold';
-            failHint.style.background = 'rgba(255, 255, 255, 0.95)';
-            failHint.style.padding = '8px 15px';
-            failHint.style.borderRadius = '8px';
+            failHint.style.background = 'linear-gradient(135deg, #F44336 0%, #E91E63 100%)';
+            failHint.style.padding = '12px 24px';
+            failHint.style.borderRadius = '25px';
             failHint.style.zIndex = '1001';
-            failHint.style.boxShadow = '0 3px 15px rgba(244, 67, 54, 0.6)';
+            failHint.style.boxShadow = '0 6px 20px rgba(244, 67, 54, 0.5)';
             document.body.appendChild(failHint);
             
             setTimeout(() => {
@@ -1002,57 +1277,26 @@ function setupTaskButtonClick() {
                 failSound.start();
                 failSound.stop(window.audioContext.currentTime + 0.3);
             }
-            
-            if (gameState.failCount >= 3) {
-                setTimeout(() => {
-                    triggerDiagnosisOverlay();
-                }, 500);
-            }
         }
     });
-}
-
-// 触发诊断图层
-function triggerDiagnosisOverlay() {
-    gameState.isFrozen = true;
-    if (window.stopCurrentSound) {
-        window.stopCurrentSound();
-    }
-    stopTimer();
-    stopCenterHoldDetection();
-    
-    // 先恢复鼠标状态
-    restoreMouseState();
-    
-    const diagnosisOverlay = document.getElementById('diagnosisOverlay');
-    if (diagnosisOverlay) diagnosisOverlay.style.display = 'flex';
-    
-    const lockHint = document.getElementById('lockHint');
-    if (lockHint) lockHint.style.display = 'none';
-    
-    document.querySelectorAll('.gravity-well, .entertainment-zones, .energy-bar, .energy-value, .timer-display, .resistance-indicator, .find-button-hint, .distraction-timer, .button-instruction, .audio-control, .custom-cursor, .lock-hint, .audio-hint, .center-hint, .fail-count-display').forEach(el => {
-        el.style.display = 'none';
-    });
-    
-    const tenTasksScreen = document.getElementById('tenTasksScreen');
-    if (tenTasksScreen) tenTasksScreen.style.display = 'none';
-    
-    const transitionScreen = document.getElementById('transitionScreen');
-    if (transitionScreen) transitionScreen.style.display = 'none';
 }
 
 // 恢复鼠标正常状态
 function restoreMouseState() {
     console.log('恢复鼠标状态');
     
-    // 停止所有计时器
+    // 立即标记为成功并冻结，防止能量耗尽提示出现
+    gameState.isSuccessful = true;
+    gameState.isFrozen = true;
+    
+    // 立即停止所有计时器和活动
     stopTimer();
     stopDistractionDetection();
     stopCenterHoldDetection();
+    stopAutoAttraction(); // 停止自动广告吸引
     
     // 重置游戏状态
     gameState.isLocked = false;
-    gameState.isFrozen = true;
     
     // 停止声音
     if (window.stopCurrentSound) {
@@ -1108,20 +1352,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Stage1.js 初始化');
     
     setupTaskButtonClick();
-    
-    // 诊断图层点击事件
-    const diagnosisOverlay = document.getElementById('diagnosisOverlay');
-    if (diagnosisOverlay) {
-        diagnosisOverlay.addEventListener('click', () => {
-            diagnosisOverlay.style.display = 'none';
-            const lockHint = document.getElementById('lockHint');
-            if (lockHint) {
-                lockHint.style.display = 'block';
-                lockHint.classList.remove('hidden');
-            }
-            location.reload();
-        });
-    }
     
     // 窗口大小调整
     window.addEventListener('resize', () => {

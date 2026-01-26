@@ -281,23 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // 继续按钮事件
-    const continueBtn = document.getElementById('continueBtn');
-    if (continueBtn) {
-        continueBtn.addEventListener('click', (e) => {
-            console.log('继续按钮点击');
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // 隐藏成功界面
-            const successScreen = document.getElementById('successScreen');
-            if (successScreen) successScreen.style.display = 'none';
-            
-            // 显示过渡阶段
-            showTransitionScreen();
-        });
-    }
-    
     // 返回开始按钮事件
     const backToStart = document.getElementById('backToStart');
     if (backToStart) {
@@ -309,6 +292,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    // 注意：继续按钮事件监听已移到 science.js 中
+    
     // 暴露函数到全局
     window.showTransitionScreen = showTransitionScreen;
     window.showTenTasksScreen = showTenTasksScreen;
@@ -317,3 +302,24 @@ document.addEventListener('DOMContentLoaded', () => {
     window.cleanupFirstStage = cleanupFirstStage;
     window.restoreMouseState = restoreMouseState;
 });
+
+// 重置游戏 - 重新加载页面
+function resetGame() {
+    console.log('重置游戏');
+    
+    // 清理第一阶段资源
+    if (typeof cleanupFirstStage === 'function') {
+        cleanupFirstStage();
+    }
+    
+    // 停止所有音频
+    if (window.stopCurrentSound) {
+        window.stopCurrentSound();
+    }
+    
+    // 重新加载页面
+    location.reload();
+}
+
+// 暴露resetGame到全局
+window.resetGame = resetGame;

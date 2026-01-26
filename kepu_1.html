@@ -154,13 +154,7 @@
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
             padding: 50px;
             margin-bottom: 50px;
-            transition: var(--transition);
             border: 1px solid rgba(0,0,0,0.02);
-        }
-
-        .section:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
         }
 
         .section-title {
@@ -189,51 +183,205 @@
 
         /* 科学卡片样式 */
         .science-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
             margin-top: 30px;
         }
 
         .feature-card {
-            background-color: var(--light);
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
-            border-left: 5px solid var(--accent);
-            height: 100%;
+            background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+            border-radius: 20px;
+            padding: 40px 50px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            border-left: 6px solid var(--accent);
+            height: calc(100vh - 80px);
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            justify-content: space-between;
+            border: 1px solid rgba(0,0,0,0.04);
         }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            opacity: 0.05;
+            z-index: 0;
+        }
+        
+        .feature-card.blue::before { background-color: #4a6fa5; }
+        .feature-card.green::before { background-color: #2e8b57; }
+        .feature-card.yellow::before { background-color: #fadd1f; }
+        .feature-card.red::before { background-color: #ff6347; }
+        
+        .feature-card > * { position: relative; z-index: 1; }
 
         .feature-card.blue { border-left-color: #4a6fa5; }
         .feature-card.green { border-left-color: #2e8b57; }
         .feature-card.yellow { border-left-color: #fadd1f; }
         .feature-card.red { border-left-color: #ff6347; }
 
+        .feature-card-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card-icon::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+        }
+        
+        .feature-card.blue .feature-card-icon { background: linear-gradient(135deg, #4a6fa5, #6b8cbc); color: white; }
+        .feature-card.green .feature-card-icon { background: linear-gradient(135deg, #2e8b57, #3cb371); color: white; }
+        .feature-card.yellow .feature-card-icon { background: linear-gradient(135deg, #fadd1f, #ffe66d); color: #333; }
+        .feature-card.red .feature-card-icon { background: linear-gradient(135deg, #ff6347, #ff9a76); color: white; }
+        
         .feature-card h3 {
             color: var(--dark);
-            margin-bottom: 15px;
-            font-size: 1.4rem;
+            margin-bottom: 25px;
+            font-size: 1.9rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            line-height: 1.4;
+            flex-shrink: 0;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
         
         .sim-tag {
-            font-size: 0.8rem;
-            background: #fff;
-            padding: 4px 10px;
-            border-radius: 20px;
-            color: var(--gray);
-            border: 1px solid #ddd;
-            font-weight: normal;
+            font-size: 0.85rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 8px 16px;
+            border-radius: 25px;
+            color: #666;
+            border: 1.5px solid #e0e0e0;
+            font-weight: 500;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            letter-spacing: 0.3px;
         }
 
         .feature-card p {
-            color: #555;
-            margin-bottom: 15px;
-            flex-grow: 1;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.9;
+            letter-spacing: 0.2px;
+        }
+        
+        .feature-card p strong {
+            font-size: 1.15rem;
+            color: #1a202c;
+            font-weight: 700;
+            background: linear-gradient(120deg, transparent 0%, rgba(74,111,165,0.08) 50%, transparent 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .feature-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .feature-divider {
+            height: 2px;
+            background: linear-gradient(to right, transparent 0%, rgba(74,111,165,0.2) 20%, rgba(74,111,165,0.3) 50%, rgba(74,111,165,0.2) 80%, transparent 100%);
+            margin: 30px 0;
+            flex-shrink: 0;
+            border-radius: 2px;
+            position: relative;
+        }
+        
+        .feature-divider::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border: 2px solid rgba(74,111,165,0.4);
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px #fff;
+        }
+        
+        .feature-example {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+            padding: 22px 25px;
+            border-radius: 12px;
+            border-left: 5px solid currentColor;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-example::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.5) 100%);
+            pointer-events: none;
+        }
+        
+        .feature-card.blue .feature-example { border-left-color: #4a6fa5; }
+        .feature-card.green .feature-example { border-left-color: #2e8b57; }
+        .feature-card.yellow .feature-example { border-left-color: #fadd1f; }
+        .feature-card.red .feature-example { border-left-color: #ff6347; }
+        
+        .feature-example h4 {
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: #1a202c;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            position: relative;
+        }
+        
+        .feature-example h4 i {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        .feature-example p {
+            font-size: 1rem;
+            line-height: 1.85;
+            margin-bottom: 0;
+            color: #2d3748;
+            position: relative;
+            letter-spacing: 0.2px;
         }
 
         /* 信息框 */
@@ -442,13 +590,6 @@
             border-radius: 12px;
             text-align: center;
             border: 1px solid var(--light-gray);
-            transition: var(--transition);
-        }
-
-        .strategy-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            border-color: var(--primary);
         }
 
         .strategy-icon {
@@ -513,6 +654,20 @@
             margin: 0 auto;
         }
 
+        /* 锚点跳转偏移控制 */
+        #sgf {
+            scroll-margin-top: 120px; /* 跳转后距离顶部的距离，可以调整这个数值 */
+        }
+
+        #sgf, #dmn, #wml {
+            scroll-margin-top: 110px; /* 跳转后距离顶部的距离，可以调整这个数值 */
+        }
+
+        #ip {
+            scroll-margin-top: 90px; /* 跳转后距离顶部的距离，可以调整这个数值 */
+        }
+
+
         /* 响应式 */
         @media (max-width: 768px) {
             .science-grid, .stats-grid, .strategy-grid, .footer-content {
@@ -539,7 +694,7 @@
                     <div class="logo-subtitle">ADHD科普体验平台</div>
                 </div>
             </a>
-            <a href="index.html" class="cta-button">
+            <a href="index.html#experience" class="cta-button">
                 <i class="fas fa-arrow-left"></i> 返回体验大厅
             </a>
         </div>
@@ -572,28 +727,66 @@
             <p>通过刚才的体验，您可能已经直观感受到了注意力是如何失效的。以下是这些体验背后的科学解释：</p>
 
             <div class="science-grid">
-                <div class="feature-card blue">
-                    <h3>默认模式网络 (DMN) <span class="sim-tag">破坏注意力的：指向性</span></h3>
-                    <p><strong>机制：</strong>大脑有两套网络：专注时的“任务网络”和发呆时的“默认模式网络(DMN)”。普通人专注时 DMN 会自动关闭；而 ADHD 患者的 DMN 无法有效抑制，始终处于活跃状态。</p>
-                    <p><strong>后果：</strong>这就是为什么您想把注意力指向“写邮件”，脑子却不受控地指向“无关杂念”。注意力的方向盘失灵了，思维不断被内部噪音带偏。</p>
+                <div class="feature-card blue" id="dmn">
+                    <div class="feature-card-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3>默认模式网络 (DMN) 异常激活<span class="sim-tag">破坏注意力的：指向性</span></h3>
+                    
+                    <div class="feature-content">
+                        <p><strong>机制：</strong>大脑有两套网络：专注时的“任务网络”和发呆时的“默认模式网络(DMN)”。普通人专注时 DMN 会自动关闭；而 ADHD 患者的 DMN 无法有效抑制，始终处于活跃状态。</p>
+                        <p><strong>后果：</strong>这就是为什么您想把注意力指向“写邮件”，脑子却不受控地指向“无关杂念”。注意力的方向盘失灵了，思维不断被内部噪音带偏。</p>
+                        
+                        <div class="feature-divider"></div>
+                        
+                        <div class="feature-example">
+                            <h4><i class="fas fa-lightbulb"></i> 典型场景</h4>
+                            <p>您打开文档准备写报告，才打了10个字，大脑就开始“自动播放”：“下周要交房租了吧？钱够不够？他为什么还没回我消息？” 5分钟后回过神，发现光标还停在第一行。这不是“不想写”，而是 DMN 强行劫持了注意力控制权。</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="feature-card green">
-                    <h3>多巴胺奖励回路缺陷 <span class="sim-tag">破坏注意力的：持久性</span></h3>
+                <div class="feature-card green" id="ip">                    <div class="feature-card-icon">
+                        <i class="fas fa-battery-quarter"></i>
+                    </div>                    <h3>多巴胺奖励回路缺陷 <span class="sim-tag">破坏注意力的：持久性</span></h3>
                     <p><strong>机制：</strong>维持枯燥任务的注意力需要持续的“多巴胺”供给。ADHD 大脑的多巴胺传递效率低，导致大脑无法为“无聊但重要”的任务维持长久的关注。</p>
-                    <p><strong>后果：</strong>这就是“启动瘫痪”和“虎头蛇尾”。大脑因为缺乏燃料，无法将注意力锁定在当前任务上，反而会本能地排斥它，去寻找高刺激（如游戏）来补充多巴胺。</p>
-                </div>
+                    <p><strong>后果：</strong>这就是“启动瘫痪”和“虎头蛇尾”。大脑因为缺乏燃料，无法将注意力锁定在当前任务上，反而会本能地排斥它，去寻找高刺激（如游戏）来补充多巴胺。</p>                    
+                    <div class="feature-divider"></div>
+                    
+                    <div class="feature-example">
+                        <h4><i class="fas fa-chart-line"></i> 科学数据</h4>
+                        <p>研究显示，ADHD 患者纹状体（奖励中枢）的多巴胺转运蛋白比普通人<strong>多出70%</strong>，导致多巴胺被过度回收，未能充分作用于神经突触。这解释了为何 ADHD 大脑对“遥远但重要”的任务（如毕业论文）无动力，却能为“即时满足”的活动（刷视频）过度投入。</p>
+                    </div>                </div>
 
-                <div class="feature-card red">
-                    <h3>感官门控 (Sensory Gating) 失效 <span class="sim-tag">破坏注意力的：抗干扰性</span></h3>
+                <div class="feature-card red" id="sgf">                    <div class="feature-card-icon">
+                        <i class="fas fa-volume-up"></i>
+                    </div>                    <h3>感官门控 (Sensory Gating) 失效 <span class="sim-tag">破坏注意力的：抗干扰性</span></h3>
                     <p><strong>机制：</strong>丘脑是大脑的“过滤器”，负责屏蔽99%的无关感官信息。ADHD 患者的这道门控较弱，无法有效区分“背景噪音”和“核心信息”。</p>
-                    <p><strong>后果：</strong>所有信息都以同等高优先级涌入大脑。为了处理过载信息，宝贵的注意力资源被迅速耗尽，导致您在嘈杂环境中极易分心，无法聚焦主线任务。</p>
-                </div>
+                    <p><strong>后果：</strong>所有信息都以同等高优先级涌入大脑。为了处理过载信息，宝贵的注意力资源被迅速耗尽，导致您在嘈杂环境中极易分心，无法聚焦主线任务。</p>                    
+                    <div class="feature-divider"></div>
+                    
+                    <div class="feature-example">
+                        <h4><i class="fas fa-balance-scale"></i> 对比实验</h4>
+                        <p>在 P50 抑制实验中，普通人对第二次声音的脑波反应仅为第一次的<strong>20-30%</strong>（说明大脑已将其过滤），而 ADHD 患者的反应仍高达<strong>60-80%</strong>。这意味着：当您在咖啡馆学习时，普通人只需处理 20% 的背景噪音，您的大脑却要处理 80%，注意力被成倍消耗。</p>
+                    </div>                </div>
 
-                <div class="feature-card yellow">
+                <div class="feature-card yellow" id="wml">
+                    <div class="feature-card-icon">
+                        <i class="fas fa-memory"></i>
+                    </div>
                     <h3>工作记忆容量 (RAM) 短缺 <span class="sim-tag">破坏注意力的：连贯性</span></h3>
-                    <p><strong>机制：</strong>工作记忆是注意力的“在线缓存”。ADHD 患者的前额叶皮层激活不足，导致这个缓存容量极小且不稳定。</p>
-                    <p><strong>后果：</strong>注意力的连贯性被打断。您无法“一边记住验证码一边输入”，一旦中间插入微小干扰，注意力链条就会断裂，导致任务进度丢失，必须反复从头开始。</p>
+                    
+                    <div class="feature-content">
+                        <p><strong>机制：</strong>工作记忆是注意力的“在线缓存”。ADHD 患者的前额叶皮层激活不足，导致这个缓存容量极小且不稳定。</p>
+                        <p><strong>后果：</strong>注意力的连贯性被打断。您无法“一边记住验证码一边输入”，一旦中间插入微小干扰，注意力链条就会断裂，导致任务进度丢失，必须反复从头开始。</p>
+                        
+                        <div class="feature-divider"></div>
+                        
+                        <div class="feature-example">
+                            <h4><i class="fas fa-exclamation-circle"></i> 日常影响</h4>
+                            <p>这解释了为何“从客厅走到卧室拿东西，到了就忘了拿什么”。普通人的工作记忆能同时保持7±2个信息块，而 ADHD 患者常常<strong>仅能保持3-4个</strong>。这就像手机 RAM 从 8GB 降到 2GB：任何额外的信息输入（如家人叫一声）都会导致“内存溢出”，之前记住的事瞬间清零。</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

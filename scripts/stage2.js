@@ -5,10 +5,15 @@ const tenTasksState = {
     attemptTimer: 0,
     buttons: [],
     correctTaskIndex: -1,
-    blueErrorButtonIndex: -1, // 新增：当前蓝色错误按钮的索引
+    blueErrorButtons: [], // 改为数组，存储多个蓝色错误按钮索引
     buttonMoveInterval: null,
     colorChangeInterval: null,
-    isActive: false
+    isActive: false,
+    extraButtonsInterval: null, // 新增：额外按钮定时器
+    extraButtonCount: 0, // 新增：额外按钮计数
+    maxButtons: 30, // 新增：最大按钮数量限制
+    buttonRepelInterval: null, // 新增：按钮弹开定时器
+    buttonRepelChance: 0 // 禁用正确按钮弹开效果
 };
 
 // 颜色数组 - 各种干扰颜色（纯色）
@@ -48,8 +53,19 @@ function cleanupTenTasksStage() {
         tenTasksState.colorChangeInterval = null;
     }
     
+    if (tenTasksState.extraButtonsInterval) {
+        clearInterval(tenTasksState.extraButtonsInterval);
+        tenTasksState.extraButtonsInterval = null;
+    }
+    
+    if (tenTasksState.buttonRepelInterval) {
+        clearInterval(tenTasksState.buttonRepelInterval);
+        tenTasksState.buttonRepelInterval = null;
+    }
+    
     tenTasksState.isActive = false;
-    tenTasksState.blueErrorButtonIndex = -1; // 重置蓝色错误按钮索引
+    tenTasksState.blueErrorButtons = []; // 清空蓝色错误按钮数组
+    tenTasksState.extraButtonCount = 0;
     
     // 移除body的stage2类
     document.body.classList.remove('stage2-active');
@@ -74,6 +90,7 @@ function initTenTasksLayout() {
     tenTasksContainer.innerHTML = '';
     tenTasksState.buttons = [];
     tenTasksState.isActive = true;
+    tenTasksState.extraButtonCount = 0;
     
     // 重置时间
     tenTasksState.startTime = Date.now();
@@ -90,46 +107,78 @@ function initTenTasksLayout() {
         "总结与反思",
         "描述报告细节内容",
         "构思总体框架",  // 正确任务
-        "检查报告格式"
+        "检查报告格式",
+        "查看天气预报",
+        "整理桌面图标",
+        "调整椅子高度",
+        "喝口水",
+        "检查手机通知",
+        "拉伸一下",
+        "回忆昨天的事",
+        "计划晚餐吃什么",
+        "数一下有几个按钮",
+        "思考人生意义"
     ];
     
     // 找到"构思总体框架"的索引
     tenTasksState.correctTaskIndex = taskNames.indexOf("构思总体框架");
     
-    // 初始随机选择一个错误按钮显示为蓝色
+    // 初始随机选择4个错误按钮显示为蓝色（增加干扰）
     let errorButtonIndices = [];
     for (let i = 0; i < taskNames.length; i++) {
         if (i !== tenTasksState.correctTaskIndex) {
             errorButtonIndices.push(i);
         }
     }
-    tenTasksState.blueErrorButtonIndex = errorButtonIndices[Math.floor(Math.random() * errorButtonIndices.length)];
+    
+    // 随机选择4个蓝色错误按钮
+    const blueErrorButtons = [];
+    for (let i = 0; i < 3; i++) {
+        if (errorButtonIndices.length > 0) {
+            const randomIndex = Math.floor(Math.random() * errorButtonIndices.length);
+            blueErrorButtons.push(errorButtonIndices[randomIndex]);
+            errorButtonIndices.splice(randomIndex, 1); // 移除已选中的
+        }
+    }
+    
+    tenTasksState.blueErrorButtons = blueErrorButtons; // 存储所有蓝色错误按钮索引
     
     // 获取容器尺寸
     const containerWidth = tenTasksContainer.offsetWidth;
     const containerHeight = tenTasksContainer.offsetHeight;
     
-    // 预定义的网格位置（确保按钮不重叠）
+    // 预定义的网格位置（确保按钮不重叠）- 扩展为20个位置
     const gridPositions = [
-        {x: 0.15, y: 0.15},
-        {x: 0.35, y: 0.15},
-        {x: 0.55, y: 0.15},
-        {x: 0.75, y: 0.15},
-        {x: 0.15, y: 0.35},
-        {x: 0.35, y: 0.35},
-        {x: 0.55, y: 0.35},
-        {x: 0.75, y: 0.35},
-        {x: 0.25, y: 0.65},
-        {x: 0.50, y: 0.65}
+        {x: 0.10, y: 0.15},
+        {x: 0.30, y: 0.15},
+        {x: 0.50, y: 0.15},
+        {x: 0.70, y: 0.15},
+        {x: 0.90, y: 0.15},
+        {x: 0.10, y: 0.35},
+        {x: 0.30, y: 0.35},
+        {x: 0.50, y: 0.35},
+        {x: 0.70, y: 0.35},
+        {x: 0.90, y: 0.35},
+        {x: 0.10, y: 0.55},
+        {x: 0.30, y: 0.55},
+        {x: 0.50, y: 0.55},
+        {x: 0.70, y: 0.55},
+        {x: 0.90, y: 0.55},
+        {x: 0.20, y: 0.75},
+        {x: 0.40, y: 0.75},
+        {x: 0.60, y: 0.75},
+        {x: 0.80, y: 0.75},
+        {x: 0.50, y: 0.90}
     ];
     
     // 打乱位置数组，使按钮随机分布
     const shuffledPositions = [...gridPositions].sort(() => Math.random() - 0.5);
     
-    // 创建10个任务按钮
-    for (let i = 0; i < 10; i++) {
+    // 创建20个任务按钮（初始数量）
+    const initialButtonCount = taskNames.length; // 使用所有任务名称
+    for (let i = 0; i < initialButtonCount; i++) {
         const isCorrect = i === tenTasksState.correctTaskIndex;
-        const isBlueError = i === tenTasksState.blueErrorButtonIndex;
+        const isBlueError = tenTasksState.blueErrorButtons.includes(i); // 检查是否是蓝色错误按钮
         
         const buttonContainer = document.createElement('div');
         buttonContainer.className = 'scattered-task-btn-container';
@@ -163,8 +212,8 @@ function initTenTasksLayout() {
         tenTasksContainer.appendChild(buttonContainer);
         
         // 初始速度和方向
-        const speed = 0.5 + Math.random() * 1.5; // 随机速度
-        const angle = Math.random() * Math.PI * 2; // 随机方向
+        const speed = 0.5 + Math.random() * 1.5;
+        const angle = Math.random() * Math.PI * 2;
         const velocity = {
             x: Math.cos(angle) * speed,
             y: Math.sin(angle) * speed
@@ -180,19 +229,24 @@ function initTenTasksLayout() {
             velocity: velocity,
             colorChangeTimer: 0,
             currentColorIndex: Math.floor(Math.random() * distractionColors.length),
-            isBlueError: isBlueError // 标记是否为蓝色错误按钮
+            isBlueError: isBlueError,
+            isExtraButton: false, // 标记是否为额外添加的按钮
+            repelForce: { x: 0, y: 0 }, // 新增：弹开力
+            repelTimer: 0 // 新增：弹开计时器
         };
         
         // 为正确按钮添加特殊类名
         if (isCorrect) {
             taskButton.classList.add('correct-task-btn');
+            // 确保正确按钮使用原来的蓝色 #2196F3
+            taskButton.style.background = '#2196F3';
         } else if (isBlueError) {
-            // 蓝色错误按钮 - 显示为蓝色
-            taskButton.style.background = correctColor.color; // 纯色
+            // 蓝色错误按钮 - 显示为蓝色，但要与正确按钮区分
+            taskButton.style.background = '#2196F3';
         } else {
             // 其他错误按钮设置随机颜色
             const color = distractionColors[buttonInfo.currentColorIndex];
-            taskButton.style.background = color.color; // 纯色
+            taskButton.style.background = color.color;
         }
         
         tenTasksState.buttons.push(buttonInfo);
@@ -208,7 +262,7 @@ function initTenTasksLayout() {
     // 更新十任务界面的提示文字
     const tenTasksHint = document.getElementById('tenTasksHint');
     if (tenTasksHint) {
-        tenTasksHint.textContent = "找到蓝色正确任务按钮并点击（注意：蓝色错误按钮会随机变换）";
+        tenTasksHint.textContent = "找到正确的蓝色任务按钮并点击（注意：有多个蓝色按钮，只有一个是正确的，错误的蓝色按钮会变换颜色）";
     }
     
     // 启动十任务阶段计时器
@@ -227,9 +281,282 @@ function initTenTasksLayout() {
     // 启动颜色变化动画
     startColorChanges();
     
+    // 新增：启动按钮弹开效果
+    startButtonRepelEffect();
+    
+    // 新增：启动额外按钮添加定时器
+    startExtraButtonsTimer();
+    
     console.log('十任务布局初始化完成');
     console.log('正确按钮索引:', tenTasksState.correctTaskIndex);
     console.log('初始蓝色错误按钮索引:', tenTasksState.blueErrorButtonIndex);
+}
+
+// 新增：启动按钮弹开效果
+function startButtonRepelEffect() {
+    if (tenTasksState.buttonRepelInterval) clearInterval(tenTasksState.buttonRepelInterval);
+    
+    tenTasksState.buttonRepelInterval = setInterval(() => {
+        if (!tenTasksState.isActive) return;
+        
+        const tenTasksScreen = document.getElementById('tenTasksScreen');
+        if (!tenTasksScreen || tenTasksScreen.style.display !== 'flex') return;
+        
+        // 更新所有按钮的弹开计时器
+        tenTasksState.buttons.forEach((button, index) => {
+            if (!button || !button.element) return;
+            
+            button.repelTimer++;
+            
+            // 每1秒检查一次是否需要弹开
+            if (button.repelTimer >= 60) { // 60帧 ≈ 1秒
+                button.repelTimer = 0;
+                
+                // 只有正确按钮才有90%的概率弹开
+                if (button.isCorrect && Math.random() < tenTasksState.buttonRepelChance) {
+                    applyButtonRepelEffect(button);
+                }
+            }
+            
+            // 应用持续的弹开力
+            if (Math.abs(button.repelForce.x) > 0.1 || Math.abs(button.repelForce.y) > 0.1) {
+                // 减缓弹开力
+                button.repelForce.x *= 0.9;
+                button.repelForce.y *= 0.9;
+                
+                // 应用弹开力到按钮速度
+                button.velocity.x += button.repelForce.x * 0.1;
+                button.velocity.y += button.repelForce.y * 0.1;
+                
+                // 限制最大速度
+                const maxSpeed = 5;
+                const currentSpeed = Math.sqrt(button.velocity.x * button.velocity.x + button.velocity.y * button.velocity.y);
+                if (currentSpeed > maxSpeed) {
+                    button.velocity.x = (button.velocity.x / currentSpeed) * maxSpeed;
+                    button.velocity.y = (button.velocity.y / currentSpeed) * maxSpeed;
+                }
+                
+                // 给按钮添加弹开视觉反馈
+                if (button.element) {
+                    button.element.style.boxShadow = `0 0 20px rgba(255, 0, 0, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.3)`;
+                    
+                    // 短暂闪烁效果
+                    button.element.style.animation = 'none';
+                    setTimeout(() => {
+                        if (button.element && button.element.style) {
+                            button.element.style.animation = 'repelPulse 0.5s';
+                        }
+                    }, 10);
+                }
+            }
+        });
+    }, 16); // 约60fps
+}
+
+// 新增：应用按钮弹开效果
+function applyButtonRepelEffect(button) {
+    if (!button) return;
+    
+    // 随机生成弹开方向
+    const angle = Math.random() * Math.PI * 2;
+    const forceStrength = 2 + Math.random() * 3; // 弹开强度
+    
+    button.repelForce.x += Math.cos(angle) * forceStrength;
+    button.repelForce.y += Math.sin(angle) * forceStrength;
+    
+    // 视觉反馈
+    if (button.element) {
+        button.element.style.transform = 'scale(1.15)';
+        button.element.style.boxShadow = `0 0 30px rgba(255, 50, 50, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.4)`;
+        
+        // 0.3秒后恢复
+        setTimeout(() => {
+            if (button.element && button.element.style) {
+                button.element.style.transform = 'scale(1)';
+                if (!button.isCorrect) {
+                    button.element.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.2)';
+                }
+            }
+        }, 300);
+    }
+    
+    // 音效
+    if (window.isAudioEnabled && window.audioContext) {
+        try {
+            const repelSound = window.audioContext.createOscillator();
+            const repelGain = window.audioContext.createGain();
+            
+            repelSound.type = 'triangle';
+            repelSound.frequency.setValueAtTime(300, window.audioContext.currentTime);
+            repelSound.frequency.exponentialRampToValueAtTime(150, window.audioContext.currentTime + 0.2);
+            
+            repelGain.gain.setValueAtTime(0.1, window.audioContext.currentTime);
+            repelGain.gain.exponentialRampToValueAtTime(0.01, window.audioContext.currentTime + 0.2);
+            
+            repelSound.connect(repelGain);
+            repelGain.connect(window.audioContext.destination);
+            
+            repelSound.start();
+            repelSound.stop(window.audioContext.currentTime + 0.2);
+        } catch (e) {
+            console.error('音频播放错误:', e);
+        }
+    }
+}
+
+// 新增：启动额外按钮添加定时器
+function startExtraButtonsTimer() {
+    if (tenTasksState.extraButtonsInterval) clearInterval(tenTasksState.extraButtonsInterval);
+    
+    tenTasksState.extraButtonsInterval = setInterval(() => {
+        if (!tenTasksState.isActive) return;
+        
+        const tenTasksScreen = document.getElementById('tenTasksScreen');
+        if (!tenTasksScreen || tenTasksScreen.style.display !== 'flex') return;
+        
+        // 每3秒添加3个额外按钮
+        for (let i = 0; i < 3; i++) {
+            if (tenTasksState.buttons.length < tenTasksState.maxButtons) {
+                addExtraButton();
+            }
+        }
+        
+        // 更新提示
+        const tenTasksHint = document.getElementById('tenTasksHint');
+        if (tenTasksHint) {
+            tenTasksHint.innerHTML = `找到蓝色正确任务按钮并点击<br>
+            <small>干扰按钮数量: ${tenTasksState.buttons.length} (最大: ${tenTasksState.maxButtons}) | 正确按钮弹开概率: 90% | 每3秒增加3个干扰按钮</small>`;
+        }
+    }, 3000); // 每3秒执行一次
+}
+
+// 新增：添加额外干扰按钮
+function addExtraButton() {
+    const tenTasksContainer = document.getElementById('tenTasksContainer');
+    if (!tenTasksContainer) return;
+    
+    const containerWidth = tenTasksContainer.offsetWidth;
+    const containerHeight = tenTasksContainer.offsetHeight;
+    
+    // 随机位置
+    const x = 60 + Math.random() * (containerWidth - 120);
+    const y = 60 + Math.random() * (containerHeight - 120);
+    
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'scattered-task-btn-container extra-button';
+    buttonContainer.style.position = 'absolute';
+    buttonContainer.style.left = `${x}px`;
+    buttonContainer.style.top = `${y}px`;
+    buttonContainer.style.transform = 'translate(-50%, -50%)';
+    
+    const taskButton = document.createElement('button');
+    taskButton.className = 'scattered-task-btn';
+    taskButton.id = `extraTaskBtn${tenTasksState.buttons.length}`;
+    
+    // 设置按钮文本 - 使用额外的干扰任务名称
+    const extraTaskNames = [
+        "查看天气预报",
+        "整理桌面图标",
+        "调整椅子高度",
+        "喝口水",
+        "检查手机通知",
+        "拉伸一下",
+        "回忆昨天的事",
+        "计划晚餐吃什么",
+        "数一下有几个按钮",
+        "思考人生意义"
+    ];
+    
+    const buttonText = document.createElement('div');
+    buttonText.className = 'scattered-task-btn-text';
+    
+    const title = document.createElement('div');
+    title.className = 'scattered-task-btn-title';
+    title.textContent = extraTaskNames[Math.floor(Math.random() * extraTaskNames.length)];
+    
+    buttonText.appendChild(title);
+    taskButton.appendChild(buttonText);
+    buttonContainer.appendChild(taskButton);
+    
+    tenTasksContainer.appendChild(buttonContainer);
+    
+    // 初始速度和方向
+    const speed = 0.8 + Math.random() * 2.0; // 比普通按钮更快
+    const angle = Math.random() * Math.PI * 2;
+    const velocity = {
+        x: Math.cos(angle) * speed,
+        y: Math.sin(angle) * speed
+    };
+    
+    // 随机彩色渐变背景
+    const colorIndex = Math.floor(Math.random() * distractionColors.length);
+    const color = distractionColors[colorIndex];
+    const colorIndex2 = Math.floor(Math.random() * distractionColors.length);
+    const color2 = distractionColors[colorIndex2];
+    // 使用渐变色让额外按钮更显眼
+    taskButton.style.background = `linear-gradient(135deg, ${color.color} 0%, ${color2.color} 100%)`;
+    
+    const buttonInfo = {
+        element: taskButton,
+        container: buttonContainer,
+        isCorrect: false,
+        x: x,
+        y: y,
+        name: title.textContent,
+        velocity: velocity,
+        colorChangeTimer: 0,
+        currentColorIndex: colorIndex,
+        isBlueError: false,
+        isExtraButton: true, // 标记为额外按钮
+        repelForce: { x: 0, y: 0 },
+        repelTimer: 0
+    };
+    
+    tenTasksState.buttons.push(buttonInfo);
+    tenTasksState.extraButtonCount++;
+    
+    // 为额外按钮添加点击事件
+    taskButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleTaskButtonClick(tenTasksState.buttons.length - 1);
+    }, {capture: true});
+    
+    // 视觉反馈
+    buttonContainer.style.opacity = '0';
+    buttonContainer.style.transform = 'translate(-50%, -50%) scale(0.5)';
+    
+    setTimeout(() => {
+        buttonContainer.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        buttonContainer.style.opacity = '1';
+        buttonContainer.style.transform = 'translate(-50%, -50%) scale(1)';
+        
+        setTimeout(() => {
+            buttonContainer.style.transition = '';
+        }, 500);
+    }, 10);
+    
+    // 音效
+    if (window.isAudioEnabled && window.audioContext) {
+        try {
+            const addSound = window.audioContext.createOscillator();
+            const addGain = window.audioContext.createGain();
+            
+            addSound.type = 'sine';
+            addSound.frequency.setValueAtTime(200 + Math.random() * 200, window.audioContext.currentTime);
+            
+            addGain.gain.setValueAtTime(0.05, window.audioContext.currentTime);
+            addGain.gain.exponentialRampToValueAtTime(0.01, window.audioContext.currentTime + 0.3);
+            
+            addSound.connect(addGain);
+            addGain.connect(window.audioContext.destination);
+            
+            addSound.start();
+            addSound.stop(window.audioContext.currentTime + 0.3);
+        } catch (e) {
+            console.error('音频播放错误:', e);
+        }
+    }
 }
 
 // 启动按钮移动动画
@@ -247,7 +574,7 @@ function startButtonMovement() {
         
         const containerWidth = tenTasksContainer.offsetWidth;
         const containerHeight = tenTasksContainer.offsetHeight;
-        const buttonRadius = 35; // 按钮半径
+        const buttonRadius = 35;
         
         tenTasksState.buttons.forEach((button) => {
             if (!button || !button.container) return;
@@ -259,18 +586,18 @@ function startButtonMovement() {
             // 边界碰撞检测
             if (button.x < buttonRadius) {
                 button.x = buttonRadius;
-                button.velocity.x = Math.abs(button.velocity.x); // 反弹
+                button.velocity.x = Math.abs(button.velocity.x);
             } else if (button.x > containerWidth - buttonRadius) {
                 button.x = containerWidth - buttonRadius;
-                button.velocity.x = -Math.abs(button.velocity.x); // 反弹
+                button.velocity.x = -Math.abs(button.velocity.x);
             }
             
             if (button.y < buttonRadius) {
                 button.y = buttonRadius;
-                button.velocity.y = Math.abs(button.velocity.y); // 反弹
+                button.velocity.y = Math.abs(button.velocity.y);
             } else if (button.y > containerHeight - buttonRadius) {
                 button.y = containerHeight - buttonRadius;
-                button.velocity.y = -Math.abs(button.velocity.y); // 反弹
+                button.velocity.y = -Math.abs(button.velocity.y);
             }
             
             // 更新按钮位置
@@ -278,8 +605,8 @@ function startButtonMovement() {
             button.container.style.top = `${button.y}px`;
             
             // 随机改变方向（模拟布朗运动）
-            if (Math.random() < 0.05) { // 5%的几率改变方向
-                const angleChange = (Math.random() - 0.5) * 0.5; // 小幅改变角度
+            if (Math.random() < 0.05) {
+                const angleChange = (Math.random() - 0.5) * 0.5;
                 const currentAngle = Math.atan2(button.velocity.y, button.velocity.x);
                 const newAngle = currentAngle + angleChange;
                 const speed = Math.sqrt(button.velocity.x * button.velocity.x + button.velocity.y * button.velocity.y);
@@ -287,8 +614,15 @@ function startButtonMovement() {
                 button.velocity.x = Math.cos(newAngle) * speed;
                 button.velocity.y = Math.sin(newAngle) * speed;
             }
+            
+            // 额外按钮有更活跃的运动
+            if (button.isExtraButton && Math.random() < 0.1) {
+                const randomImpulse = (Math.random() - 0.5) * 0.5;
+                button.velocity.x += randomImpulse;
+                button.velocity.y += randomImpulse;
+            }
         });
-    }, 16); // 约60fps
+    }, 16);
 }
 
 // 启动颜色变化动画 - 修改后的版本
@@ -305,8 +639,9 @@ function startColorChanges() {
         tenTasksState.buttons.forEach((button) => {
             if (!button || !button.element) return;
             
-            // 正确按钮永远不变颜色
+            // 正确按钮永远不变颜色 - 保持蓝色 #2196F3
             if (button.isCorrect) {
+                button.element.style.background = '#2196F3'; // 确保正确按钮始终保持原来的蓝色
                 return;
             }
             
@@ -330,16 +665,12 @@ function startColorChanges() {
                     if (availableButtons.length > 0) {
                         // 随机选择一个新按钮成为蓝色错误按钮
                         const newBlueButton = availableButtons[Math.floor(Math.random() * availableButtons.length)];
-                        const newBlueIndex = tenTasksState.buttons.findIndex(b => b === newBlueButton);
-                        
-                        // 更新蓝色错误按钮索引
-                        tenTasksState.blueErrorButtonIndex = newBlueIndex;
                         
                         // 设置新按钮为蓝色错误按钮
                         newBlueButton.isBlueError = true;
-                        newBlueButton.element.style.background = correctColor.color;
+                        newBlueButton.element.style.background = '#2196F3'; // 原来的蓝色
                         
-                        console.log('蓝色错误按钮转移:', '从按钮', tenTasksState.buttons.indexOf(button), '转移到按钮', newBlueIndex);
+                        console.log('蓝色错误按钮转移:', '从按钮', tenTasksState.buttons.indexOf(button), '转移到按钮', tenTasksState.buttons.indexOf(newBlueButton));
                     }
                     
                     // 当前按钮变为随机干扰颜色
@@ -361,7 +692,15 @@ function startColorChanges() {
                     
                     button.currentColorIndex = newColorIndex;
                     const color = distractionColors[newColorIndex];
-                    button.element.style.background = color.color;
+                    
+                    // 额外按钮使用渐变色，普通按钮使用纯色
+                    if (button.isExtraButton) {
+                        const colorIndex2 = Math.floor(Math.random() * distractionColors.length);
+                        const color2 = distractionColors[colorIndex2];
+                        button.element.style.background = `linear-gradient(135deg, ${color.color} 0%, ${color2.color} 100%)`;
+                    } else {
+                        button.element.style.background = color.color;
+                    }
                 }
                 
                 // 添加颜色变化动画效果
@@ -495,7 +834,7 @@ function triggerBlueErrorButtonClick(button) {
         if (button.element && button.element.style) {
             button.element.style.transform = 'scale(1)';
             button.element.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5), inset 0 0 5px rgba(255, 255, 255, 0.2)';
-            button.element.style.background = correctColor.color; // 恢复蓝色
+            button.element.style.background = '#2196F3'; // 恢复原来的蓝色
         }
         document.body.removeChild(errorHint);
     }, 500);

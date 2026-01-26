@@ -1,4 +1,4 @@
-/* 第三界面：十任务分散布局 */
+/* ========== 十任务分散布局 ========== */
 .ten-tasks-screen {
     position: fixed;
     top: 0;
@@ -12,72 +12,92 @@
     justify-content: center;
     z-index: 9999;
     overflow: hidden;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
 }
 
 .ten-tasks-title {
     position: absolute;
-    top: 20px;
+    top: 80px; /* 调整位置为上方留出更多空间 */
     left: 50%;
     transform: translateX(-50%);
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
+    font-size: 24px; /* 稍微减小字体大小 */
+    font-weight: 700;
+    color: var(--dark);
     text-align: center;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 10px 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background: white;
+    padding: 12px 25px;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     z-index: 10;
+    border: 2px solid rgba(74, 111, 165, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 90%;
 }
 
 .ten-tasks-instruction {
     position: absolute;
-    top: 70px;
+    top: 140px; /* 调整位置 */
     left: 50%;
     transform: translateX(-50%);
-    font-size: 16px;
-    color: #666;
+    font-size: 16px; /* 减小字体大小 */
+    color: var(--gray);
     text-align: center;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 8px 15px;
-    border-radius: 5px;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 8px;
     z-index: 10;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    max-width: 80%;
+    line-height: 1.5;
 }
 
 .ten-tasks-container {
     position: relative;
-    width: 100%;
-    height: 80%;
-    margin-top: 100px;
+    width: 95%; /* 增加宽度 */
+    height: 70%;
+    margin-top: 180px; /* 调整上边距 */
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    border: 2px dashed rgba(74, 111, 165, 0.2);
+    backdrop-filter: blur(5px);
+    overflow: hidden; /* 防止按钮超出容器 */
 }
 
-/* 任务按钮样式 - 纯色 */
-.scattered-task-btn {
+/* ========== 任务按钮样式 ========== */
+.scattered-task-btn-container {
     position: absolute;
-    width: 70px;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.scattered-task-btn {
+    position: relative;
+    width: 70px; /* 减小按钮大小以容纳更多按钮 */
     height: 70px;
     border-radius: 50%;
-    background: #777; /* 纯色 */
-    color: #fff;
+    background: var(--gray);
+    color: white;
     border: none;
-    font-size: 10px;
-    font-weight: bold;
+    font-size: 9px; /* 减小字体大小 */
+    font-weight: 600;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5),
-                inset 0 0 5px rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-    z-index: 5;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    transition: var(--transition);
+    z-index: 3;
     text-align: center;
-    padding: 5px;
+    padding: 8px;
 }
 
 .scattered-task-btn:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .scattered-task-btn::before {
@@ -87,7 +107,7 @@
     height: 60%;
     border-radius: 50%;
     background: radial-gradient(circle at center,
-            rgba(255, 255, 255, 0.2) 0%,
+            rgba(255, 255, 255, 0.3) 0%,
             rgba(255, 255, 255, 0.1) 50%,
             transparent 70%);
     pointer-events: none;
@@ -99,64 +119,155 @@
 }
 
 .scattered-task-btn-title {
-    font-size: 10px;
+    font-size: 9px; /* 减小字体大小 */
     margin-bottom: 2px;
-    color: #fff;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-    line-height: 1.2;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+    line-height: 1.2; /* 调整行高 */
+    font-weight: 600;
+    word-break: break-word; /* 允许换行 */
+    max-height: 40px;
+    overflow: hidden;
 }
 
-/* 正确按钮的特殊样式 - 蓝色纯色 */
+/* ========== 正确按钮的特殊样式 ========== */
 .correct-task-btn {
-    background: #2196F3 !important; /* 蓝色纯色 */
-    box-shadow: 0 0 15px rgba(33, 150, 243, 0.6), inset 0 0 8px rgba(255, 255, 255, 0.3) !important;
+    background: #2196F3 !important;
+    box-shadow: 0 6px 25px rgba(33, 150, 243, 0.6), 
+                inset 0 0 15px rgba(255, 255, 255, 0.4) !important;
+    animation: correctButtonGlow 2s infinite alternate !important;
 }
 
+@keyframes correctButtonGlow {
+    0% { 
+        box-shadow: 0 6px 20px rgba(33, 150, 243, 0.6), 
+                   inset 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+    100% { 
+        box-shadow: 0 6px 30px rgba(33, 150, 243, 0.9), 
+                   inset 0 0 20px rgba(255, 255, 255, 0.5);
+    }
+}
+
+/* ========== 弹开动画 ========== */
+@keyframes repelPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* ========== 额外按钮样式 ========== */
+.extra-button .scattered-task-btn {
+    background: #9E9E9D !important; /* 灰色调 */
+    box-shadow: 0 6px 20px rgba(158, 158, 157, 0.4), 
+                inset 0 0 10px rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid #757575;
+}
+
+/* ========== 返回按钮 ========== */
 .ten-tasks-back-btn {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.7);
+    top: 30px;
+    right: 30px;
+    background: var(--primary);
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
-    transition: background 0.3s;
+    font-weight: 600;
+    transition: var(--transition);
     z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(74, 111, 165, 0.4);
 }
 
 .ten-tasks-back-btn:hover {
-    background: rgba(0, 0, 0, 0.9);
+    background: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 111, 165, 0.6);
 }
 
-/* 计时器显示 */
+/* ========== 计时器显示 ========== */
 .ten-tasks-timer {
     position: absolute;
-    top: 120px;
+    top: 120px; /* 调整位置 */
     left: 50%;
     transform: translateX(-50%);
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-    background: rgba(255,255,255,0.9);
-    padding: 8px 15px;
+    font-size: 16px; /* 减小字体大小 */
+    font-weight: 700;
+    color: var(--dark);
+    background: white;
+    padding: 10px 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .ten-tasks-hint {
     position: absolute;
-    bottom: 20px;
+    bottom: 20px; /* 调整位置 */
     left: 50%;
     transform: translateX(-50%);
-    font-size: 14px;
-    color: #666;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 8px 15px;
+    font-size: 14px; /* 减小字体大小 */
+    color: var(--gray);
+    background: white;
+    padding: 12px 25px;
     border-radius: 8px;
     text-align: center;
     z-index: 10;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    max-width: 90%;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.ten-tasks-hint small {
+    font-size: 12px;
+    color: #888;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .ten-tasks-title {
+        font-size: 18px;
+        padding: 10px 15px;
+        top: 60px;
+    }
+    
+    .ten-tasks-instruction {
+        font-size: 14px;
+        top: 110px;
+        padding: 8px 15px;
+    }
+    
+    .ten-tasks-timer {
+        font-size: 14px;
+        top: 100px;
+        padding: 8px 15px;
+    }
+    
+    .ten-tasks-hint {
+        font-size: 12px;
+        padding: 10px 15px;
+    }
+    
+    .scattered-task-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 8px;
+    }
+    
+    .scattered-task-btn-title {
+        font-size: 8px;
+    }
 }

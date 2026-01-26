@@ -8,15 +8,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #4a6fa5;
-            --primary-light: #6b8cbc;
-            --secondary: #166088;
+            --primary: #ff8447;
+            --primary-light: #f4806c;
+            --secondary: #f4806c;
             --accent: #ff6347;
             --accent-light: #ff9a76;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --gray: #6c757d;
-            --light-gray: #e9ecef;
+            --light: #faf9f8;
+            --dark: #403e34;
+            --gray: #7d786c;
+            --light-gray: #efede9;
             --transition: all 0.3s ease;
             /* 干扰元素颜色 */
             --distraction-color-1: #ff0055;
@@ -34,11 +34,16 @@
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
 
+        html {
+            overflow-x: hidden;
+        }
+
         body {
-            background-color: #f5f7fb;
+            background-color: #fff2e5;
             color: var(--dark);
             line-height: 1.6;
             overflow: hidden;
+            overflow-x: hidden;
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -124,7 +129,7 @@
             opacity: 0.3;
             filter: blur(2px);
             transition: opacity 0.5s ease, filter 0.5s ease;
-            margin-top: 80px; /* 为导航栏留出空间 */
+            margin-top: 90px; /* 为导航栏留出空间 */
         }
 
             .container.active {
@@ -164,7 +169,7 @@
         }
 
         .flight-info {
-            background: #e6f0ff;
+            background: #faf9f5;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 30px;
@@ -201,6 +206,7 @@
             display: flex;
             gap: 10px;
             transition: opacity 0.3s ease;
+            position: relative;
         }
 
         input[type="text"] {
@@ -239,9 +245,9 @@
             }
 
             .btn:hover:not(:disabled) {
-                background: #3a5f95;
+                background: #e67347; /* 按钮hover状态背景色 - 深橙色 */
                 transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(74, 111, 165, 0.3);
+                box-shadow: 0 5px 15px rgba(255, 132, 71, 0.4); /* 按钮hover阴影 - 半透明橙色 */
             }
 
         /* ======= 静态干扰元素 (网页内固定干扰) ======= */
@@ -258,7 +264,7 @@
         }
 
             .static-distraction.highlighted {
-                box-shadow: 0 0 25px currentColor;
+                box-shadow: 0 0 25px rgba(255, 170, 0, 0.6);
                 transform: scale(1.05);
                 z-index: 100;
                 position: relative;
@@ -267,11 +273,11 @@
 
         @keyframes glow-pulse {
             0% {
-                box-shadow: 0 0 15px currentColor;
+                box-shadow: 0 0 15px rgba(255, 170, 0, 0.5);
             }
 
             100% {
-                box-shadow: 0 0 35px currentColor;
+                box-shadow: 0 0 35px rgba(255, 170, 0, 0.7);
             }
         }
 
@@ -346,18 +352,18 @@
         /* 类型1: 标准矩形广告 */
         .ad-type-standard {
             width: 220px;
-            background: white;
+            background: #6C71B7;
             border-radius: 8px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             padding: 15px;
         }
 
             .ad-type-standard .distraction-title {
-                color: #333;
+                color: white;
             }
 
             .ad-type-standard .distraction-content {
-                color: #666;
+                color: rgba(255,255,255,0.9);
             }
 
         /* 类型2: 横幅广告 */
@@ -388,8 +394,8 @@
 
         /* 类型3: 圆形图标广告 */
         .ad-type-circle {
-            width: 100px;
-            height: 100px;
+            width: 150px;
+            height: 150px;
             background: linear-gradient(45deg, #2193b0, #6dd5ed);
             border-radius: 50%;
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
@@ -545,13 +551,11 @@
             filter: blur(1.5px) !important;
         }
 
-        /* 输入框禁用覆盖层 */
+        /* 输入框禁用覆盖层 - 修复版 */
         .input-overlay {
             position: absolute;
-            bottom: 30px;
-            left: 30px;
-            right: calc(35% + 50px);
-            height: 60px;
+            inset: 0;
+            height: 100%;
             background: rgba(255, 255, 255, 0.95);
             z-index: 2000;
             display: flex;
@@ -586,14 +590,12 @@
         }
 
         .modal {
-            background: white;
+            background: rgb(255, 252, 248);
             border-radius: 12px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
             width: 90%;
             max-width: 700px;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 30px;
+            padding: 25px;
             position: relative;
             animation: modal-appear 0.4s ease-out;
         }
@@ -611,61 +613,61 @@
         }
 
         .modal-header {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
         }
 
         .modal-title {
             color: var(--primary);
-            font-size: 28px;
-            margin: 0 0 10px 0;
+            font-size: 26px;
+            margin: 0 0 8px 0;
         }
 
         .modal-subtitle {
             color: var(--gray);
-            font-size: 16px;
+            font-size: 15px;
             margin: 0;
         }
 
         .modal-content {
-            line-height: 1.7;
-            font-size: 17px;
+            line-height: 1.6;
+            font-size: 15px;
             color: #444;
         }
 
         .modal-warning {
             background: #fff8e6;
             border-left: 4px solid #ffaa00;
-            padding: 15px;
-            margin: 20px 0;
+            padding: 12px;
+            margin: 15px 0;
             border-radius: 0 4px 4px 0;
         }
 
         .modal-highlight {
-            color: #ff4d4d;
+            color: #ff8528;
             font-weight: bold;
         }
 
         .modal-close-btn {
-            background: linear-gradient(45deg, var(--primary), #004494);
+            background: linear-gradient(45deg,  #eacc23); /* 弹窗"开始体验"按钮渐变背景色 - 橙色到金黄色 */
             color: white;
             border: none;
-            padding: 14px 32px;
-            font-size: 18px;
+            padding: 12px 28px;
+            font-size: 17px;
             border-radius: 8px;
             cursor: pointer;
             display: block;
-            margin: 30px auto 0;
+            margin: 20px auto 0;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(74, 111, 165, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3); /* 弹窗按钮阴影 - 半透明橙色 */
             font-family: inherit;
             font-weight: 600;
         }
 
             .modal-close-btn:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(74, 111, 165, 0.4);
-                background: linear-gradient(45deg, #004494, #003377);
+                box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5); /* 弹窗按钮hover阴影 - 半透明橙色 */
+                background: linear-gradient(45deg, #ff7700, #ffc400); /* 弹窗按钮hover渐变背景色 - 深橙到亮黄 */
             }
 
         /* 覆盖层 (结果界面) */
@@ -711,13 +713,96 @@
                 min-width: 160px;
             }
 
+        /* --- 新增结果页样式 --- */
+        .result-content {
+            max-width: 640px;
+            text-align: center;
+            padding: 0px;
+        }
+
+        .result-header i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 25px 0;
+            padding: 20px;
+            background: #faf9f5;
+            border-radius: 12px;
+        }
+
+        .stat-item {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .science-note {
+            text-align: left;
+            background: #faf9f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--accent);
+        }
+
+            .science-note h3 {
+                color: var(--secondary);
+                margin-top: 0;
+                margin-bottom: 10px;
+                font-size: 1.1rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .science-note p {
+                font-size: 0.95rem;
+                line-height: 1.6;
+                color: #444;
+                margin-bottom: 8px;
+            }
+
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+            /* 按钮样式微调 */
+            .result-actions .btn {
+                padding: 15px 40px;
+                font-size: 18px;
+                border-radius: 35px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.3s ease;
+            }
         /* 科普页面按钮特殊样式 */
         .btn-science {
-            background: linear-gradient(45deg, #00aaff, #0088cc);
+            background: linear-gradient(45deg, #ff9944, #ff7722); /* "进入科普页面"按钮渐变背景色 - 橙黄到深橙 */
         }
 
             .btn-science:hover {
                 background: linear-gradient(45deg, #0088cc, #006699);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0, 136, 204, 0.3);
             }
 
         /* 再试一次按钮特殊样式 */
@@ -727,6 +812,8 @@
 
             .btn-retry:hover {
                 background: linear-gradient(45deg, #cc4400, #aa3300);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(255, 85, 0, 0.3);
             }
 
         /* 响应式设计 */
@@ -750,7 +837,8 @@
             }
 
             .input-overlay {
-                right: 30px;
+                inset: 0;
+                height: 100%;
             }
 
             .result-buttons {
@@ -783,54 +871,109 @@
     <div id="start-modal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
-                <h1 class="modal-title">感官门控失效模拟</h1>
-                <p class="modal-subtitle">体验ADHD大脑无法过滤无关感官输入的状态</p>
+                <h1 class="modal-title"> 航班改签验证</h1>
+                <p class="modal-subtitle">模拟ADHD大脑的感官门控失效体验</p>
             </div>
 
             <div class="modal-content">
-                <p><strong>任务说明：</strong></p>
-                <p>验证码现在<span class="modal-highlight">隐藏在正文中</span>。</p>
-                <p>网页右侧有<span class="modal-highlight">固定的干扰信息</span>，它们会<span class="modal-highlight">随机高亮</span>吸引注意力。</p>
-                <p>当干扰信息高亮时，主文本会<span class="modal-highlight">变得暗淡模糊</span>。</p>
-                <p>页面中会随机弹出<span class="modal-highlight">多种形式的小广告</span>。</p>
-
-                <div class="modal-warning">
-                    <strong>⚠️ 重要提示：</strong>
-                    <p>当广告高亮时，您将无法输入验证码！</p>
-                    <p>您必须<span class="modal-highlight">点击</span>高亮的干扰项或广告，才能恢复阅读清晰度和输入能力。</p>
+                <div style="background: linear-gradient(135deg, #fff9f0 0%, #fffcf8 100%); padding: 14px 16px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ff8447;">
+                    <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #403e34; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-tasks" style="color: #ff8447;"></i>
+                        <span>任务说明</span>
+                    </p>
+                    <p style="margin: 0; font-size: 15px; line-height: 1.5;">
+                        <span class="modal-highlight">请从正文中找到验证码并输入验证码</span>
+                    </p>
                 </div>
 
-                <p><small>警告：本模拟包含闪烁元素和尖锐声音，请确保佩戴耳机以获得完整体验。</small></p>
+                <div class="modal-warning" style="position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 0; right: 0; width: 60px; height: 60px; background: radial-gradient(circle, rgba(255,170,0,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
+                    <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-exclamation-triangle" style="color: #ffaa00;"></i>
+                        <span>核心机制</span>
+                    </p>
+                    <div style="padding-left: 8px; border-left: 2px solid #ffe8b3;">
+                        <p style="margin: 0 0 6px 0; line-height: 1.5;">当干扰信息<strong style="color: #ff8447;">高亮闪烁</strong>时，您的注意力会被强制吸引！</p>
+                        <p style="margin: 0 0 6px 0; line-height: 1.5;">此时主文本会变模糊，且<strong style="color: #ff6347;">无法输入验证码</strong>。</p>
+                        <p style="margin: 0; line-height: 1.5;">您必须<strong style="color: #ff8447;">点击或关闭</strong>高亮的杂念或广告，才能恢复专注。</p>
+                    </div>
+                </div>
+
+               <div style="margin-top: 15px; padding: 12px 14px; background: #fffcfa; border-radius: 8px; border: 1px solid #f0e8dc; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                    <p style="margin: 0 0 8px 0; font-size: 13px; color: #46423c; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-headphones-alt" style="color: #ff8447; font-size: 14px;"></i>
+                        <strong style="color: #403e34;">提示：</strong>
+                        <span>为获得完整体验，请佩戴耳机或开启音量</span>
+                    </p>
+                    <p style="margin: 0; font-size: 13px; color: #46423c; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-clock" style="color: #ff8447; font-size: 14px;"></i>
+                        <strong style="color: #403e34;">预估时间：</strong>
+                        <span>第一次体验约1-3分钟</span>
+                    </p>
+                </div>
 
                 <button class="modal-close-btn" onclick="startSimulation()">
-                    我准备好了 (开始体验)
+                    <i class="fas fa-plane-departure" ></i> 开始体验
                 </button>
+
+                <div style="text-align: center; margin-top: 12px;">
+                    <button onclick="showQuickGuide()" style="background: none; border: none; color: #666; text-decoration: underline; cursor: pointer; font-size: 13px;">
+                        查看快速操作指南
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="result-screen" class="overlay hidden">
-        <h2>模拟结束</h2>
-        <div>为了在干扰中找到那个简短的代码，您被迫处理了：</div>
-        <span id="distraction-count" class="stats-highlight">0</span>
-        <div>个高亮干扰项和弹出广告。</div>
-        <p style="max-width: 600px; text-align: left; margin-top: 40px; line-height: 1.6; background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
-            <strong>体验总结：</strong><br>
-            这次模拟增加了"选择性注意"和"执行控制"的认知负荷。当广告高亮时，您不仅失去了视觉清晰度，还被剥夺了输入能力，这模拟了ADHD患者在感官过载时出现的"执行功能瘫痪"现象。<br>
-            您刚才不得不停下阅读去点击干扰项的行为，完美复现了ADHD大脑为了"重启"注意力而被迫进行的中断行为。网页中固有的干扰项模拟了真实环境中的信息过载。
-        </p>
-        <div class="result-buttons">
-            <button class="btn btn-retry" onclick="location.reload()">再试一次</button>
-            <button class="btn btn-science" onclick="goToSciencePage()">进入科普页面</button>
+    <!-- 结果弹窗界面 -->
+    <div id="result-screen" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h1 class="modal-title">体验结束</h1>
+                <p class="modal-subtitle">感官门控失效模拟结果</p>
+            </div>
+
+            <div class="modal-content">
+                <div class="result-content">
+                    <div class="result-header">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="time-taken">0.0s</div>
+                            <div class="stat-label">总耗时</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="final-distraction-count">0</div>
+                            <div class="stat-label">对抗干扰次数</div>
+                        </div>
+                    </div>
+
+                    <div class="science-note">
+                        <h3><i class="fas fa-brain"></i> 症状解析：感官门控失效</h3>
+                        <p>
+                            刚才的体验模拟了ADHD患者<strong>感官门控失效</strong>的症状。
+                        </p>
+                        <p>
+                            正常的大脑拥有"门控"机制，能自动过滤背景噪音和无关视觉刺激。当这个机制失效时（Sensory Gating Failure），所有的感官输入（广告、噪音、颜色）都会以同等优先级涌入大脑，导致<strong>信息超载</strong>。简单的任务（如输入验证码）因此变得极度耗费精力且难以完成。
+                        </p>
+                    </div>
+
+                    <div class="result-actions">
+                        <button onclick="goToSciencePage()" class="btn btn-science">
+                            <i class="fas fa-book-open"></i> 查看科普
+                        </button>
+                        <button onclick="location.reload()" class="btn btn-retry">
+                            <i class="fas fa-redo"></i> 再次体验
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="container" id="main-container">
-        <!-- 输入框禁用覆盖层 -->
-        <div class="input-overlay" id="input-overlay">
-            <span>⚠️ 广告高亮中，无法输入！请先点击广告</span>
-        </div>
-
         <!-- 主要内容区 -->
         <div class="content-layer" id="main-content">
             <h1>航班改签政策确认函</h1>
@@ -847,18 +990,22 @@
                     2. <strong>费用标准：</strong> 同舱位改签收取票面价格10%作为手续费；舱位升级需补足价差并加收5%服务费；降级改签退还差价但收取15%违约金。特价机票、里程兑换票及团体票可能不适用免费改签政策。<br>
                     3. <strong>航班选择：</strong> 仅可改签到相同航线的后续航班，且目标航班需有可售座位。若原舱位已满，系统将自动推荐相邻舱位选项。
                 </p>
+                、
 
                 <h3>二、特殊情形处理</h3>
                 <p>因航空公司原因（如航班取消、时刻调整超过2小时）导致的改签，旅客可免手续费办理一次，或选择全额退票。天气、空管等不可抗力因素造成的改签，依据民航局相关规定执行，费用可协商减免但非强制性。旅客因健康原因申请改签，需提供二级甲等以上医院证明，可酌情减免50%手续费。</p>
-
                 <h3>三、确认与承诺</h3>
                 <p>本人已详细阅读并完全理解上述改签政策，自愿申请对订单号CA20240113BJSH的航班进行改签操作。确认本函验证码 <span class="hidden-code" id="target-code">07FPL6</span> 真实有效，同意遵守航空公司一切合理规定，并承担相应费用。后续所有沟通均以本确认函记载内容为准，口头承诺无效。</p>
                 <p style="margin-top: 20px; font-size: 0.9em; color: #666;">客服工号：CS240113-008 | 复核时间：2024年1月13日 14:30:22</p>
             </div>
 
             <div class="input-area">
-                <input type="text" id="captcha-input" placeholder="请输入验证码...">
+                <input type="text" id="captcha-input" placeholder="请输入验证码..." oncopy="return false" oncut="return false" onpaste="return false" oncontextmenu="return false" ondragstart="return false" onselectstart="return true">
                 <button class="btn" id="submit-btn" onclick="checkCaptcha()">提交验证</button>
+                <!-- 输入框禁用覆盖层 -->
+                <div class="input-overlay" id="input-overlay">
+                    <span>⚠️ 请先消除杂念！</span>
+                </div>
             </div>
         </div>
 
@@ -867,32 +1014,32 @@
             <h3 style="margin-top: 0; color: var(--gray);">相关推荐与通知</h3>
 
             <div class="static-distraction" id="distraction-1" data-color="#ff0055">
-                <div class="distraction-title" style="color: #ff0055;">❗ 紧急系统通知</div>
+                <div class="distraction-title">❗ 紧急系统通知</div>
                 <div class="distraction-content">您的账户安全等级较低，建议立即升级防护。检测到3次异常登录尝试，请验证身份。</div>
             </div>
 
             <div class="static-distraction" id="distraction-2" data-color="#00aaff">
-                <div class="distraction-title" style="color: #00aaff;">🔥 热门旅游推荐</div>
+                <div class="distraction-title">🔥 热门旅游推荐</div>
                 <div class="distraction-content">巴厘岛7日豪华游仅¥3999！限时特惠，包含机票酒店。剩余名额：12个。</div>
             </div>
 
             <div class="static-distraction" id="distraction-3" data-color="#ffaa00">
-                <div class="distraction-title" style="color: #ffaa00;">📧 未读消息 (3)</div>
+                <div class="distraction-title">📧 未读消息 (3)</div>
                 <div class="distraction-content">您有3条未读消息，其中1条标记为重要。来自：客服中心、促销活动、系统通知。</div>
             </div>
 
             <div class="static-distraction" id="distraction-4" data-color="#aa00ff">
-                <div class="distraction-title" style="color: #aa00ff;">🎰 小游戏推荐</div>
+                <div class="distraction-title">🎰 小游戏推荐</div>
                 <div class="distraction-content">休息一下？试试我们的旅行小游戏，有机会赢取1000里程积分！点击开始。</div>
             </div>
 
             <div class="static-distraction" id="distraction-5" data-color="#00ffaa">
-                <div class="distraction-title" style="color: #00ffaa;">📊 数据分析报告</div>
+                <div class="distraction-title">📊 数据分析报告</div>
                 <div class="distraction-content">根据您的浏览记录，我们为您推荐了5个相似目的地。78%的用户对这些推荐感兴趣。</div>
             </div>
 
             <div class="static-distraction" id="distraction-6" data-color="#ff5500">
-                <div class="distraction-title" style="color: #ff5500;">⚠️ 浏览器警告</div>
+                <div class="distraction-title">⚠️ 浏览器警告</div>
                 <div class="distraction-content">检测到您的浏览器版本较低，可能存在安全风险。建议立即更新以获得更好体验。</div>
             </div>
         </div>
@@ -902,16 +1049,18 @@
         // --- 配置状态 ---
         let state = {
             started: false,
+            startTime: 0,
             chaosLevel: 0,
             distractionsClicked: 0,
             textDimmed: false,
-            currentHighlighted: null,
+            currentHighlighted: null, // 指向侧边栏高亮元素
             popupAds: [],
             spawnRateMs: 2500,
             highlightInterval: null,
+            watchdogInterval: null, // 新增：看门狗定时器
             inputBlocked: false,
-            highlightedAds: new Set(),
-            highlightedSidebarItems: new Set(),
+            highlightedAds: new Set(),         // 记录高亮的广告ID
+            highlightedSidebarItems: new Set(), // 记录高亮的侧边栏ID
             adTimers: new Map(),
             maxAds: 6,
             baseSpawnChance: 50,
@@ -928,93 +1077,23 @@
         const mainContainer = document.getElementById('main-container');
         const startModal = document.getElementById('start-modal');
 
-        // 广告数据
+        // 广告数据 (6个广告 + 6个内心杂念)
         const popupAdsData = [
-            {
-                type: "standard",
-                title: "限时特惠！",
-                content: "机票直降50%！点击领取优惠券",
-                color: "#ff0055",
-                textColor: "#333333"
-            },
-            {
-                type: "banner",
-                title: "免费升舱机会",
-                content: "点击参与抽奖，赢取免费升舱！",
-                color: "#00aaff",
-                textColor: "#ffffff"
-            },
-            {
-                type: "circle",
-                title: "WiFi",
-                content: "免费连接",
-                color: "#ffaa00",
-                textColor: "#ffffff"
-            },
-            {
-                type: "countdown",
-                title: "秒杀特惠",
-                content: "特价机票即将售罄！",
-                color: "#aa00ff",
-                textColor: "#ffffff"
-            },
-            {
-                type: "warning",
-                title: "安全警告！",
-                content: "您的连接不安全！立即修复",
-                color: "#ff4444",
-                textColor: "#ffffff"
-            },
-            {
-                type: "notification",
-                title: "系统通知",
-                content: "您有新的航班推荐，点击查看详情",
-                color: "#4CAF50",
-                textColor: "#ffffff"
-            },
-            {
-                type: "coupon",
-                title: "专属优惠券",
-                content: "立即使用，立减200元",
-                couponCode: "FLY200",
-                color: "#ff5500",
-                textColor: "#333333"
-            },
-            {
-                type: "standard",
-                title: "新用户专享",
-                content: "注册即送200元优惠券",
-                color: "#ff5500",
-                textColor: "#333333"
-            },
-            {
-                type: "banner",
-                title: "会员专属",
-                content: "会员日全场8折，仅限今天",
-                color: "#aa00ff",
-                textColor: "#ffffff"
-            },
-            {
-                type: "circle",
-                title: "客服",
-                content: "在线咨询",
-                color: "#00aaff",
-                textColor: "#ffffff"
-            },
-            {
-                type: "warning",
-                title: "病毒警告",
-                content: "检测到可疑活动，立即扫描",
-                color: "#ff0000",
-                textColor: "#ffffff"
-            },
-            {
-                type: "notification",
-                title: "提醒",
-                content: "您的航班即将起飞，请尽快办理值机",
-                color: "#2196F3",
-                textColor: "#ffffff"
-            }
+            // ======== 广告类（前6个） ========
+            { type: "standard", title: "限时特惠！", content: "机票直降50%！点击领取优惠券", color: "#ff0055", textColor: "#333333" },
+            { type: "banner", title: "免费升舱机会", content: "点击参与抽奖，赢取免费升舱！", color: "#00aaff", textColor: "#ffffff" },
+            { type: "coupon", title: "专属优惠券", content: "立即使用，立减200元", couponCode: "FLY200", color: "#ff5500", textColor: "#333333" },
+            { type: "standard", title: "新用户专享", content: "注册即送200元优惠券", color: "#ff5500", textColor: "#333333" },
+            { type: "banner", title: "会员专属", content: "会员日全场8折，仅限今天", color: "#aa00ff", textColor: "#ffffff" },
+            { type: "notification", title: "积分清零提醒", content: "您的积分即将过期，快兑换礼品", color: "#4CAF50", textColor: "#ffffff" },
+
+            // ======== 内心杂念类（后6个） ========
+            { type: "warning", title: "完蛋了！", content: "我刚才是不是又说错话了？他们会怎么看我", color: "#666666", textColor: "#ffffff" },
+            { type: "notification", title: "怎么办！", content: "报告还没写，邮件没回，还有那个...到底是什么事来着？", color: "#9C27B0", textColor: "#ffffff" },
+            { type: "circle", title: "ε=(´ο｀*)))唉", content: "好无聊啊，必须找点刺激的事做", color: "#FF9800", textColor: "#ffffff" },
+            { type: "countdown", title: "啊？", content: "已经下午3点了？但感觉什么都没做", color: "#795548", textColor: "#ffffff" },
+            { type: "warning", title: "怎么回事", content: "那个人刚才笑了，是不是在嘲笑我？", color: "#607D8B", textColor: "#ffffff" },
+            { type: "standard", title: "嗯。。。", content: "晚饭吃什么？", color: "#424242", textColor: "#ffffff" }
         ];
 
         // Audio Context
@@ -1024,66 +1103,206 @@
         // --- 核心流程 ---
 
         function startSimulation() {
-            // 隐藏弹窗
             startModal.classList.add('hidden');
-
-            // 激活主容器，使其变清晰
             mainContainer.classList.add('active');
 
             state.started = true;
+            state.startTime = Date.now(); // <--- 新增这一行：记录开始时间戳
             initAudio();
 
             // 收集所有静态干扰元素
             for (let i = 1; i <= 6; i++) {
                 const el = document.getElementById(`distraction-${i}`);
                 distractionElements.push(el);
+                // 移除旧的监听器以防重复绑定
+                const newEl = el.cloneNode(true);
+                el.parentNode.replaceChild(newEl, el);
+                distractionElements[i - 1] = newEl; // 更新引用
 
-                // 添加点击事件
-                el.addEventListener('click', function () {
+                newEl.addEventListener('click', function () {
                     handleDistractionClick(this);
                 });
             }
 
-            // 启动干扰高亮系统
             startHighlightSystem();
-
-            // 启动弹出广告系统
             startPopupAdSystem();
-
-            // 初始化输入框状态
+            startWatchdog(); // 启动状态自愈系统
             updateInputState();
+            
+            // 禁止输入框复制功能
+            captchaInput.addEventListener('copy', function(e) {
+                e.preventDefault();
+                showTemporaryMessage('禁止复制验证码！', 'warning');
+            });
+            
+            captchaInput.addEventListener('cut', function(e) {
+                e.preventDefault();
+                showTemporaryMessage('禁止剪切验证码！', 'warning');
+            });
+            
+            captchaInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                showTemporaryMessage('禁止粘贴验证码！', 'warning');
+            });
+            
+            captchaInput.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
+            
+            // 禁止键盘快捷键（Ctrl+C, Ctrl+X, Ctrl+V）
+            captchaInput.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'x' || e.key === 'v' || e.key === 'C' || e.key === 'X' || e.key === 'V')) {
+                    e.preventDefault();
+                    showTemporaryMessage('禁止使用复制/剪切/粘贴快捷键！', 'warning');
+                }
+            });
         }
+            
 
         function stopSimulation() {
             state.started = false;
             if (audioCtx) audioCtx.close();
 
-            // 清除所有定时器
             clearInterval(state.highlightInterval);
+            clearInterval(state.watchdogInterval);
 
-            // 清除所有广告定时器
-            state.adTimers.forEach(timerId => {
-                clearTimeout(timerId);
-            });
+            state.adTimers.forEach(timerId => clearTimeout(timerId));
             state.adTimers.clear();
 
-            // 清除所有弹出广告
-            document.querySelectorAll('.popup-ad').forEach(el => {
-                el.remove();
-            });
+            document.querySelectorAll('.popup-ad').forEach(el => el.remove());
 
+            // 计算耗时
+            const endTime = Date.now();
+            const timeTaken = ((endTime - state.startTime) / 1000).toFixed(1);
+
+            // 填充数据到结果弹窗
+            document.getElementById('time-taken').innerText = timeTaken + "s";
+            document.getElementById('final-distraction-count').innerText = state.distractionsClicked;
+
+            // 显示结果弹窗
             document.getElementById('result-screen').classList.remove('hidden');
-            document.getElementById('distraction-count').innerText = state.distractionsClicked;
+        }
+
+        // 新增快速操作指南弹窗
+        function showQuickGuide() {
+            const guideModal = document.createElement('div');
+            guideModal.className = 'modal-overlay';
+            guideModal.style.zIndex = '20001';
+
+            guideModal.innerHTML = `
+            <div class="modal" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2 class="modal-title">📝 快速操作指南</h2>
+                    <p class="modal-subtitle">如何在干扰中找到验证码</p>
+                </div>
+                <div class="modal-content">
+                    <div style="display: flex; align-items: center; margin-bottom: 15px; padding: 10px; background: #f0f9ff; border-radius: 6px;">
+                        <div style="font-size: 24px; margin-right: 15px;">🔍</div>
+                        <div>
+                            <strong>第一步：寻找验证码</strong>
+                            <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">在政策文件中寻找</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; margin-bottom: 15px; padding: 10px; background: #fff8e6; border-radius: 6px;">
+                        <div style="font-size: 24px; margin-right: 15px;">🎯</div>
+                        <div>
+                            <strong>第二步：消除高亮干扰</strong>
+                            <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">当右侧信息或杂念闪烁时，必须点击它们才能继续</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; margin-bottom: 20px; padding: 10px; background: #f6ffed; border-radius: 6px;">
+                        <div style="font-size: 24px; margin-right: 15px;">⌨️</div>
+                        <div>
+                            <strong>第三步：输入并提交</strong>
+                            <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">验证码为6位大写字母数字组合</p>
+                        </div>
+                    </div>
+
+                    <button onclick="this.closest('.modal-overlay').remove()" class="btn" style="display: block; margin: 0 auto; padding: 10px 25px;">
+                        返回主界面
+                    </button>
+                </div>
+            </div>
+        `;
+
+            document.body.appendChild(guideModal);
+        }
+
+        // --- 新增：状态自愈系统 (Watchdog) ---
+        // 这是解决"无法输入"问题的核心：定期检查实际DOM与状态是否一致
+        function startWatchdog() {
+            state.watchdogInterval = setInterval(() => {
+                if (!state.started) return;
+
+                // 1. 检查DOM中实际存在的高亮元素数量
+                const domHighlightedAds = document.querySelectorAll('.popup-ad.highlighted').length;
+                const domHighlightedSidebar = document.querySelectorAll('.static-distraction.highlighted').length;
+                const totalHighlighted = domHighlightedAds + domHighlightedSidebar;
+
+                // 2. 检查是否有屏幕外的高亮广告并自动移除
+                document.querySelectorAll('.popup-ad.highlighted').forEach(ad => {
+                    const rect = ad.getBoundingClientRect();
+                    const isOutOfView = rect.right < 0 || rect.bottom < 0 || 
+                                       rect.left > window.innerWidth || 
+                                       rect.top > window.innerHeight;
+                    
+                    if (isOutOfView) {
+                        console.log("检测到屏幕外的高亮广告，自动移除:", ad.id);
+                        ad.classList.remove('highlighted');
+                        state.highlightedAds.delete(ad.id);
+                        // 直接移除这个广告
+                        removeAd(ad);
+                    }
+                });
+                
+                // 2.1 额外检查：移除所有屏幕外的广告（包括未高亮的）
+                document.querySelectorAll('.popup-ad').forEach(ad => {
+                    const rect = ad.getBoundingClientRect();
+                    const isOutOfView = rect.right < 0 || rect.bottom < 0 || 
+                                       rect.left > window.innerWidth || 
+                                       rect.top > window.innerHeight;
+                    
+                    if (isOutOfView && ad.parentNode) {
+                        console.log("检测到屏幕外的普通广告，自动移除:", ad.id);
+                        removeAd(ad);
+                    }
+                });
+
+                // 3. 如果DOM中没有高亮元素，但输入框被锁了，强制重置状态
+                if (totalHighlighted === 0 && state.inputBlocked) {
+                    console.log("检测到状态不同步，强制解锁输入框");
+                    state.highlightedAds.clear();
+                    state.highlightedSidebarItems.clear();
+                    state.currentHighlighted = null;
+                    policyText.classList.remove('dimmed');
+                    state.textDimmed = false;
+                    updateInputState();
+                }
+
+                // 4. 同步Set和DOM (防止Set中有残留ID)
+                if (state.highlightedAds.size > domHighlightedAds) {
+                    // 简单的清理策略：如果Set比DOM多，说明有僵尸ID
+                    // 遍历Set，如果找不到对应DOM，删除之
+                    for (let id of state.highlightedAds) {
+                        const el = document.getElementById(id);
+                        if (!el || !el.classList.contains('highlighted')) {
+                            state.highlightedAds.delete(id);
+                        }
+                    }
+                    updateInputState();
+                }
+            }, 500); // 每0.5秒检查一次
         }
 
         function checkCaptcha() {
-            // 如果输入被阻止，直接返回
             if (state.inputBlocked) {
                 playBlockedSound();
                 return;
             }
 
-            const input = document.getElementById('captcha-input').value;
+            const input = document.getElementById('captcha-input').value.trim(); // 增加trim
             if (input.toUpperCase() === correctCaptcha) {
                 stopSimulation();
             } else {
@@ -1091,7 +1310,6 @@
                 state.chaosLevel += 10;
                 updateVisuals();
 
-                // 验证码抖动效果
                 targetCode.style.color = "#ff4444";
                 targetCode.style.backgroundColor = "#ffe6e6";
                 targetCode.style.transform = "translateX(5px)";
@@ -1109,28 +1327,28 @@
         }
 
         function goToSciencePage() {
-            window.location.href = "kepu_1.html";
+            // 跳转到科普页面的感官门控章节
+            window.location.href = "kepu_1.html#sgf";
         }
 
         // --- 输入状态控制 ---
         function updateInputState() {
-            // 检查是否有任何高亮元素（广告或侧边栏项目）
-            const hasHighlightedElements = state.highlightedAds.size > 0 || state.highlightedSidebarItems.size > 0;
+            // 双重检查：Set中有数据 OR DOM中有高亮类名
+            const hasHighlightedElements = state.highlightedAds.size > 0 ||
+                state.highlightedSidebarItems.size > 0 ||
+                document.querySelectorAll('.highlighted').length > 0;
 
             if (hasHighlightedElements) {
-                // 输入被阻止
                 state.inputBlocked = true;
                 captchaInput.disabled = true;
                 submitBtn.disabled = true;
                 inputOverlay.classList.add('active');
 
-                captchaInput.style.borderColor = "#ff4444";
-                captchaInput.style.animation = "shake 0.5s";
-                setTimeout(() => {
-                    captchaInput.style.animation = "";
-                }, 500);
+                // 只有刚锁定时才抖动，避免频繁抖动
+                if (captchaInput.style.borderColor !== "rgb(255, 68, 68)") {
+                    captchaInput.style.borderColor = "#ff4444";
+                }
             } else {
-                // 输入恢复
                 state.inputBlocked = false;
                 captchaInput.disabled = false;
                 submitBtn.disabled = false;
@@ -1144,26 +1362,43 @@
             function highlightRandomDistraction() {
                 if (!state.started) return;
 
-                // 如果有当前高亮的元素，先取消高亮
+                // 强制清理之前的状态，防止侧边栏逻辑死锁
                 if (state.currentHighlighted) {
                     state.currentHighlighted.classList.remove('highlighted');
                     state.highlightedSidebarItems.delete(state.currentHighlighted.id);
-                    if (state.textDimmed) {
-                        policyText.classList.remove('dimmed');
-                        state.textDimmed = false;
-                    }
                 }
+                // 额外清理：确保没有残留的sidebar高亮
+                document.querySelectorAll('.static-distraction.highlighted').forEach(el => {
+                    el.classList.remove('highlighted');
+                    state.highlightedSidebarItems.delete(el.id);
+                });
 
-                // 随机选择一个干扰元素高亮
-                const randomIndex = Math.floor(Math.random() * distractionElements.length);
-                const distraction = distractionElements[randomIndex];
+                // 获取侧边栏容器
+                const sidebar = document.getElementById('distraction-sidebar');
+                if (!sidebar) return;
 
-                // 设置高亮
+                // 筛选可见的干扰元素
+                const visibleDistractions = distractionElements.filter(distraction => {
+                    const rect = distraction.getBoundingClientRect();
+                    const sidebarRect = sidebar.getBoundingClientRect();
+                    
+                    // 检查元素是否在侧边栏的可视区域内
+                    return rect.top >= sidebarRect.top && 
+                           rect.bottom <= sidebarRect.bottom && 
+                           rect.top < sidebarRect.bottom;
+                });
+
+                // 如果没有可见元素，不高亮
+                if (visibleDistractions.length === 0) return;
+
+                // 从可见元素中随机选择
+                const randomIndex = Math.floor(Math.random() * visibleDistractions.length);
+                const distraction = visibleDistractions[randomIndex];
+
                 distraction.classList.add('highlighted');
                 state.currentHighlighted = distraction;
                 state.highlightedSidebarItems.add(distraction.id);
 
-                // 使主文本暗淡
                 policyText.classList.add('dimmed');
                 state.textDimmed = true;
 
@@ -1171,13 +1406,13 @@
                 updateInputState();
             }
 
-            // 初始延迟后开始
             setTimeout(() => {
                 highlightRandomDistraction();
                 state.highlightInterval = setInterval(() => {
                     if (state.started) {
                         const highlightChance = Math.min(90, state.baseHighlightChance + (state.chaosLevel * 0.3));
-                        if (Math.random() * 100 < highlightChance) {
+                        // 检查当前是否已经有高亮，避免重叠逻辑混乱
+                        if (state.highlightedSidebarItems.size === 0 && Math.random() * 100 < highlightChance) {
                             highlightRandomDistraction();
                         }
                     }
@@ -1191,13 +1426,13 @@
             if (distractionElement.classList.contains('highlighted')) {
                 distractionElement.classList.remove('highlighted');
                 state.highlightedSidebarItems.delete(distractionElement.id);
+                state.currentHighlighted = null;
 
-                if (distractionElement === state.currentHighlighted) {
-                    state.currentHighlighted = null;
+                // 只有当没有广告高亮时，才移除文本模糊
+                if (state.highlightedAds.size === 0) {
+                    policyText.classList.remove('dimmed');
+                    state.textDimmed = false;
                 }
-
-                policyText.classList.remove('dimmed');
-                state.textDimmed = false;
 
                 state.distractionsClicked++;
                 playFeedbackSound();
@@ -1221,140 +1456,98 @@
                 ad.className = `popup-ad ad-type-${adData.type}`;
                 ad.id = adId;
 
-                // 根据广告类型获取广告尺寸
+                // 获取广告尺寸
                 let adWidth, adHeight;
                 switch (adData.type) {
-                    case 'standard':
-                        adWidth = 220;
-                        adHeight = 120;
-                        break;
-                    case 'banner':
-                        adWidth = 300;
-                        adHeight = 60;
-                        break;
-                    case 'circle':
-                        adWidth = 100;
-                        adHeight = 100;
-                        break;
-                    case 'countdown':
-                        adWidth = 180;
-                        adHeight = 130;
-                        break;
-                    case 'warning':
-                        adWidth = 250;
-                        adHeight = 120;
-                        break;
-                    case 'notification':
-                        adWidth = 260;
-                        adHeight = 140;
-                        break;
-                    case 'coupon':
-                        adWidth = 240;
-                        adHeight = 160;
-                        break;
-                    default:
-                        adWidth = 200;
-                        adHeight = 100;
+                    case 'standard': adWidth = 220; adHeight = 120; break;
+                    case 'banner': adWidth = 300; adHeight = 60; break;
+                    case 'circle': adWidth = 150; adHeight = 150; break;
+                    case 'countdown': adWidth = 180; adHeight = 130; break;
+                    case 'warning': adWidth = 250; adHeight = 120; break;
+                    case 'notification': adWidth = 260; adHeight = 140; break;
+                    case 'coupon': adWidth = 240; adHeight = 160; break;
+                    default: adWidth = 200; adHeight = 100;
                 }
 
-                // 生成广告HTML
+                // 生成广告内容
                 let adHTML = '';
                 switch (adData.type) {
                     case 'standard':
-                        adHTML = `
-                                <div class="popup-ad-close">×</div>
-                                <div class="distraction-title" style="color: ${adData.textColor};">${adData.title}</div>
-                                <div class="distraction-content" style="color: ${adData.textColor};">${adData.content}</div>
-                            `;
+                        adHTML = `<div class="popup-ad-close">×</div><div class="distraction-title" style="color: ${adData.textColor};">${adData.title}</div><div class="distraction-content" style="color: ${adData.textColor};">${adData.content}</div>`;
                         break;
                     case 'banner':
-                        adHTML = `
-                                <div class="popup-ad-close">×</div>
-                                <div style="font-size: 16px; font-weight: bold; color: ${adData.textColor};">${adData.title}</div>
-                                <div style="font-size: 12px; color: ${adData.textColor};">${adData.content}</div>
-                            `;
+                        adHTML = `<div class="popup-ad-close">×</div><div style="font-size: 16px; font-weight: bold; color: ${adData.textColor};">${adData.title}</div><div style="font-size: 12px; color: ${adData.textColor};">${adData.content}</div>`;
                         break;
                     case 'circle':
-                        adHTML = `
-                                <div class="popup-ad-close">×</div>
-                                <div style="font-size: 18px; margin-bottom: 5px; color: ${adData.textColor};">${adData.title}</div>
-                                <div style="font-size: 12px; color: ${adData.textColor};">${adData.content}</div>
-                            `;
+                        adHTML = `<div class="popup-ad-close">×</div><div style="font-size: 18px; margin-bottom: 5px; color: ${adData.textColor};">${adData.title}</div><div style="font-size: 12px; color: ${adData.textColor};">${adData.content}</div>`;
                         break;
                     case 'countdown':
-                        adHTML = `
-                                <div class="popup-ad-close">×</div>
-                                <div class="distraction-title" style="color: ${adData.textColor};">${adData.title}</div>
-                                <div class="distraction-content" style="color: ${adData.textColor};">${adData.content}</div>
-                            `;
+                        adHTML = `<div class="popup-ad-close">×</div><div class="distraction-title" style="color: ${adData.textColor};">${adData.title}</div><div class="distraction-content" style="color: ${adData.textColor};">${adData.content}</div>`;
                         break;
                     case 'warning':
-                        adHTML = `
-                                <div class="popup-ad-close">×</div>
-                                <div style="font-size: 18px; margin-bottom: 10px; color: ${adData.textColor};">⚠️ ${adData.title}</div>
-                                <div style="color: ${adData.textColor};">${adData.content}</div>
-                            `;
+                        adHTML = `<div class="popup-ad-close">×</div><div style="font-size: 18px; margin-bottom: 10px; color: ${adData.textColor};">⚠️ ${adData.title}</div><div style="color: ${adData.textColor};">${adData.content}</div>`;
                         break;
                     case 'notification':
-                        adHTML = `
-                                <div class="popup-ad-close">×</div>
-                                <div class="notification-icon">🔔</div>
-                                <div class="distraction-title" style="color: ${adData.textColor};">${adData.title}</div>
-                                <div class="distraction-content" style="color: ${adData.textColor};">${adData.content}</div>
-                            `;
+                        adHTML = `<div class="popup-ad-close">×</div><div class="notification-icon">🔔</div><div class="distraction-title" style="color: ${adData.textColor};">${adData.title}</div><div class="distraction-content" style="color: ${adData.textColor};">${adData.content}</div>`;
                         break;
                     case 'coupon':
-                        adHTML = `
-                                <div class="popup-ad-close">×</div>
-                                <div class="distraction-title" style="color: ${adData.textColor};">${adData.title}</div>
-                                <div class="coupon-code">${adData.couponCode || "CODE2024"}</div>
-                                <div class="distraction-content" style="color: ${adData.textColor};">${adData.content}</div>
-                            `;
+                        adHTML = `<div class="popup-ad-close">×</div><div class="distraction-title" style="color: ${adData.textColor};">${adData.title}</div><div class="coupon-code">${adData.couponCode || "CODE2024"}</div><div class="distraction-content" style="color: ${adData.textColor};">${adData.content}</div>`;
                         break;
-                }
-
-                // 确保广告内容不为空
-                if (!adData.title || !adData.content) {
-                    console.warn('广告数据不完整:', adData);
-                    adData.title = adData.title || "默认标题";
-                    adData.content = adData.content || "默认内容";
                 }
 
                 ad.innerHTML = adHTML;
                 ad.style.borderColor = adData.color;
 
-                // 计算广告位置 - 确保在可视区域内
+                // 获取主容器的位置和大小
+                const containerRect = mainContainer.getBoundingClientRect();
+
+                // 在主容器内随机生成位置，并留出边距
+                const minX = 10;
+                const minY = 10;
+                const maxX = Math.max(0, containerRect.width - adWidth - 10);
+                const maxY = Math.max(0, containerRect.height - adHeight - 10);
+
+                // 如果主容器内没有足够空间，则不生成广告
+                if (maxX < minX || maxY < minY) return;
+
+                // 生成相对主容器的随机位置（修复：使用正确的随机公式）
+                const randomX = minX + Math.floor(Math.random() * Math.max(1, maxX - minX));
+                const randomY = minY + Math.floor(Math.random() * Math.max(1, maxY - minY));
+
+                // 转换为绝对位置（相对于页面）
+                let absoluteX = containerRect.left + randomX;
+                let absoluteY = containerRect.top + randomY;
+                
+                // 额外安全检查：确保广告在视口内
                 const viewportWidth = window.innerWidth;
                 const viewportHeight = window.innerHeight;
+                absoluteX = Math.max(10, Math.min(absoluteX, viewportWidth - adWidth - 10));
+                absoluteY = Math.max(10, Math.min(absoluteY, viewportHeight - adHeight - 10));
 
-                // 计算最大可用位置，确保广告完全在视窗内
-                const maxX = Math.max(0, viewportWidth - adWidth - 20);
-                const maxY = Math.max(0, viewportHeight - adHeight - 20);
-
-                // 如果视窗太小，无法容纳广告，则调整广告尺寸或跳过
-                if (maxX < 20 || maxY < 20) {
-                    console.warn('视窗太小，无法容纳广告，跳过生成');
-                    return;
-                }
-
-                // 生成随机位置，确保在可视区域内
-                const randomX = Math.max(20, Math.min(maxX, Math.floor(Math.random() * maxX)));
-                const randomY = Math.max(20, Math.min(maxY, Math.floor(Math.random() * maxY)));
-
-                ad.style.left = `${randomX}px`;
-                ad.style.top = `${randomY}px`;
+                ad.style.left = `${absoluteX}px`;
+                ad.style.top = `${absoluteY}px`;
+                ad.style.position = 'fixed'; // 确保使用固定定位
 
                 document.body.appendChild(ad);
-                state.popupAds.push(ad);
-
-                // 激活广告
+                
+                // 添加后立即检查实际位置是否在视口内
                 setTimeout(() => {
-                    if (ad.parentNode) {
-                        ad.classList.add('active');
+                    const rect = ad.getBoundingClientRect();
+                    const isOutOfView = rect.right < 0 || rect.bottom < 0 || 
+                                       rect.left > window.innerWidth || 
+                                       rect.top > window.innerHeight;
+                    
+                    if (isOutOfView) {
+                        console.warn("广告生成在屏幕外，自动移除");
+                        ad.remove();
+                        return;
                     }
+                    
+                    state.popupAds.push(ad);
+                    ad.classList.add('active');
                 }, 100);
 
-                // 设置关闭按钮事件
+                // 关闭按钮事件
                 const closeBtn = ad.querySelector('.popup-ad-close');
                 if (closeBtn) {
                     closeBtn.addEventListener('click', function (e) {
@@ -1363,12 +1556,12 @@
                     });
                 }
 
-                // 设置广告点击事件
+                // 点击广告事件
                 ad.addEventListener('click', function () {
                     handleAdClick(ad);
                 });
 
-                // 随机高亮广告
+                // 随机高亮
                 const highlightDelay = 800 + Math.random() * 1200;
                 const highlightTimer = setTimeout(() => {
                     if (state.started && ad.parentNode) {
@@ -1378,17 +1571,15 @@
                         }
                     }
                 }, highlightDelay);
-
                 state.adTimers.set(adId + '-highlight', highlightTimer);
 
-                // 自动移除广告
+                // 自动移除
                 const autoRemoveTime = 6000 + Math.random() * 4000;
                 const removeTimer = setTimeout(() => {
-                    if (ad.parentNode && !state.highlightedAds.has(adId)) {
+                    if (ad.parentNode) {
                         removeAd(ad);
                     }
                 }, autoRemoveTime);
-
                 state.adTimers.set(adId + '-remove', removeTimer);
 
                 return adId;
@@ -1406,7 +1597,6 @@
                 setTimeout(scheduleNextPopupAd, nextInterval);
             }
 
-            // 初始广告
             setTimeout(() => {
                 spawnPopupAd();
                 setTimeout(() => spawnPopupAd(), 800);
@@ -1421,7 +1611,6 @@
             state.highlightedAds.add(adElement.id);
 
             policyText.classList.add('dimmed');
-            policyText.style.opacity = "0.2";
 
             playHighlightSound();
             updateInputState();
@@ -1432,10 +1621,13 @@
 
             if (adElement.classList.contains('highlighted')) {
                 adElement.classList.remove('highlighted');
+                // 立即从Set中移除，防止并发问题
                 state.highlightedAds.delete(adElement.id);
 
-                policyText.classList.remove('dimmed');
-                policyText.style.opacity = "";
+                // 检查是否还有其他干扰，如果没有则恢复文本
+                if (state.highlightedSidebarItems.size === 0 && state.highlightedAds.size === 0) {
+                    policyText.classList.remove('dimmed');
+                }
 
                 state.distractionsClicked++;
                 playFeedbackSound();
@@ -1445,40 +1637,43 @@
                 updateVisuals();
             }
 
-            // 移除广告
             setTimeout(() => {
                 removeAd(adElement);
             }, 300);
         }
 
+        // --- 修复后的 removeAd (关键逻辑) ---
         function removeAd(adElement) {
             if (!adElement || !adElement.parentNode) return;
 
             const adId = adElement.id;
 
-            // 如果广告是高亮的，从高亮集合中移除
-            if (adElement.classList.contains('highlighted')) {
-                adElement.classList.remove('highlighted');
+            // 【关键修复】：无条件从高亮集合中移除ID，无论它当前有没有class
+            // 这防止了"DOM中没有高亮样式了，但Set里还留着ID"的情况
+            if (state.highlightedAds.has(adId)) {
                 state.highlightedAds.delete(adId);
-
-                policyText.classList.remove('dimmed');
-                policyText.style.opacity = "";
             }
 
-            // 更新输入状态
+            // 确保如果有高亮样式，也移除它（视觉上）
+            if (adElement.classList.contains('highlighted')) {
+                adElement.classList.remove('highlighted');
+            }
+
+            // 如果没有其他高亮了，恢复文本
+            if (state.highlightedAds.size === 0 && state.highlightedSidebarItems.size === 0) {
+                policyText.classList.remove('dimmed');
+            }
+
             updateInputState();
 
-            // 移除广告元素
             adElement.classList.remove('active');
             setTimeout(() => {
                 if (adElement.parentNode) {
                     adElement.remove();
 
-                    // 从数组中移除
                     const index = state.popupAds.indexOf(adElement);
                     if (index > -1) state.popupAds.splice(index, 1);
 
-                    // 清理定时器
                     ['-highlight', '-remove'].forEach(suffix => {
                         const timerKey = adId + suffix;
                         const timerId = state.adTimers.get(timerKey);
@@ -1496,7 +1691,6 @@
             if (whiteNoiseGain) {
                 whiteNoiseGain.gain.setTargetAtTime(0.02 + (state.chaosLevel / 2000), audioCtx.currentTime, 0.5);
             }
-
             state.spawnRateMs = Math.max(1200, 2500 - (state.chaosLevel * 25));
         }
 
@@ -1505,7 +1699,6 @@
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             audioCtx = new AudioContext();
 
-            // 背景白噪音
             const bufferSize = 2 * audioCtx.sampleRate;
             const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const output = noiseBuffer.getChannelData(0);
@@ -1563,12 +1756,12 @@
         // 添加抖动动画
         const style = document.createElement('style');
         style.textContent = `
-                @keyframes shake {
-                    0%, 100% { transform: translateX(0); }
-                    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-                    20%, 40%, 60%, 80% { transform: translateX(5px); }
-                }
-            `;
+                            @keyframes shake {
+                                0%, 100% { transform: translateX(0); }
+                                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                                20%, 40%, 60%, 80% { transform: translateX(5px); }
+                            }
+                        `;
         document.head.appendChild(style);
     </script>
 </body>

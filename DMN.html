@@ -4,71 +4,313 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ADHD 模拟器 - 深度解析完成版</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    html, body { margin:0; padding:0; height:100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:#f3f4f6; overflow:hidden; }
-    .center-container{ width:100%; height:100%; display:flex; justify-content:center; align-items:center; }
-    
+    /* ========== 主题色变量（蓝色） ========== */
+    :root{
+      --primary: #3a80e8;
+      --primary-600: #3a81ec;
+      --primary-700: #3981ec;
+      --primary-soft: #eff6ff;
+      --primary-border: #bfdbfe;
+    }
+
+    /* ========== 顶部固定导航栏 ========== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background-color: white;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+      z-index: 10000;
+      padding: 0 20px;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      color: var(--primary);
+      font-size: 28px;
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .logo-subtitle {
+      font-size: 14px;
+      color: #6c757d;
+      margin-top: -5px;
+    }
+
+    /* 返回首页按钮（改为蓝色主题） */
+    .cta-button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .cta-button:hover {
+      background-color: var(--primary-600);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    /* ========== 页面基础布局 ========== */
+    html, body {
+      margin:0;
+      padding:0;
+      height:100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background:#ecf3ff;
+      overflow:hidden;
+    }
+
+    /* 让主卡片占据更多可用空间，避免上下拥挤 */
+    .center-container{
+      width:100%;
+      height:100%;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding-top: 86px; /* 与顶部导航条留出稳定间距 */
+      box-sizing: border-box;
+    }
+
+    /* ========== 主任务卡片 ========== */
     .task-card{
-      background:#fff; padding:24px; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.05);
-      max-width: 980px; width:min(980px, calc(100vw - 24px)); text-align:center; position:relative;
-      overflow: hidden; 
-      display: flex; flex-direction: column;
+      background:#fff;
+      padding:24px 32px;
+      border-radius:16px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.05);
+
+      /* 布局比例优化：卡片略宽、内部改为 flex 列布局，编辑区自适应撑满剩余高度 */
+      max-width: 1100px;
+      width: min(1100px, calc(100vw - 48px));
+      text-align:center;
+      position:relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      max-height: calc(100vh - 130px);
     }
 
-    .topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; }
+    /* ========== 卡片顶部标题栏 ========== */
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      margin-bottom: 2px;
+      gap: 16px;
+      flex: 0 0 auto;
+    }
+
     .topbar-left { text-align: left; }
-    .topbar h1{ margin:0; font-size:20px; color:#111827; }
-    .topbar p{ margin:4px 0 0; font-size:13px; color:#6b7280; }
-    
-    .btn-group { display: flex; gap: 10px; }
-    .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; transition: transform 0.1s; text-decoration: none; display: inline-flex; justify-content: center; align-items: center; }
+
+    .topbar h1{ margin:0; font-size:28px; color:var(--primary); }
+
+    .topbar p{
+      margin:6px 0 0;
+      font-size:16px;
+      color:#6b7280;
+      line-height: 1.4;
+    }
+
+    /* ========== 按钮组 ========== */
+    .btn-group { display: flex; gap: 12px; flex: 0 0 auto; }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: transform 0.1s;
+      text-decoration: none;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      white-space: nowrap;
+    }
+
     .btn:active { transform: scale(0.96); }
-    .btn-primary { background: #111827; color: white; }
+
+    /* 蓝色主按钮（发送邮件） */
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-600); }
+
     .btn-reset { background: #f3f4f6; color: #4b5563; }
-    
-    .btn-science { 
-      background: #059669; color: white; width: 100%; margin-top: 12px; padding: 12px; font-size: 16px;
-      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+
+    .btn-science {
+      background: var(--primary);
+      color: white;
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18);
     }
-    .btn-science:hover { background: #047857; box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3); }
 
-    .require-box{ text-align:left; background:#f9fafb; border:1px solid #e5e7eb; border-radius:14px; padding:15px; margin: 15px 0; }
-    .task-desc { color: #374151; font-size: 14px; line-height: 1.6; margin-bottom: 8px; font-weight: 500; }
-    .highlight { color: #b91c1c; background: #fef2f2; padding: 0 4px; border-radius: 4px; }
-    
-    .task-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 8px; }
-    .progress-pill{ background:#fff; border:1px solid #e5e7eb; padding:2px 8px; border-radius:4px; transition: all 0.3s; }
-    .progress-pill.done { color: #059669; border-color: #059669; background: #ecfdf5; font-weight: bold; }
+    .btn-science:hover {
+      background: var(--primary-600);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.24);
+    }
 
+    /* ========== 任务要求框 ========== */
+    .require-box{
+      text-align:left;
+      background:#ffffff;
+      border:1px solid #e1ebff;
+      border-radius:14px;
+      padding:16px 18px;
+
+      /* 比例优化：减少不必要的外边距，交给 task-card 的 gap 控制间距 */
+      margin: 0;
+      flex: 0 0 auto;
+    }
+
+    .task-desc { color: #374151; font-size: 16px; line-height: 1.6; margin-bottom: 10px; font-weight: 500; }
+
+    /* 高亮标记：改为蓝色主题，通过增大字号强调 */
+    .highlight {
+      color: var(--primary-700);
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .task-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #6b7280;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+
+    .progress-pill{
+      background:#fff;
+      border:1px solid #e5e7eb;
+      padding:4px 10px;
+      border-radius:4px;
+      transition: all 0.3s;
+    }
+
+    .progress-pill.done {
+      color: var(--primary);
+      border-color: var(--primary-border);
+      background: var(--primary-soft);
+      font-weight: bold;
+    }
+
+    /* ========== 文本编辑器 ========== */
     .editor{
-      width:100%; height: 400px; padding:16px; border-radius:12px; border:1px solid #d1d5db;
-      background:#fff; text-align:left; outline:none; line-height:1.7; font-size:16px;
-      overflow-y:auto; position:relative; box-sizing: border-box; z-index: 10;
-    }
-    .editor.locked { border-color: #ef4444; background: #fff5f5; animation: editorPulse 2s infinite; }
-    @keyframes editorPulse { 0%, 100% { box-shadow: 0 0 0px rgba(239, 68, 68, 0.2); } 50% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); } }
+      width:100%;
+      /* 比例优化：编辑器自适应占据剩余空间，不再固定 300px */
+      flex: 1 1 auto;
+      min-height: 260px;
 
-    .editor.is-empty::before{ content: attr(data-placeholder); color:#9ca3af; pointer-events:none; position: absolute; }
+      padding:16px;
+      border-radius:12px;
+      border:1px solid #d1d5db;
+      background:#f3f7ff;
+      text-align:left;
+      outline:none;
+      line-height:1.7;
+      font-size:18px;
+      overflow-y:auto;
+      position:relative;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+
+    .editor.locked { border-color: var(--primary); background: #eff6ff; animation: editorPulse 2s infinite; }
+
+    @keyframes editorPulse {
+      0%, 100% { box-shadow: 0 0 0px rgba(37, 99, 235, 0.2); }
+      50% { box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
+    }
+
+    .editor.is-empty::before{
+      content: attr(data-placeholder);
+      color:#9ca3af;
+      pointer-events:none;
+      position: absolute;
+    }
+
     .dmn-span{ color: #a1a1aa; font-style: italic; letter-spacing: 0.5px; }
 
+    /* ========== 底部导航栏 ========== */
     .bottom-nav {
-      margin-top: 20px; padding-top: 15px; border-top: 1px solid #f3f4f6;
-      display: flex; justify-content: flex-start; align-items: center;
+      margin-top: 0;
+      padding-top: 8px;
+      border-top: 1px solid #f3f4f6;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      flex: 0 0 auto;
     }
+
     .nav-link {
-      text-decoration: none; color: #9ca3af; font-size: 13px; display: flex; align-items: center; gap: 6px; transition: all 0.2s; padding: 6px 10px; border-radius: 6px;
+      text-decoration: none;
+      color: #9ca3af;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      padding: 8px 12px;
+      border-radius: 6px;
     }
+
     .nav-link:hover { background: #f3f4f6; color: #4b5563; }
 
+    /* ========== 侧边杂念弹窗 ========== */
     .side-pop{
-      position:absolute; width: 240px; padding: 12px 16px; border-radius: 12px;
-      background: rgba(255,255,255,0.95); border: 1px solid #e5e7eb;
+      position:absolute;
+      width: 240px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.95);
+      border: 1px solid #e5e7eb;
       box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-      color: #6b7280; font-size: 13px; pointer-events:none; z-index: 20;
-      text-align: left; line-height: 1.5;
+      color: #6b7280;
+      font-size: 13px;
+      pointer-events:none;
+      z-index: 20;
+      text-align: left;
+      line-height: 1.5;
       backdrop-filter: blur(4px);
       animation: popInOut 5s ease-in-out forwards;
     }
+
     @keyframes popInOut{
       0% { opacity:0; transform:translateY(15px) scale(0.95); }
       10% { opacity:1; transform:translateY(0) scale(1); }
@@ -76,80 +318,217 @@
       100% { opacity:0; transform:translateY(-15px) scale(0.95); }
     }
 
+    /* ========== GIF劫持全屏遮罩层 ========== */
     .meme-overlay{
-      position:fixed; inset:0; background:rgba(0,0,0,0.95);
-      display:none; justify-content:center; align-items:center; z-index:100; flex-direction:column;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.95);
+      display:none;
+      justify-content:center;
+      align-items:center;
+      z-index:100;
+      flex-direction:column;
     }
+
     @keyframes zoomIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     @keyframes glitch { 0% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 80% { transform: translate(2px, -2px); } 100% { transform: translate(0); } }
-    
-    .meme-overlay.active .meme-content { 
-      animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-      width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;
+
+    .meme-overlay.active .meme-content {
+      animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
+
     .meme-overlay.active img { animation: glitch 0.3s infinite; }
-    
-    .meme-overlay img { 
-      max-width: 90vw; max-height: 80vh; 
-      object-fit: contain; border-radius:12px; border: 4px solid #fff; 
-      box-shadow: 0 0 50px rgba(255,255,255,0.3); margin-bottom: 20px;
+
+    .meme-overlay img {
+      max-width: 90vw;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius:12px;
+      border: 4px solid #fff;
+      box-shadow: 0 0 50px rgba(255,255,255,0.3);
+      margin-bottom: 20px;
     }
-    .meme-hint{ color:#fff; margin-bottom:15px; text-align:center; font-size: 24px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+
+    .meme-hint{
+      color:#fff;
+      margin-bottom:15px;
+      text-align:center;
+      font-size: 24px;
+      font-weight: bold;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    }
 
     .btn-restore {
-      background: #ef4444; color: white; border: none; padding: 14px 40px; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); transition: transform 0.1s, box-shadow 0.1s; z-index: 101;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 40px;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(37, 99, 235, 0.35);
+      transition: transform 0.1s, box-shadow 0.1s;
+      z-index: 101;
     }
-    .btn-restore:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(239, 68, 68, 0.8); }
-    .btn-restore:active { transform: scale(0.95); }
 
-    /* 结算弹窗 */
-    .success-overlay {
-      position:fixed; inset:0; background:rgba(255,255,255,0.1); backdrop-filter: blur(8px);
-      display:none; justify-content:center; align-items:center; z-index: 200;
+    .btn-restore:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(37, 99, 235, 0.55);
+      background: var(--primary-600);
     }
+    .btn-restore:active {
+      transform: scale(0.95);
+      background: var(--primary-700);
+    }
+
+    /* ========== 任务完成结算弹窗 ========== */
+    .success-overlay {
+      position:fixed;
+      inset:0;
+      background:rgba(255,255,255,0.1);
+      backdrop-filter: blur(8px);
+      display:none;
+      justify-content:center;
+      align-items:center;
+      z-index: 200;
+    }
+
     .result-card {
-      background: #fff; width: 600px;
-      max-width: 90vw; max-height: 90vh; overflow-y: auto;
-      padding: 30px; border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2); text-align: center;
+      background: #fff;
+      width: 600px;
+      max-width: 90vw;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      text-align: center;
       animation: cardUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       border: 1px solid #e5e7eb;
+      margin-top: 11vh;
     }
+
     @keyframes cardUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    
+
     .result-icon { font-size: 48px; margin-bottom: 10px; display:block; }
     .result-title { font-size: 24px; font-weight: bold; margin-bottom: 5px; color: #111827; }
     .result-desc { color: #6b7280; font-size: 14px; margin-bottom: 25px; }
-    
+
     .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 25px; }
     .stat-item { background: #f9fafb; padding: 10px; border-radius: 12px; border: 1px solid #f3f4f6; }
     .stat-val { display: block; font-size: 18px; font-weight: bold; color: #111827; }
     .stat-label { font-size: 11px; color: #9ca3af; }
 
-    /* 体验解码区域 */
+    /* ========== 体验解码科普区域 ========== */
     .debrief-box {
         text-align: left;
-        background: #f0fdf4;
+        background: #f6f9ff;
         border: 1px solid #dcfce7;
         border-radius: 12px;
         padding: 20px;
         margin-bottom: 25px;
     }
+
     .debrief-title { font-size: 15px; font-weight: bold; color: #166534; margin-bottom: 12px; border-bottom: 1px solid #bbf7d0; padding-bottom: 8px; }
     .debrief-item { margin-bottom: 10px; font-size: 13px; color: #374151; line-height: 1.5; display: flex; gap: 8px; }
     .debrief-item:last-child { margin-bottom: 0; }
     .debrief-icon { font-size: 16px; min-width: 20px; }
     .debrief-bold { font-weight: 600; color: #111827; }
 
-    .toast{
-      position:fixed; left:50%; bottom: 20%; transform:translateX(-50%);
-      background: rgba(220, 38, 38, 0.95); color: #fff; padding: 16px 32px; border-radius: 50px; font-size: 18px; font-weight: 600; box-shadow: 0 10px 25px rgba(220, 38, 38, 0.4); opacity: 0; transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 200; pointer-events: none; white-space: nowrap;
+    /* ========== 底部按钮区域 ========== */
+    .result-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 30px;
     }
+
+    .btn-result {
+      padding: 15px 40px;
+      border-radius: 35px;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-science-result {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-science-result:hover {
+      background: var(--primary-600);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-retry-result {
+      background: #f3f4f6;
+      color: #4b5563;
+    }
+
+    .btn-retry-result:hover {
+      background: #e5e7eb;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ========== 底部提示Toast ========== */
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom: 20%;
+      transform:translateX(-50%);
+      background: rgba(37, 99, 235, 0.95);
+      color: #fff;
+      padding: 16px 32px;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+      opacity: 0;
+      transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 200;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
     .toast.show{ opacity:1; transform:translateX(-50%) translateY(-10px); }
-    .debug{ position:absolute; bottom:55px; right:20px; font-size:11px; color:#9ca3af; }
   </style>
 </head>
 <body>
+
+<!-- 头部导航 -->
+    <div class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div>
+                    <div class="logo-text">认知之窗</div>
+                    <div class="logo-subtitle">ADHD科普体验平台</div>
+                </div>
+            </div>
+            <a href="index.html" class="cta-button">
+                <i class="fas fa-home"></i> 返回首页
+            </a>
+        </div>
+    </div>
 
 <div class="center-container">
   <div class="task-card" id="taskCard">
@@ -166,7 +545,7 @@
 
     <div class="require-box">
       <div class="task-desc">
-        任务：给领导写一封邮件，解释<b>数据核对未完成</b>以及<b>周报迟交</b>的原因，并<span class="highlight">明确告知六点前补交</span>。<br>
+        任务：给领导写一封邮件，解释<span class="highlight">周报迟交</span>的原因：<span class="highlight">数据核对未完成</span>，并<span class="highlight">明确告知六点前补交</span>。<br>
         要求：语义通顺，态度诚恳，内容完整。
       </div>
       <div class="task-meta">
@@ -176,20 +555,12 @@
     </div>
 
     <div id="editor" class="editor is-empty" contenteditable="true" spellcheck="false" data-placeholder="尊敬的领导，非常抱歉..."></div>
-    
-    <div class="bottom-nav">
-        <a href="index.html" class="nav-link">
-            <span>←</span> 返回主界面
-        </a>
-    </div>
-
-    <div class="debug" id="debug"></div>
   </div>
 </div>
 
 <div class="meme-overlay" id="memeOverlay">
   <div class="meme-content">
-    <div class="meme-hint">⚠ 思维已过载 ⚠</div>
+    <div class="meme-hint">⚠ 思维被打断 ⚠</div>
     <img src="meme.gif" alt="Focus Hijack">
     <button class="btn-restore" id="closeHijackBtn">强制重启大脑</button>
   </div>
@@ -200,7 +571,7 @@
     <span class="result-icon">🎉</span>
     <div class="result-title">邮件发送成功！</div>
     <div class="result-desc">你成功克服了拖延与焦虑，但刚才的体验并非游戏。</div>
-    
+
     <div class="stats-grid">
       <div class="stat-item">
         <span class="stat-val" id="statTime">0s</span>
@@ -222,11 +593,11 @@
 
     <div class="debrief-box">
         <div class="debrief-title">🔬 刚才发生了什么？体验背后的神经科学：</div>
-        
+
         <div class="debrief-item">
             <span class="debrief-icon">👻</span>
             <div>
-                <span class="debrief-bold">自动生成的灰字 (思维阻断)：</span> 
+                <span class="debrief-bold">自动生成的灰字 (思维阻断)：</span>
                 模拟 <b>DMN（默认模式网络）过度活跃</b>。即便你想专注，大脑也会不断产生杂念、自我质疑（"这样写对吗？"）和无关联想，干扰你的思考流。
             </div>
         </div>
@@ -234,7 +605,7 @@
         <div class="debrief-item">
             <span class="debrief-icon">🐈</span>
             <div>
-                <span class="debrief-bold">强制全屏动图 (GIF劫持)：</span> 
+                <span class="debrief-bold">强制全屏动图 (GIF劫持)：</span>
                 模拟 <b>多巴胺匮乏导致的前额叶“死机”</b>。当认知疲劳达到极限，大脑会强制切断任务连接，寻找高刺激源（如刷手机、发呆），也就是俗称的“断片”。
             </div>
         </div>
@@ -242,18 +613,19 @@
         <div class="debrief-item">
             <span class="debrief-icon">🛑</span>
             <div>
-                <span class="debrief-bold">删不掉的错字/阻力：</span> 
+                <span class="debrief-bold">删不掉的错字/阻力：</span>
                 模拟 <b>执行功能障碍</b>。这是典型的<b>“意向-行动断裂”</b>。大脑清楚地发出了指令，但身体却像“鬼压床”一样无法响应。简单的纠错动作，在神经回路中遭遇了巨大的<b>认知摩擦</b>，变得寸步难行。
             </div>
         </div>
     </div>
 
-    <div style="display:flex; flex-direction:column; gap:8px;">
-        <a href="index.html#adhd" class="btn btn-science" style="text-decoration: none;">
-            🎓 了解更多：ADHD 的脑科学原理 →
+    <div class="result-actions">
+        <a href="kepu_1.html#dmn" class="btn-result btn-science-result">
+            <i class="fas fa-graduation-cap"></i> 查看科普
         </a>
-        
-        <button class="btn btn-reset" style="width:100%" onclick="location.reload()">再试一次</button>
+        <button class="btn-result btn-retry-result" onclick="location.reload()">
+            <i class="fas fa-redo"></i> 重新体验
+        </button>
     </div>
   </div>
 </div>
@@ -265,38 +637,61 @@
   const STATS = { startTime: Date.now(), deleteCount: 0, distractionCount: 0, hijackCount: 0 };
 
   const THEME_POOLS = {
-    etiquette: { 
+    etiquette: {
       label: "社交礼仪",
-      keywords: /(您|领导|经理|老师|抱歉|不好意思|辛苦)/, 
-      texts: ["…语气会不会太卑微了？","…要不要先问候一下他家里的猫？","…他现在肯定在生气。","…这句话读起来有点生硬。"] 
+      keywords: /(您|领导|经理|老师|抱歉|不好意思|辛苦)/,
+      texts: [
+        "…语气会不会太卑微了？万一他觉得我态度不端正怎么办？",
+        "…要不要先问候一下？上次他说养了猫，应该关心一下吗？",
+        "…他现在肯定在生气。我应该在开头就道歉还是先解释原因再道歉？",
+        "…这句话读起来有点生硬。要不要加个'诚挚地'显得真诚一点？"
+      ]
     },
-    logic: { 
+    logic: {
       label: "逻辑漏洞",
-      keywords: /(因为|导致|所以|目前|但是|然而|由于)/, 
-      texts: ["…这逻辑狗屁不通，他一眼就能看穿。","…主体已完成？哪部分是主体？","…万一他问我具体的进度怎么办？"] 
+      keywords: /(因为|导致|所以|目前|但是|然而|由于)/,
+      texts: [
+        "…这逻辑根本说不通吧？他一眼就能看穿这只是借口而已。",
+        "…主体到底是什么？我自己都没搞清楚，万一他追问怎么办？",
+        "…要不要准备个具体进度？说'大部分完成'会不会太含糊了？"
+      ]
     },
-    data_panic: { 
+    data_panic: {
       label: "数据恐慌",
-      keywords: /(数据|核对|锁定|准确|源|检查|对账)/, 
-      texts: ["…锁定后就不能改了，万一有错怎么办？","…我是不是漏算了一个Sheet？","…那个VLOOKUP公式好像没拉到底。"] 
+      keywords: /(数据|核对|锁定|准确|源|检查|对账)/,
+      texts: [
+        "…锁定后就不能改了。要不要再检查一遍销售额？万一错了…",
+        "…那个表格是三个Sheet还是四个？我怎么记不清了，要不要确认？",
+        "…VLOOKUP公式拉到底了吗？最后几行是空的还是我忘了填充？"
+      ]
     },
-    time_panic: { 
+    time_panic: {
       label: "时间恐慌",
-      keywords: /(时间|六点|补交|预计|迟|晚|18:00)/, 
-      texts: ["…六点会不会太晚了？要不要拼一下五点半？","…这时候发邮件，他会不会已经下班了？","…万一六点我也交不出呢？"] 
+      keywords: /(时间|六点|预计|迟|晚|18:00)/,
+      texts: [
+        "…六点会不会时间不够？现在都四点半了，要不要改成'今晚前'？",
+        "…这时候发他会看到吗？万一下班了，明天才回复怎么办？",
+        "…万一六点也交不出呢？是不是应该说'尽量六点前'留点余地？"
+      ]
     },
     general: {
       label: "杂念",
-      keywords: /.*/, 
-      texts: ["…好饿，想吃火锅。","…刚才那个红点还没消，好难受。","…我是不是不适合这份工作？","…手机刚才是不是震了一下？","…窗外这只鸟叫得真大声。"]
+      keywords: /.*/,
+      texts: [
+        "…好饿啊。中午那个沙拉根本不顶饱，要不要叫个外卖？",
+        "…那个红点还在闪。是重要消息吗？要不要先看一眼再说？",
+        "…我是不是不适合这工作？每次都拖到最后，能力有问题吧？",
+        "…手机刚才震了吗？好像有震动，但屏幕没显示，是幻觉？",
+        "…窗外的鸟一直叫。是麻雀还是喜鹊？为什么叫这么大声？"
+      ]
     }
   };
 
   let lastActiveTheme = "logic";
   let locked = false;
-  let dmnPhase = "grow"; 
-  let currentThought = ""; 
-  let thoughtIndex = 0;    
+  let dmnPhase = "grow";
+  let currentThought = "";
+  let thoughtIndex = 0;
   let triggerCooldown = 0;
   let stressScore = 0;
   let lastInputTime = Date.now();
@@ -307,7 +702,6 @@
   const editor = document.getElementById('editor');
   const taskCard = document.getElementById('taskCard');
   const toast = document.getElementById('toast');
-  const debugEl = document.getElementById('debug');
   const memeOverlay = document.getElementById('memeOverlay');
   const successOverlay = document.getElementById('successOverlay');
   const submitBtn = document.getElementById('submitBtn');
@@ -315,7 +709,7 @@
   const charCountEl = document.getElementById('charCount');
 
   function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-  function showToast(msg) { 
+  function showToast(msg) {
     toast.textContent = msg; toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 2500);
   }
@@ -369,8 +763,8 @@
   closeHijackBtn.addEventListener('click', () => {
     memeOverlay.classList.remove('active');
     memeOverlay.style.display = 'none';
-    stressScore = 0; 
-    hijackCooldown = Date.now() + 20000; 
+    stressScore = 0;
+    hijackCooldown = Date.now() + 20000;
     editor.focus();
     showToast("多巴胺平复，注意力回归...");
   });
@@ -379,7 +773,7 @@
     if (locked) {
       editor.blur();
       setTimeout(() => { editor.focus(); forceCaret(); }, 10);
-      showToast("杂念太多，暂时打不出字...");
+      showToast("杂念太多，暂时打不出字...先删去杂念吧");
       return;
     }
     isComposing = true;
@@ -397,7 +791,7 @@
 
   editor.addEventListener('focus', () => {
     if (memeOverlay.style.display === 'flex') {
-      editor.blur(); 
+      editor.blur();
     }
   });
 
@@ -414,9 +808,9 @@
 
   editor.addEventListener('keydown', (e) => {
     if (memeOverlay.style.display === 'flex') {
-      e.preventDefault(); 
+      e.preventDefault();
       e.stopPropagation();
-      return; 
+      return;
     }
 
     if (!locked) return;
@@ -428,7 +822,7 @@
       if (!span) { unlock(); return; }
 
       if (dmnPhase === "grow") {
-        thoughtIndex += 2; 
+        thoughtIndex += 2;
         span.textContent = currentThought.slice(0, thoughtIndex);
         if (thoughtIndex >= currentThought.length) dmnPhase = "shrink";
         if (Math.random() < 0.25) spawnSidePop();
@@ -439,10 +833,9 @@
       }
     } else if (!e.ctrlKey && !e.metaKey && e.key !== "Shift") {
       e.preventDefault();
-      showToast("杂念太多，暂时打不出字...");
+      showToast("杂念太多，暂时打不出字...先删去杂念吧");
       forceCaret();
     }
-    updateDebug();
   });
 
   function unlock() {
@@ -461,7 +854,7 @@
     locked = true;
     dmnPhase = "grow";
     currentThought = text;
-    thoughtIndex = Math.floor(text.length / 4); 
+    thoughtIndex = Math.floor(text.length / 4);
     editor.classList.add('locked');
     const sel = window.getSelection();
     if (!sel.rangeCount) editor.focus();
@@ -477,13 +870,13 @@
 
   function checkAndTrigger(forceTrigger = false) {
     const fullText = getUserText();
-    const recentText = fullText.slice(-12); 
+    const recentText = fullText.slice(-12);
     const lastChar = recentText.slice(-1);
-    
+
     const isPunctuation = /([，。,.\s])$/.test(lastChar);
     if (isPunctuation) {
         if (Math.random() < 0.05) spawnSidePop();
-        return; 
+        return;
     }
 
     let matchedThemeKey = null;
@@ -528,8 +921,8 @@
   editor.addEventListener('input', () => {
     if (locked) return;
     editor.classList.toggle('is-empty', editor.textContent === "");
-    
-    const text = getUserText().replace(/\s/g, ""); 
+
+    const text = getUserText().replace(/\s/g, "");
     currentLength = text.length;
     charCountEl.textContent = `${currentLength} / ${MIN_CHARS}`;
     if (currentLength >= MIN_CHARS) charCountEl.classList.add('done');
@@ -539,15 +932,14 @@
     const timeGap = now - lastInputTime;
     lastInputTime = now;
 
-    stressScore += 1.6; 
-    
+    stressScore += 1.6;
+
     if (Math.random() < 0.08) stressScore += 5;
     if (timeGap > 3000) stressScore = Math.max(0, stressScore - 15);
 
     if (isComposing) {
         if (Math.random() < 0.05) spawnSidePop();
-        updateDebug();
-        return; 
+        return;
     }
 
     if (now > triggerCooldown) {
@@ -557,23 +949,16 @@
     if (stressScore >= 100 && now > hijackCooldown) {
       triggerHijack();
     }
-    updateDebug();
   });
 
   function triggerHijack() {
     STATS.hijackCount++;
     memeOverlay.style.display = 'flex';
     setTimeout(() => memeOverlay.classList.add('active'), 10);
-    editor.blur(); 
+    editor.blur();
   }
 
   editor.addEventListener('paste', e => e.preventDefault());
-  
-  function updateDebug() {
-    const cd = Math.max(0, Math.ceil((hijackCooldown - Date.now())/1000));
-    const themeLabel = THEME_POOLS[lastActiveTheme] ? THEME_POOLS[lastActiveTheme].label : "无";
-    debugEl.textContent = `疲劳度: ${Math.floor(stressScore)}% | 主题: ${themeLabel} | 冷却: ${cd}s`;
-  }
 </script>
 
 </body>

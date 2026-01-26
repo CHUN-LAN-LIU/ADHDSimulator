@@ -1,37 +1,120 @@
-/* 基础布局 */
+/* ========== 全局变量和重置 ========== */
+:root {
+    --primary: #4a6fa5;
+    --primary-light: #6b8cbc;
+    --secondary: #166088;
+    --accent: #ff6347;
+    --accent-light: #ff9a76;
+    --light: #f8f9fa;
+    --dark: #343a40;
+    --gray: #6c757d;
+    --light-gray: #e9ecef;
+    --transition: all 0.3s ease;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
 }
 
 body {
-    background: #f0f0f0;
-    overflow: hidden; 
-    height: 100vh;
+    background-color: #f5f7fb;
+    color: var(--dark);
+    line-height: 1.6;
+    min-height: 100vh;
     position: relative;
     cursor: default;
 }
 
-/* 自定义阻力光标 */
+/* ========== 导航栏 ========== */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: white;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    z-index: 10000;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    color: var(--primary);
+    font-size: 28px;
+}
+
+.logo-text {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.logo-subtitle {
+    font-size: 14px;
+    color: var(--gray);
+    margin-top: -5px;
+}
+
+.cta-button {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    display: inline-block;
+}
+
+.cta-button:hover {
+    background-color: #ff4500;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 99, 71, 0.3);
+}
+
+/* ========== 自定义阻力光标 ========== */
 .custom-cursor {
-    position: absolute;
+    position: fixed;
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #666;
+    background: var(--primary);
     pointer-events: none;
-    z-index: 9999;
+    z-index: 99999;
     transition: transform 0.1s ease;
-    display: none;
+    display: block;
+    box-shadow: 0 0 10px rgba(74, 111, 165, 0.5);
+    left: 50%;
+    top: 50%;
 }
 
 /* 光标抵抗动画 */
 @keyframes cursorResist {
-    0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(244, 67, 54, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+    0% { box-shadow: 0 0 0 0 rgba(255, 99, 71, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 99, 71, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 99, 71, 0); }
 }
 
 /* 鼠标锁定状态时的光标样式 */
@@ -40,13 +123,18 @@ body.pointer-locked {
 }
 
 body.pointer-locked .custom-cursor {
-    display: block;
+    display: block !important;
+    opacity: 1 !important;
 }
 
-/* 核心工作区：圆形重力井 */
+body:not(.pointer-locked) .custom-cursor {
+    display: none !important;
+}
+
+/* ========== 核心工作区：圆形重力井 ========== */
 .gravity-well {
-    position: absolute;
-    top: 50%;
+    position: fixed;
+    top: calc(50% + 30px);
     left: 50%;
     transform: translate(-50%, -50%);
     width: 400px;
@@ -58,14 +146,15 @@ body.pointer-locked .custom-cursor {
     background: 
         radial-gradient(
             circle at center,
-            rgba(200, 200, 255, 0.1) 0%,
-            rgba(150, 150, 255, 0.05) 30%,
-            rgba(100, 100, 255, 0.02) 60%,
+            rgba(74, 111, 165, 0.1) 0%,
+            rgba(74, 111, 165, 0.05) 30%,
+            rgba(74, 111, 165, 0.02) 60%,
             transparent 70%
         );
+    border: 2px solid rgba(74, 111, 165, 0.2);
 }
 
-/* 任务按钮 - 59px大小 */
+/* ========== 任务按钮 ========== */
 .task-button-container {
     position: absolute;
     top: 50%;
@@ -86,41 +175,25 @@ body.pointer-locked .custom-cursor {
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background: #333; /* 纯色 */
-    color: #fff;
+    background: var(--primary);
+    color: white;
     border: none;
     font-size: 12px;
     font-weight: bold;
     cursor: pointer;
-    transition: transform 0.1s ease, background 0.3s ease;
+    transition: var(--transition);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    box-shadow: 
-        0 0 15px rgba(0, 0, 0, 0.6),
-        inset 0 0 8px rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 15px rgba(74, 111, 165, 0.4);
     z-index: 2;
 }
 
 .task-btn:hover {
     transform: scale(1.05);
-}
-
-.task-btn::before {
-    content: '';
-    position: absolute;
-    width: 70%;
-    height: 70%;
-    border-radius: 50%;
-    background: radial-gradient(
-        circle at center,
-        rgba(255, 255, 255, 0.25) 0%,
-        rgba(255, 255, 255, 0.1) 50%,
-        transparent 70%
-    );
-    pointer-events: none;
+    box-shadow: 0 6px 20px rgba(74, 111, 165, 0.6);
 }
 
 .task-btn-text {
@@ -133,18 +206,18 @@ body.pointer-locked .custom-cursor {
 .task-btn-title {
     font-size: 14px;
     margin-bottom: 2px;
-    color: #fff;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
     white-space: nowrap;
 }
 
 .task-btn-subtitle {
     font-size: 8px;
-    color: #ccc;
+    color: rgba(255, 255, 255, 0.9);
     white-space: nowrap;
 }
 
-/* 按钮周围的高阻力光环 */
+/* ========== 按钮周围的高阻力光环 ========== */
 .button-halo {
     position: absolute;
     top: 50%;
@@ -155,8 +228,8 @@ body.pointer-locked .custom-cursor {
     border-radius: 50%;
     background: radial-gradient(
         circle at center,
-        rgba(255, 100, 100, 0.25) 0%,
-        rgba(255, 100, 100, 0.15) 30%,
+        rgba(255, 99, 71, 0.3) 0%,
+        rgba(255, 99, 71, 0.15) 30%,
         transparent 70%
     );
     pointer-events: none;
@@ -169,39 +242,68 @@ body.pointer-locked .custom-cursor {
     100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1.1); }
 }
 
-/* 边缘娱乐区：GIF容器 - 增强广告效果 */
+/* ========== 边缘娱乐区/广告区 ========== */
 .entertainment-zones {
-    position: absolute;
+    position: fixed;
     width: 180px;
     height: 220px;
     border-radius: 12px;
     overflow: hidden;
     z-index: 10;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    border: 3px solid #FF9800;
+    transition: var(--transition);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border: 3px solid var(--accent);
     animation: ad-pulse 2s infinite;
 }
 
 @keyframes ad-pulse {
     0%, 100% { 
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         transform: scale(1);
     }
     50% { 
-        box-shadow: 0 8px 35px rgba(255, 152, 0, 0.6);
+        box-shadow: 0 8px 35px rgba(255, 99, 71, 0.3);
         transform: scale(1.02);
     }
 }
 
+/* 6个广告区域分布：4个角落 + 上方中央 + 下方中央 */
 .zone-1 {
-    top: 40px;
-    left: 40px;
+    top: 100px;
+    left: 100px;
+    border-color: #4caf50;
 }
 
 .zone-2 {
-    bottom: 40px;
-    right: 40px;
+    bottom: 100px;
+    right: 100px;
+    border-color: #ff9800;
+}
+
+.zone-3 {
+    top: 100px;
+    right: 100px;
+    border-color: #9c27b0;
+}
+
+.zone-4 {
+    bottom: 100px;
+    left: 100px;
+    border-color: #f44336;
+}
+
+.zone-5 {
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-color: #2196f3;
+}
+
+.zone-6 {
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-color: #ff5722;
 }
 
 .entertainment-gif {
@@ -211,20 +313,20 @@ body.pointer-locked .custom-cursor {
     background: #333;
 }
 
-/* 广告标签 */
+/* ========== 广告标签 ========== */
 .ad-label {
     position: absolute;
     top: -10px;
     left: 50%;
     transform: translateX(-50%);
-    background: #FF9800;
+    background: var(--accent);
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: bold;
     z-index: 11;
-    box-shadow: 0 3px 10px rgba(255, 152, 0, 0.5);
+    box-shadow: 0 3px 10px rgba(255, 99, 71, 0.5);
 }
 
 .zone-1 .ad-label {
@@ -237,20 +339,33 @@ body.pointer-locked .custom-cursor {
     box-shadow: 0 3px 10px rgba(233, 30, 99, 0.5);
 }
 
-/* 能量条 - 加长版本 */
+/* ========== 能量条 ========== */
 .energy-bar {
-    position: absolute;
-    top: 20px;
+    position: fixed;
+    top: 80px;
     left: 50%;
     transform: translateX(-50%);
-    width: 1000px;
+    width: 800px;
     height: 30px;
-    background: #eee;
+    background: var(--light-gray);
     border-radius: 15px;
-    overflow: hidden;
+    overflow: visible;
     display: block;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    border: 3px solid #ddd;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 2px solid var(--light);
+}
+
+.energy-bar-label {
+    position: absolute;
+    top: -25px;
+    left: 0;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--dark);
+    background: white;
+    padding: 2px 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .energy-fill {
@@ -264,6 +379,7 @@ body.pointer-locked .custom-cursor {
         #F44336 100%);
     transition: width 0.05s linear;
     position: relative;
+    border-radius: 13px;
 }
 
 .energy-fill::after {
@@ -285,75 +401,216 @@ body.pointer-locked .custom-cursor {
     100% { transform: translateX(100%); }
 }
 
-/* 能量数值显示 */
+/* ========== UI组件通用样式 ========== */
+.ui-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 15px 20px;
+    transition: var(--transition);
+}
+
+.ui-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.ui-card.warning {
+    border-left: 5px solid var(--accent);
+    background-color: rgba(255, 99, 71, 0.08);
+}
+
+.ui-card.info {
+    border-left: 5px solid var(--primary);
+    background-color: rgba(74, 111, 165, 0.08);
+}
+
+.ui-card.success {
+    border-left: 5px solid #4CAF50;
+    background-color: rgba(76, 175, 80, 0.08);
+}
+
+/* ========== 各种UI显示组件 ========== */
 .energy-value {
-    position: absolute;
+    position: fixed;
     top: 20px;
     right: 20px;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
-    color: #333;
-    background: rgba(255,255,255,0.9);
-    padding: 8px 15px;
+    color: var(--dark);
+    background: white;
+    padding: 10px 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* 诊断图层 */
-.diagnosis-overlay {
+/* ========== 左侧状态面板 ========== */
+.timer-display {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.9);
-    color: #fff;
+    top: 120px;
+    left: 20px;
+    transform: none;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--dark);
+    background: white;
+    padding: 10px 16px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--primary);
+    min-width: 140px;
+}
+
+.resistance-indicator {
+    position: fixed;
+    top: 170px;
+    left: 20px;
+    transform: none;
+    font-size: 13px;
+    color: var(--gray);
+    background: white;
+    padding: 8px 16px;
+    border-radius: 10px;
+    text-align: left;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-left: 4px solid #FF9800;
+    min-width: 140px;
+}
+
+.fail-count-display {
+    position: fixed;
+    top: 215px;
+    left: 20px;
+    transform: none;
+    font-size: 13px;
+    color: var(--dark);
+    background: white;
+    padding: 8px 16px;
+    border-radius: 10px;
+    text-align: left;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-left: 4px solid #F44336;
+    min-width: 140px;
+}
+
+/* ========== 右侧动态提示 ========== */
+.find-button-hint {
+    position: fixed;
+    top: 120px;
+    right: 20px;
+    left: auto;
+    transform: none;
+    font-size: 13px;
+    color: var(--gray);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 10px 16px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-right: 4px solid #4CAF50;
+    max-width: 180px;
+}
+
+.distraction-timer {
+    position: fixed;
+    top: 170px;
+    right: 20px;
+    left: auto;
+    transform: none;
+    font-size: 13px;
+    color: #FF5722;
+    background: white;
+    padding: 10px 16px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(255, 87, 34, 0.2);
+    border-right: 4px solid #FF5722;
     display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 50px;
-    z-index: 999;
-    filter: grayscale(1);
-    background-image: linear-gradient(transparent 50%, rgba(255,0,0,0.2) 50%);
-    background-size: 100% 4px;
-    animation: scanline 0.1s linear infinite;
+    min-width: 150px;
+    font-weight: bold;
 }
 
-@keyframes scanline {
-    0% { background-position: 0 0; }
-    100% { background-position: 0 10px; }
-}
-
-.diagnosis-content {
-    max-width: 800px;
-    line-height: 1.8;
-}
-
-/* 听觉反馈提示 */
-.audio-hint {
-    position: absolute;
-    bottom: 20px;
+/* ========== 中心区域提示 ========== */
+.center-hint {
+    position: fixed;
+    top: calc(50% + 120px);
     left: 50%;
     transform: translateX(-50%);
-    color: #666;
-    font-size: 14px;
+    font-size: 18px;
+    color: #4CAF50;
+    background: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    z-index: 1002;
+    box-shadow: 0 6px 25px rgba(76, 175, 80, 0.4);
+    display: none;
+    text-align: center;
+    font-weight: bold;
+    border: 2px solid #4CAF50;
 }
 
-/* 鼠标锁定提示 */
+/* ========== 按钮提示 ========== */
+.button-instruction {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: var(--gray);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-align: center;
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+/* ========== 声音控制按钮 ========== */
+.audio-control {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: var(--transition);
+    box-shadow: 0 3px 10px rgba(74, 111, 165, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.audio-control:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(74, 111, 165, 0.4);
+}
+
+/* ========== 鼠标锁定提示 ========== */
 .lock-hint {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #333;
+    color: var(--dark);
     font-size: 18px;
     z-index: 1000;
-    background: rgba(255,255,255,0.8);
+    background: white;
     padding: 20px 40px;
     border-radius: 8px;
-    transition: opacity 0.3s ease;
+    transition: var(--transition);
     text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .lock-hint.hidden {
@@ -361,120 +618,9 @@ body.pointer-locked .custom-cursor {
     pointer-events: none;
 }
 
-/* 声音控制按钮 */
-.audio-control {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 1000;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background 0.3s;
-}
-
-.audio-control:hover {
-    background: rgba(0, 0, 0, 0.9);
-}
-
-/* 计时器显示 */
-.timer-display {
-    position: absolute;
-    top: 70px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-    background: rgba(255,255,255,0.8);
-    padding: 8px 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-/* 阻力指示器 */
-.resistance-indicator {
-    position: absolute;
-    top: 110px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 14px;
-    color: #666;
-    background: rgba(255,255,255,0.8);
-    padding: 5px 10px;
-    border-radius: 5px;
-    text-align: center;
-}
-
-/* 按钮提示 - 网页下方（简化版） */
-.button-instruction {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 18px;
-    color: #333;
-    text-align: center;
-    z-index: 100;
-}
-
-/* 微小按钮寻找提示 */
-.find-button-hint {
-    position: absolute;
-    top: 150px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    color: #999;
-    background: rgba(255,255,255,0.6);
-    padding: 5px 10px;
-    border-radius: 5px;
-    text-align: center;
-    font-style: italic;
-}
-
-/* 分心倒计时提示 */
-.distraction-timer {
-    position: absolute;
-    top: 180px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    color: #FF9800;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 5px 10px;
-    border-radius: 5px;
-    text-align: center;
-    font-weight: bold;
-    display: none;
-    box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
-}
-
-/* 中心区域保持提示 */
-.center-hint {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 14px;
-    color: #4CAF50;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 8px 15px;
-    border-radius: 8px;
-    z-index: 1002;
-    box-shadow: 0 3px 15px rgba(76, 175, 80, 0.6);
-    display: none;
-    text-align: center;
-    font-weight: bold;
-}
-
-/* 任务完成提示 */
+/* ========== 任务完成提示 ========== */
 .task-complete-hint {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -489,6 +635,9 @@ body.pointer-locked .custom-cursor {
     text-align: center;
     box-shadow: 0 5px 20px rgba(76, 175, 80, 0.6);
     animation: complete-pulse 0.8s infinite alternate;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 @keyframes complete-pulse {
@@ -496,25 +645,9 @@ body.pointer-locked .custom-cursor {
     100% { transform: translate(-50%, -50%) scale(1.05); }
 }
 
-/* 失败次数显示 */
-.fail-count-display {
-    position: absolute;
-    top: 140px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 14px;
-    color: #F44336;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 5px 10px;
-    border-radius: 5px;
-    text-align: center;
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(244, 67, 54, 0.3);
-}
-
-/* 任务选择正确提示 */
+/* ========== 任务选择正确提示 ========== */
 .correct-choice-hint {
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -528,9 +661,38 @@ body.pointer-locked .custom-cursor {
     display: none;
     text-align: center;
     box-shadow: 0 5px 20px rgba(33, 150, 243, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* 修复光标交互问题 */
+/* ========== 听觉反馈提示 ========== */
+.audio-hint {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--gray);
+    font-size: 14px;
+    background: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ========== 第二阶段特殊样式 ========== */
+body.stage2-active {
+    cursor: default !important;
+}
+
+body.stage2-active .custom-cursor {
+    display: none !important;
+}
+
+/* ========== 修复光标交互问题 ========== */
 body:not(.pointer-locked) .custom-cursor {
     display: none !important;
 }
@@ -556,76 +718,66 @@ body.pointer-locked {
     pointer-events: none;
 }
 
-/* 诊断图层应该可以点击 */
+/* ========== 诊断图层 ========== */
 .diagnosis-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(22, 96, 136, 0.95), rgba(34, 34, 34, 0.95));
+    color: white;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    z-index: 999;
     cursor: pointer;
-    pointer-events: auto;
+    backdrop-filter: blur(5px);
+    overflow-y: auto;
 }
 
-/* 开始界面和过渡界面可以点击 */
-.start-screen, .transition-screen, .success-screen {
-    cursor: pointer;
-    pointer-events: auto;
+.diagnosis-content {
+    max-width: 800px;
+    line-height: 1.8;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    margin: 20px 0;
 }
 
-/* 控制按钮可以点击 */
-.audio-control, .continue-btn, .back-to-start, 
-.ten-tasks-back-btn, #continueBtn, #backToStart {
-    cursor: pointer !important;
-    pointer-events: auto !important;
-    z-index: 10000 !important;
-}
-/* 第二阶段特殊样式 */
-body.stage2-active {
-    cursor: default !important;
+.diagnosis-content h2 {
+    color: #FFEB3B;
+    margin-bottom: 20px;
+    font-size: 28px;
+    text-align: center;
 }
 
-body.stage2-active .custom-cursor {
-    display: none !important;
+.diagnosis-content h3 {
+    color: var(--accent-light);
+    margin: 25px 0 15px;
+    font-size: 20px;
 }
 
-.ten-tasks-screen {
-    cursor: default;
+.diagnosis-content p {
+    margin-bottom: 15px;
+    color: rgba(255, 255, 255, 0.9);
 }
 
-.ten-tasks-screen * {
-    cursor: pointer;
+.diagnosis-content ol {
+    margin-left: 20px;
+    margin-bottom: 20px;
 }
 
-/* 确保按钮在第二阶段可以点击 */
-.scattered-task-btn {
-    cursor: pointer !important;
-    pointer-events: auto !important;
+.diagnosis-content li {
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, 0.9);
 }
 
-/* 禁用第一阶段的样式影响 */
-body:not(.pointer-locked) {
-    cursor: auto !important;
-}
-
-/* 确保十任务界面的按钮层级正确 */
-.ten-tasks-container {
-    position: relative;
-    z-index: 1;
-}
-
-.scattered-task-btn-container {
-    z-index: 2;
-}
-
-.scattered-task-btn {
-    z-index: 3;
-}
-
-/* 修复光标交互问题 - 确保第二阶段正常 */
-.ten-tasks-screen.active {
-    pointer-events: auto;
-}
-
-.ten-tasks-screen.active *:not(.scattered-task-btn) {
-    pointer-events: none;
-}
-
-.ten-tasks-screen.active .scattered-task-btn {
-    pointer-events: auto;
+.diagnosis-content strong {
+    color: #4FC3F7;
 }

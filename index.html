@@ -6,6 +6,8 @@
     <title>认知之窗 - ADHD科普体验平台</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* ========== 全局样式 ========== */
+        /* 重置所有元素的默认边距和内边距，设置统一的盒模型和字体 */
         * {
             margin: 0;
             padding: 0;
@@ -13,98 +15,116 @@
             font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
 
+        /* ========== CSS变量定义 ========== */
+        /* 定义全局颜色主题和过渡效果变量，便于统一管理和修改 */
         :root {
-            --primary: #518feb;
-            --primary-light: #6b8cbc;
-            --secondary: #166088;
-            --accent: #ff9a76;
-            --accent-light: #ffb398;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --gray: #6c757d;
-            --light-gray: #e9ecef;
-            --transition: all 0.3s ease;
+            --primary: #2e79ea;           /* 主色调 - 蓝色 */
+            --primary-light: #5a85c5;     /* 浅主色调 */
+            --secondary: #166088;         /* 次要色 - 深蓝色 */
+            --accent: #ff9a76;            /* 强调色 - 橙色 */
+            --accent-light: #ffb398;      /* 浅强调色 */
+            --light: #f8f9fa;             /* 浅色背景 */
+            --dark: #343a40;              /* 深色文字 */
+            --gray: #6c757d;              /* 灰色文字 */
+            --light-gray: #e9ecef;        /* 浅灰色 */
+            --transition: all 0.3s ease;  /* 统一过渡效果 */
         }
 
+        /* ========== 页面主体样式 ========== */
+        /* 设置页面背景色、文字颜色和行高 */
         body {
             background-color: #f5f7fb;
             color: var(--dark);
             line-height: 1.6;
         }
 
-        /* 锚点跳转偏移修正 */
+        /* ========== 锚点跳转偏移修正 ========== */
+        /* 设置页面滚动行为和锚点跳转时的顶部偏移，避免内容被固定导航栏遮挡 */
         html {
-            scroll-padding-top: 70px;
-            scroll-behavior: smooth;
+            scroll-padding-top: 70px;  /* 锚点跳转时顶部留70px空白 */
+            scroll-behavior: smooth;    /* 平滑滚动效果 */
         }
 
+        /* ========== 容器样式 ========== */
+        /* 定义内容容器的最大宽度和居中对齐 */
         .container {
             width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 1200px;  /* 内容最大宽度1200px */
+            margin: 0 auto;     /* 水平居中 */
         }
 
-        /* 头部导航 */
+        /* ========== 头部导航栏 ========== */
+        /* 固定在页面顶部的导航栏，白色背景带阴影效果 */
         header {
             background-color: white;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
-            position: sticky;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);  /* 底部阴影 */
+            position: sticky;   /* 粘性定位，滚动时固定在顶部 */
             top: 0;
-            z-index: 1000;
+            z-index: 1000;      /* 确保导航栏在最上层 */
         }
 
+        /* 导航栏内部布局 - 左右分布 */
         .navbar {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            justify-content: space-between;  /* 两端对齐 */
+            align-items: center;              /* 垂直居中 */
             padding: 10px 0;
         }
 
+        /* Logo区域样式 */
         .logo {
             display: flex;
-            align-items: center;
-            gap: 12px;
+            align-items: center;  /* 垂直居中对齐 */
+            gap: 12px;            /* 图标和文字间距 */
         }
 
+        /* Logo图标样式 */
         .logo-icon {
             color: var(--primary);
             font-size: 24px;
         }
 
+        /* Logo主文字样式 */
         .logo-text {
             font-size: 20px;
             font-weight: 700;
             color: var(--primary);
         }
 
+        /* Logo副标题样式 */
         .logo-subtitle {
             font-size: 12px;
             color: var(--gray);
-            margin-top: -3px;
+            margin-top: -3px;  /* 向上微调位置 */
         }
 
+        /* ========== 导航链接区域 ========== */
+        /* 导航链接容器 - 横向排列 */
         .nav-links {
             display: flex;
-            gap: 30px;
+            gap: 30px;  /* 链接之间的间距 */
         }
 
+            /* 导航链接基础样式 */
             .nav-links a {
-                text-decoration: none;
+                text-decoration: none;           /* 去除下划线 */
                 color: var(--dark);
                 font-weight: 500;
                 transition: var(--transition);
-                position: relative;
+                position: relative;              /* 为伪元素下划线定位 */
                 padding: 5px 0;
             }
 
+                /* 鼠标悬停时改变颜色 */
                 .nav-links a:hover {
                     color: var(--primary);
                 }
 
+                /* 下划线动画伪元素 */
                 .nav-links a::after {
                     content: '';
                     position: absolute;
-                    width: 0;
+                    width: 0;                    /* 初始宽度为0 */
                     height: 2px;
                     background: var(--primary);
                     bottom: 0;
@@ -112,351 +132,444 @@
                     transition: var(--transition);
                 }
 
+                /* 悬停时下划线展开 */
                 .nav-links a:hover::after {
                     width: 100%;
                 }
 
+        /* ========== 按钮样式 ========== */
+        /* 主要行动按钮（CTA）样式 */
         .cta-button {
-            background-color: #ff6347;
+            background-color: #ff6347;  /* 橙红色背景 */
             color: white;
             border: none;
             padding: 10px 24px;
-            border-radius: 30px;
+            border-radius: 30px;        /* 圆角按钮 */
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
         }
 
+            /* 按钮悬停效果 - 上浮和阴影 */
             .cta-button:hover {
                 background-color: #ff6347;
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(74, 111, 165, 0.3);
+                transform: translateY(-2px);  /* 向上移动2px */
+                box-shadow: 0 5px 15px rgba(74, 111, 165, 0.3);  /* 增加阴影 */
             }
 
+        /* 次要按钮样式 - 透明背景带边框 */
         .secondary-button {
             background-color: transparent;
             color: var(--primary);
             border: 2px solid var(--primary);
         }
 
+            /* 次要按钮悬停效果 */
             .secondary-button:hover {
-                background-color: rgba(74, 111, 165, 0.1);
+                background-color: rgba(74, 111, 165, 0.1);  /* 半透明背景 */
             }
 
-        /* 英雄区域 */
+        /* ========== 英雄区域（首屏展示区） ========== */
+        /* 页面顶部的主要展示区域，渐变背景，占据几乎整个视口 */
         .hero {
-            min-height: calc(100vh - 60px);
-            background: linear-gradient(135deg, #f5f7fb 0%, #dde4f7 100%);
+            min-height: calc(100vh - 60px);  /* 高度为视口高度减去导航栏 */
+            background: linear-gradient(135deg, #ffffff 0%, #d9e5f5 100%);  /* 白色到淡蓝色渐变 */
             position: relative;
             overflow: hidden;
             display: flex;
-            align-items: center;
+            align-items: center;  /* 内容垂直居中 */
+            
         }
 
+        /* 英雄区域内容布局 - 左右分栏 */
         .hero-content {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 40px;
+            justify-content: space-between;  /* 文字和图片两端对齐 */
+            gap: 40px;                       /* 文字和图片间距 */
         }
 
+        /* 英雄区域文字部分 */
         .hero-text {
-            flex: 1;
+            flex: 1;              /* 占据一半空间 */
+            margin-top: -40px;    /* 向上微调 */
         }
 
+        /* 英雄区域图片部分 */
         .hero-image {
-            flex: 1;
+            flex: 1;              /* 占据一半空间 */
             display: flex;
             justify-content: center;
         }
 
+            /* 英雄区域图片样式 */
             .hero-image img {
                 max-width: 100%;
-                border-radius: 10px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                border-radius: 10px;                        /* 圆角 */
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);  /* 阴影效果 */
             }
 
+        /* 英雄区域标题样式 */
         .hero h1 {
-            font-size: 2.5rem;
+            font-size: 2.5rem;    /* 大标题字号 */
             line-height: 1.2;
             margin-bottom: 15px;
             color: var(--dark);
         }
 
+            /* 标题中的强调文字 */
             .hero h1 span {
-                color: #ff6347;
+                color: var(--primary);  /* 蓝色强调 */
             }
 
+        /* 英雄区域段落样式 */
         .hero p {
             font-size: 1rem;
             color: var(--gray);
             margin-bottom: 15px;
-            max-width: 600px;
+            max-width: 600px;  /* 限制段落最大宽度 */
         }
 
+        /* 文本高亮样式 */
         .highlight {
-            background-color: rgba(255, 154, 118, 0.2);
-            padding: 3px 8px;
-            border-radius: 4px;
-            color: #d9534f;
-            font-weight: 600;
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+            color: var(--primary);  /* 蓝色文字 */
+            font-weight: 700;       /* 加粗 */
         }
 
+        /* 按钮组容器 - 横向排列 */
         .button-group {
             display: flex;
-            gap: 15px;
+            gap: 15px;          /* 按钮间距 */
             margin-top: 30px;
         }
 
-        /* ADHD介绍区域 */
+        /* ========== ADHD介绍区域 ========== */
+        /* ADHD基础知识介绍部分，渐变背景，占据整个视口高度 */
         .adhd-intro {
-            min-height: calc(100vh - 60px);
+            min-height: calc(100vh - 60px);  /* 高度为视口高度减去导航栏 */
             padding: 40px 0;
-            background-color: white;
+            background: linear-gradient(135deg, #ffffff 0%, #d9e5f5 100%);  /* 白色到淡蓝色渐变 */
             display: flex;
-            align-items: center;
+            align-items: center;  /* 内容垂直居中 */
             
-            scroll-margin-top: -70px;
+            scroll-margin-top: -70px;  /* 锚点跳转时的偏移调整 */
         }
 
+        /* ========== 区域标题样式 ========== */
+        /* 各个主要区域的标题容器 */
         .section-title {
-            text-align: center;
+            text-align: center;  /* 居中对齐 */
             margin-bottom: 30px;
         }
 
+            /* 区域主标题 */
             .section-title h2 {
-                font-size: 2rem;
+                font-size: 2rem;  /* 大标题字号 */
                 color: var(--dark);
                 margin-bottom: 10px;
             }
 
+            /* 区域副标题/描述 */
             .section-title p {
                 color: var(--dark);
-                max-width: 700px;
-                margin: 0 auto;
+                max-width: 700px;  /* 限制最大宽度 */
+                margin: 0 auto;    /* 居中 */
             }
 
+        /* ADHD特性卡片网格容器 - 2列布局 */
         .adhd-features {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(2, 1fr);  /* 2列等宽 */
+            gap: 20px;                               /* 卡片间距 */
             margin-top: 20px;
         }
 
+        /* ========== 特性卡片样式 ========== */
+        /* ADHD特性介绍卡片 */
         .feature-card {
-            background-color: var(--light);
-            border-radius: 10px;
+            background-color: var(--light);          /* 浅色背景 */
+            border-radius: 10px;                     /* 圆角 */
             padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);  /* 阴影 */
             transition: var(--transition);
-            border-top: 4px solid var(--dark);
+            border-top: 4px solid var(--dark);       /* 顶部深色边框 */
         }
 
+            /* 卡片悬停效果 - 上浮和增强阴影 */
             .feature-card:hover {
-                transform: translateY(-10px);
-                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+                transform: translateY(-10px);        /* 向上移动 */
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);  /* 增强阴影 */
             }
 
+        /* 特性卡片图标样式 */
         .feature-icon {
-            font-size: 2rem;
-            color: #ff6347;
+            font-size: 2rem;      /* 大图标 */
+            color: #e9664e;       /* 橙红色 */
             margin-bottom: 15px;
         }
 
+        /* 特性卡片标题 */
         .feature-card h3 {
             font-size: 1.3rem;
             margin-bottom: 10px;
-            color: #45c77e;
+            color: var(--primary);  /* 蓝色标题 */
         }
 
-        /* 体验项目展示 - 2×2排列 */
+        /* 卡片可点击样式 */
+        .feature-card {
+            cursor: pointer;  /* 鼠标指针变为手型 */
+            transition: all 0.3s ease;
+        }
+
+            /* 悬停时上浮效果 */
+            .feature-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            }
+
+            /* 点击时的反馈效果 */
+            .feature-card:active {
+                transform: translateY(-2px);
+            }
+
+        /* ========== 体验项目展示区域 ========== */
+        /* 四大体验模块展示区域 - 2×2网格排列 */
         .experiences {
-            min-height: calc(100vh - 60px);
-            background-color: white;
+            min-height: calc(100vh - 60px);  /* 高度为视口高度减去导航栏 */
+            background-color: white;         /* 白色背景 */
             display: flex;
-            align-items: center;
+            align-items: center;             /* 内容垂直居中 */
             padding-top: 80px;
-            scroll-margin-top: -70px;
+            padding-bottom: 100px;
+            scroll-margin-top: -80px;       /* 锚点跳转时的偏移调整 */
         }
 
+        /* 体验卡片网格容器 - 2×2布局 */
         .experience-cards {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(2, 1fr);  /* 2列等宽 */
+            gap: 30px;                              /* 增加卡片间距 */
             margin-top: 20px;
+            margin-bottom: 40px;                    /* 增加下边距，避免卡片贴边 */
         }
 
+        /* ========== 体验卡片样式 ========== */
+        /* 单个体验模块卡片 */
         .experience-card {
             background-color: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            transition: var(--transition);
-            border: 1px solid var(--light-gray);
+            border-radius: 12px;                    /* 圆角 */
+            overflow: hidden;                       /* 隐藏溢出内容 */
+            /* 更明显的阴影：主阴影 + 轻微底部阴影，视觉更立体 */
+            box-shadow: 0 18px 40px rgba(20, 40, 60, 0.12), 0 6px 12px rgba(20,40,60,0.06);
+            transition: transform 0.35s var(--transition), box-shadow 0.35s var(--transition);
+            border: 1px solid rgba(0,0,0,0.04);     /* 细边框 */
             display: flex;
-            flex-direction: column;
-            height: 100%;
+            flex-direction: column;                 /* 垂直排列 */
+            height: 100%;                           /* 充满容器高度 */
+            width: calc(100% - 20px);               /* 拉长卡片宽度 */
         }
 
+            /* 卡片悬停效果 - 上浮和增强阴影 */
             .experience-card:hover {
-                transform: translateY(-10px);
-                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+                transform: translateY(-12px);       /* 向上移动12px */
+                /* 悬浮时阴影更明显 */
+                box-shadow: 0 26px 60px rgba(20, 40, 60, 0.16), 0 8px 18px rgba(20,40,60,0.08);
             }
 
+        /* ========== 体验卡片头部样式 ========== */
+        /* 卡片顶部彩色区域 */
         .exp-header {
             padding: 15px 20px 10px;
-            color: white;
-            flex-shrink: 0;
+            color: white;       /* 白色文字 */
+            flex-shrink: 0;     /* 不压缩 */
         }
 
+            /* DMN模块 - 蓝色头部 */
             .exp-header.dmn {
-                background-color: #518feb; /* 蓝色 */
+                background-color: #518feb;
             }
 
+            /* 启动障碍模块 - 绿色头部 */
             .exp-header.start {
-                background-color: #45c77e; /* 深绿色 */
+                background-color: #45c77e;
             }
 
+            /* 感官门控模块 - 橙色头部 */
             .exp-header.sensory {
-                background-color: #FF6347; /* 橙色 */
+                background-color: #ff8447;
             }
 
+            /* 工作记忆模块 - 黄色头部 */
             .exp-header.memory {
-                background-color: #FADD1F; /* 黄色 */
+                background-color: #e8c82a;
             }
 
+            /* 卡片头部标题 */
             .exp-header h3 {
                 font-size: 1.5rem;
                 margin-bottom: 8px;
             }
 
+        /* ========== 体验卡片主体样式 ========== */
+        /* 卡片内容区域 */
         .exp-body {
             padding: 15px 20px;
-            flex-grow: 1;
+            flex-grow: 1;              /* 占据剩余空间 */
             display: flex;
-            flex-direction: column;
+            flex-direction: column;    /* 垂直排列 */
         }
 
+        /* 卡片描述文字 */
         .exp-desc {
-            color: var(--gray);
+            color: var(--gray);     /* 灰色文字 */
             margin-bottom: 15px;
             line-height: 1.5;
-            flex-grow: 1;
+            flex-grow: 1;           /* 占据剩余空间 */
             font-size: 0.95rem;
         }
 
+        /* 卡片标签样式 */
         .exp-tag {
             display: inline-block;
-            background-color: rgba(74, 111, 165, 0.1);
+            background-color: rgba(74, 111, 165, 0.1);  /* 浅蓝色背景 */
             color: var(--dark);
             padding: 5px 12px;
-            border-radius: 20px;
+            border-radius: 20px;                        /* 圆角标签 */
             font-size: 0.85rem;
             font-weight: 600;
             margin-bottom: 15px;
         }
 
-        /* 页脚 */
+        /* ========== 页脚区域 ========== */
+        /* 页面底部信息区域 */
         footer {
-            background-color: var(--secondary);
+            background-color: var(--secondary);  /* 深蓝色背景 */
             color: white;
             padding: 60px 0 30px;
-            scroll-margin-top: -70px;
+            scroll-margin-top: -70px;            /* 锚点跳转时的偏移调整 */
         }
 
+        /* 页脚内容网格布局 - 3列 */
         .footer-content {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 40px;
+            grid-template-columns: repeat(3, 1fr);  /* 3列等宽 */
+            gap: 40px;                               /* 列间距 */
             margin-bottom: 40px;
         }
 
+        /* 页脚栏目标题 */
         .footer-column h3 {
             font-size: 1.3rem;
             margin-bottom: 20px;
-            color: var(--light);
+            color: var(--light);  /* 浅色文字 */
         }
 
+        /* 页脚链接样式 */
         .footer-links a {
             display: block;
-            color: #d1d9e6;
-            text-decoration: none;
+            color: #d1d9e6;         /* 淡蓝灰色 */
+            text-decoration: none;  /* 去除下划线 */
             margin-bottom: 10px;
             transition: var(--transition);
         }
 
+            /* 页脚链接悬停效果 */
             .footer-links a:hover {
-                color: white;
-                padding-left: 5px;
+                color: white;           /* 变为白色 */
+                padding-left: 5px;      /* 向右移动 */
             }
 
+        /* 团队成员容器 */
         .team-members {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            flex-wrap: wrap;  /* 自动换行 */
+            gap: 10px;        /* 成员间距 */
             margin-top: 10px;
         }
 
+        /* 单个团队成员标签 */
         .team-member {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.1);  /* 半透明白色背景 */
             padding: 5px 10px;
-            border-radius: 4px;
+            border-radius: 4px;                          /* 圆角 */
             font-size: 0.9rem;
         }
 
+        /* 版权信息区域 */
         .copyright {
-            text-align: center;
+            text-align: center;                          /* 居中对齐 */
             padding-top: 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #a0b4d0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);  /* 顶部分隔线 */
+            color: #a0b4d0;                              /* 淡蓝灰色文字 */
             font-size: 0.9rem;
         }
 
-        /* 响应式设计 */
+        /* ========== 响应式设计 ========== */
+        /* 平板设备适配（宽度 ≤ 992px） */
         @media (max-width: 992px) {
+            /* 英雄区域和科普区域改为垂直布局 */
             .hero-content, .science-content {
-                flex-direction: column;
+                flex-direction: column;  /* 上下排列 */
             }
 
+            /* 减小标题字号 */
             .hero h1 {
                 font-size: 2.5rem;
             }
 
+            /* 隐藏导航链接（移动端使用菜单按钮） */
             .nav-links {
                 display: none;
             }
 
+            /* 按钮组改为垂直排列 */
             .button-group {
-                flex-direction: column;
+                flex-direction: column;  /* 上下排列 */
                 width: 100%;
             }
 
+                /* 按钮占满宽度 */
                 .button-group button {
                     width: 100%;
                 }
 
+            /* 取消英雄区域文字的负边距 */
+            .hero-text {
+                margin-top: 0;
+            }
+
+            /* ADHD特性保持2列布局 */
             .adhd-features {
                 grid-template-columns: repeat(2, 1fr);
             }
 
+            /* 页脚改为2列布局 */
             .footer-content {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
 
+        /* 手机设备适配（宽度 ≤ 768px） */
         @media (max-width: 768px) {
+            /* 进一步减小标题字号 */
             .hero h1 {
                 font-size: 2rem;
             }
 
+            /* 减小区域标题字号 */
             .section-title h2 {
                 font-size: 2rem;
             }
 
+            /* 所有网格布局改为单列 */
             .adhd-features, .experience-cards, .value-content {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr;  /* 单列布局 */
             }
 
+            /* 页脚也改为单列布局 */
             .footer-content {
                 grid-template-columns: 1fr;
             }
@@ -479,8 +592,8 @@
                 </div>
                 <div class="nav-links">
                     <a href="#home">首页</a>
-                    <a href="#adhd">了解ADHD</a>
                     <a href="#experience">体验项目</a>
+                    <a href="#adhd">了解ADHD</a>
                     <a href="#about">关于我们</a>
                 </div>
             </nav>
@@ -517,7 +630,7 @@
     <section class="experiences" id="experience">
         <div class="container">
             <div class="section-title">
-                <h2>体验模块</h2>
+                <h2 class="glitch-title" data-text="体验模块">体验模块</h2>
                 <p>基于神经科学设计的沉浸式体验，让您亲身感受ADHD背后的认知机制</p>
             </div>
 
@@ -525,12 +638,12 @@
                 <!-- DMN模拟 -->
                 <div class="experience-card">
                     <div class="exp-header dmn">
-                        <h3>默认模式网络(DMN)过度活跃</h3>
-                        <p>思维漫游与注意分散</p>
+                        <h3>默认模式网络异常激活</h3>
+                        <p>无法停止的思维漫游</p>
                     </div>
                     <div class="exp-body">
                         <div class="exp-tag">神经机制模拟</div>
-                        <p class="exp-desc">体验ADHD患者默认模式网络无法正常抑制的状态。在需要专注的任务中，思维会不受控制地漫游到无关想法、回忆和想象中，无法维持在任务相关思维上。</p>
+                        <p class="exp-desc">在启动负责专注的任务正激活网络 (TPN) 时，负责联想与回忆的默认模式网络(DMN) 未能正常抑制，导致注意力被迫内转</p>
                         <a href="DMN.html" class="cta-button" style="width: 100%; background-color: #518feb; text-align: center; text-decoration: none; display: block; padding: 12px; margin-top: auto;">
                             进入DMN体验页面
                         </a>
@@ -555,13 +668,13 @@
                 <!-- 感官门控失控模拟 -->
                 <div class="experience-card">
                     <div class="exp-header sensory">
-                        <h3>感官门控失控</h3>
+                        <h3>感官门控失效</h3>
                         <p>无法屏蔽的噪音与干扰</p>
                     </div>
                     <div class="exp-body">
                         <div class="exp-tag">感知处理模拟</div>
                         <p class="exp-desc">模拟感觉门控失效导致无法过滤无关感官输入。在看似平静的环境中，背景噪音和视觉干扰指数级增强，体验大脑被迫处理所有输入直到过载的状态。</p>
-                        <a href="SGF.html" class="cta-button" style="width: 100%; background-color: #ff6347; text-align: center; text-decoration: none; display: block; padding: 12px; margin-top: auto;">
+                        <a href="SGF.html" class="cta-button" style="width: 100%; background-color: #ff8447; text-align: center; text-decoration: none; display: block; padding: 12px; margin-top: auto;">
                             进入感官门控体验页面
                         </a>
                     </div>
@@ -576,7 +689,7 @@
                     <div class="exp-body">
                         <div class="exp-tag">记忆功能模拟</div>
                         <p class="exp-desc">模拟工作记忆容量减少和信息保持困难。在需要记住和操作信息的任务中，关键信息会不断"泄露"和消失，体验ADHD患者在复杂任务中的认知负荷。</p>
-                        <a href="WML.html" class="cta-button" style="width: 100%; background-color: #fadd1f; text-align: center; text-decoration: none; display: block; padding: 12px; margin-top: auto; ">
+                        <a href="WML.html" class="cta-button" style="width: 100%; background-color: #e8c82a; text-align: center; text-decoration: none; display: block; padding: 12px; margin-top: auto; ">
                             进入工作记忆体验页面
                         </a>
                     </div>
@@ -594,7 +707,8 @@
             </div>
 
             <div class="adhd-features">
-                <div class="feature-card">
+                <!-- 第一个卡片 - 跳转到注意调控障碍详情页 -->
+                <div class="feature-card" onclick="window.location.href='kepu_1.html'" style="cursor: pointer;">
                     <div class="feature-icon">
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
@@ -602,7 +716,8 @@
                     <p>前额叶皮层功能异常，导致自上而下的注意控制受损，难以在低刺激任务中维持持续注意，容易被无关刺激干扰。</p>
                 </div>
 
-                <div class="feature-card">
+                <!-- 第二个卡片 - 跳转到多动冲动详情页 -->
+                <div class="feature-card" onclick="window.location.href='kepu_2.html'" style="cursor: pointer;">
                     <div class="feature-icon">
                         <i class="fas fa-running"></i>
                     </div>

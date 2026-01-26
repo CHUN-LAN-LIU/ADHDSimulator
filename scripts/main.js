@@ -208,12 +208,6 @@ function setupStartScreen() {
             });
         });
         
-        // 显示自定义光标
-        const customCursor = document.getElementById('customCursor');
-        if (customCursor) {
-            customCursor.style.display = 'block';
-        }
-        
         // 初始化游戏
         initGameElements();
         
@@ -223,6 +217,19 @@ function setupStartScreen() {
         }
         
         console.log('游戏界面已显示');
+        
+        // 自动触发指针锁定
+        setTimeout(() => {
+            const gravityWell = document.getElementById('gravityWell');
+            if (gravityWell && !window.gameState.isLocked) {
+                console.log('自动请求指针锁定');
+                if (gravityWell.requestPointerLock) {
+                    gravityWell.requestPointerLock();
+                } else if (gravityWell.mozRequestPointerLock) {
+                    gravityWell.mozRequestPointerLock();
+                }
+            }
+        }, 100);
     });
 }
 
@@ -275,6 +282,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初始光标样式
     document.body.style.cursor = 'default';
     document.body.classList.remove('pointer-locked', 'stage2-active');
+    
+    // 调整导航栏位置
+    const navbar = document.querySelector('.navbar');
+    if (navbar) {
+        navbar.style.position = 'absolute';
+        navbar.style.top = '0';
+    }
     
     console.log('初始化完成，等待用户点击开始界面');
 });

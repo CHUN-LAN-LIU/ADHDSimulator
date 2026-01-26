@@ -66,8 +66,8 @@ function playCurrentSound(intensity = 0.3) {
     }
     
     const baseFreq = 60 + (intensity * 40);
-    const volume = Math.min(0.5, intensity * 0.8);
-    const noiseVolume = Math.min(0.2, intensity * 0.3);
+    const volume = Math.min(0.1, intensity * 0.3);  // 降低音量：0.5→0.2
+    const noiseVolume = Math.min(0.08, intensity * 0.12);  // 降低噪音：0.2→0.08
     
     oscillator.frequency.exponentialRampToValueAtTime(
         baseFreq, 
