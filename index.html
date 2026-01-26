@@ -32,11 +32,16 @@
             line-height: 1.6;
         }
 
+        /* 锚点跳转偏移修正 */
+        html {
+            scroll-padding-top: 70px;
+            scroll-behavior: smooth;
+        }
+
         .container {
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
         }
 
         /* 头部导航 */
@@ -210,6 +215,8 @@
             background-color: white;
             display: flex;
             align-items: center;
+            
+            scroll-margin-top: -70px;
         }
 
         .section-title {
@@ -265,10 +272,11 @@
         /* 体验项目展示 - 2×2排列 */
         .experiences {
             min-height: calc(100vh - 60px);
-            padding: 40px 0;
             background-color: white;
             display: flex;
             align-items: center;
+            padding-top: 80px;
+            scroll-margin-top: -70px;
         }
 
         .experience-cards {
@@ -353,6 +361,7 @@
             background-color: var(--secondary);
             color: white;
             padding: 60px 0 30px;
+            scroll-margin-top: -70px;
         }
 
         .footer-content {
